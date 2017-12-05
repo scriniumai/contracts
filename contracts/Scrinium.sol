@@ -76,6 +76,7 @@ contract Scrinium is ERC20, Owned {
     uint256 multiplier = 100000000;
 
     uint256 public totalSupply;
+    uint256 public hardcap;
 
     uint256 public constant startTime = 1521590400; //5.12.2017
     uint256 public constant stopTime = 1514678400; //21.03.2018
