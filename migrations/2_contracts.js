@@ -5,6 +5,7 @@ var Platform = artifacts.require("Platform");
 var fs = require('fs');
 
 module.exports = function(deployer, network){
+  // @todo: on production use already existing Scrinium's address
 
   deployer.deploy(Scrinium)
     .then(function () {
