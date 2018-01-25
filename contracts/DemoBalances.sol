@@ -3,7 +3,7 @@ pragma solidity 0.4.18;
 import "./Balances.sol";
 //import "../libs/Owned.sol";
 
-contract DemoBalances {
+contract DemoBalances is Owned {
     using SafeMath for uint256;
 
     function DemoBalances(address _scriniumAddress) public {
@@ -32,5 +32,15 @@ contract DemoBalances {
 
     function getBalance() public view returns(uint256) {
         return balance[msg.sender];
+    }
+
+    // @todo: use for Balances too.
+    address public platformAddress;
+    function setPlatform(address _platformAddress) external onlyOwner {
+        platformAddress = _platformAddress;
+    }
+
+    function setScriniumAddress(address _scriniumAddress) external onlyOwner {
+        scriniumAddress = _scriniumAddress;
     }
 }

@@ -90,4 +90,57 @@ contract('DemoBalances', function(accounts) {
     await demoBalances.withdrawal.sendTransaction(100, {from: alice});
   });
 
+
+  it("setPlatform should change allowed platform address", async () => {
+    var address = "0x0000000000000000000000000000000000000001";
+    await demoBalances.setPlatform.sendTransaction(address, {from: alice});
+
+    assert.equal(
+      await demoBalances.platformAddress.call(),
+      address,
+      "Alice change platformAddress"
+    );
+  });
+
+  it("setPlatform works for owners only", async () => {
+    var fakeAddress = "0x0000000000000000000000000000000000000003";
+
+    try {
+      await demoBalances.setPlatform.sendTransaction(fakeAddress, {from: bob}); //bob want to change platformAddress
+      assert.fail('Bob cannot change platformAddress');
+    } catch (err) {}
+
+    assert.notEqual(
+      await demoBalances.platformAddress.call(),
+      fakeAddress,
+      "Bob cannot change platformAddress"
+    );
+  });
+
+  it("setScriniumAddress should change scriniumAddress", async () => {
+    var newContractAddress = "0x0000000000000000000000000000000000000004";
+
+    await demoBalances.setScriniumAddress.sendTransaction(newContractAddress, {from: alice});
+
+    assert.equal(
+        await demoBalances.scriniumAddress.call(),
+        newContractAddress,
+        "Alice changed scriniumAddress"
+    );
+  });
+
+  it("setScriniumAddress works for owners only", async () => {
+    var fakeAddress = "0x0000000000000000000000000000000000000005";
+
+    try {
+      await demoBalances.setScriniumAddress.sendTransaction(fakeAddress, {from: bob}); //bob want to change platformAddress
+      assert.fail('Bob cannot change platformAddress');
+    } catch (err) {}
+
+    assert.notEqual(
+        await demoBalances.scriniumAddress.call(),
+        fakeAddress,
+        "Bob cannot change platformAddress"
+    );
+  });
 });
