@@ -2,3 +2,4 @@
 preload.js
 build/
 .idea
+node_modules/

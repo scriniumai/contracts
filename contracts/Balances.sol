@@ -34,4 +34,6 @@ contract Balances is Owned {
     function getBalance() public view returns(uint256) {
         return balance[msg.sender];
     }
+
+    //@todo: how to withdraw SCR to our addresses? or another investor addresses
 }

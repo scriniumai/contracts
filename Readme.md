@@ -52,6 +52,7 @@ geth attach http://app13.appdevstage.com:8545 --preload ./preload.js
 ```
 # 1. Install testrpc (run once)
 sudo npm install -g ethereumjs-testrpc
+npm install
 # 2. Run testrpc in another console - it runs fake and fast rpc network for running unit tests
 testrpc
 # 3. Run tests on fast network
