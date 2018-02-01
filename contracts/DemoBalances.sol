@@ -1,4 +1,4 @@
-pragma solidity 0.4.18;
+pragma solidity ^0.4.18;
 
 import "./Balances.sol";
 //import "../libs/Owned.sol";
@@ -34,6 +34,12 @@ contract DemoBalances is Owned {
         return balance[msg.sender];
     }
 
+    function getBalanceOf(address _investor) public view returns(uint256) {
+        // @todo: allowed for owner or Platfrorm only
+
+        return balance[_investor];
+    }
+
     // @todo: use for Balances too.
     address public platformAddress;
     function setPlatform(address _platformAddress) external onlyOwner {
@@ -43,4 +49,29 @@ contract DemoBalances is Owned {
     function setScriniumAddress(address _scriniumAddress) external onlyOwner {
         scriniumAddress = _scriniumAddress;
     }
+
+    function increaseBalance(address _investor, uint256 amount) external returns (bool) {
+        // @todo: only for Platform
+        if (balance[address(this)] >= amount) {
+            balance[_investor] = balance[_investor].add(amount);
+            balance[address(this)] = balance[address(this)].sub(amount);
+            return true;
+        }
+
+        return false;
+    }
+
+    function decreaseBalance(address _investor, uint256 amount) external returns (bool) {
+        // @todo: only for Platform
+
+        if (balance[_investor] >= amount) {
+            balance[_investor] = balance[_investor].sub(amount);
+            balance[address(this)] = balance[address(this)].add(amount);
+
+            return true;
+        }
+
+        return false;
+    }
+
 }

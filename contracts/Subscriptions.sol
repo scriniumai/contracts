@@ -1,10 +1,10 @@
-pragma solidity 0.4.18;
+pragma solidity ^0.4.18;
 
 import "../libs/Owned.sol";
 
 contract Subscriptions is Owned {
-    mapping (address => uint64[]) tradersByInvestor;
-    mapping (uint64 => address[]) investorsByTrader;
+    mapping (address => uint[]) investorTraderIds;
+    mapping (uint => address[]) traderIdInvestors;
 
     uint8 public subscriptionsLimit = 50;
 
@@ -12,15 +12,15 @@ contract Subscriptions is Owned {
         subscriptionsLimit = _subscriptionsLimit;
     }
 
-    function subscribe(uint64[] _traders) external {
-        require(tradersByInvestor[msg.sender].length + _traders.length <= subscriptionsLimit);
+    function subscribe(uint[] _traders) external {
+        require(investorTraderIds[msg.sender].length + _traders.length <= subscriptionsLimit);
 
         bool _isUserExists;
         for (uint i = 0; i < _traders.length; i++) {
             _isUserExists = false;
 
-            for (uint k = 0; k < tradersByInvestor[msg.sender].length; k++) {
-                if (tradersByInvestor[msg.sender][k] == _traders[i]) {
+            for (uint k = 0; k < investorTraderIds[msg.sender].length; k++) {
+                if (investorTraderIds[msg.sender][k] == _traders[i]) {
                     _isUserExists = true;
                     break;
                 }
@@ -28,43 +28,53 @@ contract Subscriptions is Owned {
             if (_isUserExists) {
                 continue;
             }
-            tradersByInvestor[msg.sender].push(_traders[i]);
-            investorsByTrader[_traders[i]].push(msg.sender);
+            investorTraderIds[msg.sender].push(_traders[i]);
+            traderIdInvestors[_traders[i]].push(msg.sender);
         }
     }
 
-    function unsubscribe(uint64[] _traders) external {
-        for (uint i = 0; i < _traders.length; i++) {
-            uint64 trader = _traders[i];
+    function unsubscribe(uint[] _traderIdsForUnsubscribe) external {
+        for (uint i = 0; i < _traderIdsForUnsubscribe.length; i++) {
+            //traderId
+            uint traderIdForUnsubsribe = _traderIdsForUnsubscribe[i];
 
-            for (uint k = 0; k < investorsByTrader[trader].length; k++) {
-                if (investorsByTrader[trader][k] == msg.sender) {
+            for (uint k = 0; k < traderIdInvestors[traderIdForUnsubsribe].length; k++) {
+                if (traderIdInvestors[traderIdForUnsubsribe][k] == msg.sender) {
 
-                    uint lastInvestorId = investorsByTrader[trader].length - 1;
+                    uint lastInvestorId = traderIdInvestors[traderIdForUnsubsribe].length - 1;
 
-                    investorsByTrader[trader][k] = investorsByTrader[trader][lastInvestorId];
-                    investorsByTrader[trader].length = lastInvestorId;
+                    traderIdInvestors[traderIdForUnsubsribe][k] = traderIdInvestors[traderIdForUnsubsribe][lastInvestorId];
+                    traderIdInvestors[traderIdForUnsubsribe].length = lastInvestorId;
                     break;
                 }
             }
 
-            for (uint j = 0; j < tradersByInvestor[msg.sender].length; j++) {
-                if (tradersByInvestor[msg.sender][j] == _traders[i]) {
-                    delete tradersByInvestor[msg.sender][j];
+            for (uint j = 0; j < investorTraderIds[msg.sender].length; j++) {
+                if (investorTraderIds[msg.sender][j] == traderIdForUnsubsribe) {
 
-                    tradersByInvestor[msg.sender][j] = tradersByInvestor[msg.sender][tradersByInvestor[msg.sender].length - 1];
-                    tradersByInvestor[msg.sender].length = tradersByInvestor[msg.sender].length - 1;
+                    uint lastTraderId = investorTraderIds[msg.sender].length - 1;
+
+                    investorTraderIds[msg.sender][j] = investorTraderIds[msg.sender][lastTraderId];
+                    investorTraderIds[msg.sender].length = lastTraderId;
                     break;
                 }
             }
         }
     }
 
-    function getTraders() external view returns (uint64[]) {
-        return tradersByInvestor[msg.sender];
+    function getCountOfInvestorsByTraderId(uint _traderId) public view returns (uint) {
+        return traderIdInvestors[_traderId].length;
     }
 
-    function getInvestors(uint64 _trader) external view returns (address[]) {
-        return investorsByTrader[_trader];
+    function getInvestorByTraderIdAndKey(uint _traderId, uint key) external view returns (address) {
+        return traderIdInvestors[_traderId][key];
+    }
+
+    function getTraders() external view returns (uint[]) {
+        return investorTraderIds[msg.sender];
+    }
+
+    function getInvestors(uint _traderId) external view returns (address[]) {
+        return traderIdInvestors[_traderId];
     }
 }

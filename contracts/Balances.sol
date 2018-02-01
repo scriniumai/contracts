@@ -1,4 +1,4 @@
-pragma solidity 0.4.18;
+pragma solidity ^0.4.18;
 
 import "../libs/SafeMath.sol";
 import "./Scrinium.sol";
@@ -12,6 +12,7 @@ contract Balances is Owned {
     function Balances(address _scriniumAddress) public {
         scriniumAddress = _scriniumAddress;
     }
+
     // @todo: add fn setScrAddress
     mapping (address => uint256) balance;
 

@@ -38,7 +38,7 @@ geth attach http://app13.appdevstage.com:8545 --exec "personal.unlockAccount(eth
 truffle migrate
 
 # 3. Connect to console for checking deployed contracts
-geth attach http://app13.appdevstage.com:8545 --preload ./preload.js
+geth attach http://app13.appdevstage.com:8545 --preload ./preload-development.js
 
 # 4. And try to run some commands such as:
 > scrinium.balanceOf(eth.accounts[0]);
