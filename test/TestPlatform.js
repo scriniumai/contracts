@@ -94,4 +94,56 @@ contract('Platform', function(accounts) {
     );
   });
 
+
+  it("closeTrade should works correctly", async () => {
+    const TRADE_ID = 112;
+    const TRADER_ID = 1;
+
+    await balances.deposit.sendTransaction(1000 * 10**8, {from:alice});
+
+    await platform.openTrade.sendTransaction(
+      TRADE_ID,
+      TRADER_ID,
+      'EURUSD',     // instrument
+      1234567890,   // openTime
+      '1.12345',    // openPrice
+      10,           // volume as percent = 1/100
+      {
+        from: alice // @todo: from platform
+      }
+    );
+
+    await platform.closeTrade.sendTransaction(
+      TRADE_ID,
+      1234567899,   // closeTime
+      '1.12346',    // closePrice
+      101,          // profit
+      {
+        from: alice // @todo: from platform
+      }
+    );
+
+    var trade = [
+      traderId,
+      instrument,
+      openTime,
+      openPrice,
+      closeTime,
+      closePrice,
+      investedPart,
+      returnProfit,
+      status
+    ] = await platform.trades.call(TRADE_ID);
+
+    // check trade
+    assert.equal(status, STATUS_CLOSED);
+    assert.equal(closeTime.valueOf(), 1234567899);
+    assert.equal(closePrice, '1.12346');
+
+    // @todo: check Investing was updated
+    // @todo: check Balance was updated
+  });
+
+  // @todo: add test: openTrade and closeTrade allowed only for platform
+
 });

@@ -127,15 +127,17 @@ contract Platform is Owned {
         );
     }
 
-    function closeTrade (uint id, uint returnAmount) external {
-//        Trade storage trade = trades[id];
-//
-//        require(trade.id == id
-//            && trade.status == STATUS_OPENED);
-//
-//        trade.status = STATUS_CLOSED;
-//        trade.returnAmount = returnAmount;
-// @todo
+    function closeTrade (uint _tradeId, uint _closeTime, string _closePrice, uint _tradeProfit) external {
+        Trade _trade = trades[_tradeId];
+
+        require(_trade.status == STATUS_OPENED);
+
+        _trade.status = STATUS_CLOSED;
+        _trade.closeTime = _closeTime;
+        _trade.closePrice = _closePrice;
+
+        // @todo - update Investing
+        // @todo - update Balances
     }
 
     function getTradeIds() public view returns (uint[]) {
