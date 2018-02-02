@@ -109,15 +109,14 @@ contract('Subscriptions', function(accounts) {
   });
 
 
-
-  it("getInvestorsLength should works correctly", async () => {
+  it("getCountOfInvestorsByTraderId should works correctly", async () => {
     await subscriptions.subscribe.sendTransaction([1,2], {from:alice});
     await subscriptions.subscribe.sendTransaction([2,3], {from:bob});
 
-    assert.equal(await subscriptions.getInvestorsLength(1), 1);
-    assert.equal(await subscriptions.getInvestorsLength(2), 2);
-    assert.equal(await subscriptions.getInvestorsLength(3), 1);
-    assert.equal(await subscriptions.getInvestorsLength(4), 0);
+    assert.equal(await subscriptions.getCountOfInvestorsByTraderId(1), 1);
+    assert.equal(await subscriptions.getCountOfInvestorsByTraderId(2), 2);
+    assert.equal(await subscriptions.getCountOfInvestorsByTraderId(3), 1);
+    assert.equal(await subscriptions.getCountOfInvestorsByTraderId(4), 0);
   });
 
 });

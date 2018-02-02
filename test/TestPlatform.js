@@ -9,6 +9,9 @@ contract('Platform', function(accounts) {
   var alice = accounts[0];
   var bob = accounts[1];
 
+  const STATUS_OPENED = 2;
+  const STATUS_CLOSED = 3;
+
   before(async () => {
     subscriptions = await Subscriptions.deployed();
     balances = await DemoBalances.deployed();
@@ -59,32 +62,36 @@ contract('Platform', function(accounts) {
 
     // check trade
     assert.equal(traderId.valueOf(), TRADER_ID);
-    assert.equal(status, 1); //opened //@ todo: use contant
     assert.equal(investedPart.valueOf(), 10); // 10 percents
+    assert.equal(status, STATUS_OPENED);
+
+    //only one trade in array
+    assert.deepEqual(
+      (await platform.getTradeIds()).map((item) => Number(item.valueOf())),
+      [TRADE_ID]
+    );
 
     var [
-        investor,
-        investedAmount,
-        profitAmount
-      ] = await platform.tradeIdInvestings.call(TRADE_ID, 0);
+      investor,
+      investedAmount,
+      profitAmount
+    ] = await platform.tradeIdInvestings.call(TRADE_ID, 0);
 
-    assert.equal(investor, alice); //opened //@ todo: use contant
+    assert.equal(investor, alice);
     assert.equal(investedAmount.valueOf(), 100 * 10**8); // 10 percents of 1000 * 10**8
     assert.equal(profitAmount.valueOf(), 0); // 10 percents of 1000 * 10**8
 
     // Alice's balance = 900 SCR
     assert.equal(
       (await balances.getBalanceOf(alice)).valueOf(),
-      String( 900 * Math.pow(10, 8))
+      String( 900 * 10**8 )
     );
 
     // Our balance = 100 SCR
     assert.equal(
       (await balances.getBalanceOf(balances.address)).valueOf(),
-      String( 100 * Math.pow(10, 8))
+      String( 100 * 10**8 )
     );
-
   });
-
 
 });

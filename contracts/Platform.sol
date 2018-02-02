@@ -8,25 +8,28 @@ import './DemoBalances.sol';
 
 contract Platform is Owned {
     using SafeMath for uint;
+
+    uint internal constant STATUS_OPENED = 2;
+    uint internal constant STATUS_CLOSED = 3;
+
+    mapping (uint => Trade) public trades;
+    uint[] tradeIds;
+
     struct Trade {
-//        uint tradeId;
         uint traderId;
 
         // information
-
-    //id instrument
-        string instrument;
+        string instrument; //@todo - use instrumentId
         uint openTime;
         string openPrice;   //@todo: use type uint for price
         uint closeTime;
-    //closePrice
-        string closesPrice;
-//investedPercent
-        uint investedPart;
+        string closePrice;
+
+        uint investedPercent;
         uint returnProfit;
 
         uint status;
-        Investing[] investings; //??
+//        Investing[] investings; //?? @todo
     }
 
     struct Investing {
@@ -36,20 +39,15 @@ contract Platform is Owned {
         // @todo: commisions
     }
 
-    uint internal constant STATUS_OPENED = 1;
-    uint internal constant STATUS_CLOSED = 2;
 
+    // @todo: set it for owner only
     address subscriptionsAddress;
     address balancesAddress;
-    // @todo: set it
 
     function Platform(address _subscriptionsAddress, address _balancesAddress) {
         subscriptionsAddress = _subscriptionsAddress;
         balancesAddress = _balancesAddress;
     }
-
-    mapping (uint => Trade) public trades;
-    uint[] public tradesArray;
 
     // tradeId => InvestingState[]
 //выпилится
@@ -63,7 +61,7 @@ contract Platform is Owned {
         string _instrument,
         uint _openTime,
         string _openPrice,
-        uint _investedPart
+        uint _investedPercent
     ) private {
         // 1. write to trades
         trades[_tradeId] = Trade({
@@ -73,14 +71,14 @@ contract Platform is Owned {
             openTime: _openTime,
             openPrice: _openPrice,
             closeTime: 0,
-            closesPrice: '',
+            closePrice: '',
 
-            investedPart: _investedPart,
+            investedPercent: _investedPercent,
             returnProfit: 0,
             status: STATUS_OPENED
         });
 
-        tradesArray.push(_tradeId);
+        tradeIds.push(_tradeId);
     }
 
     function openTrade (
@@ -89,11 +87,11 @@ contract Platform is Owned {
          string _instrument,
          uint _openTime,
          string _openPrice,
-         uint _investedPart
+         uint _investedPercent
     ) external {
         Subscriptions _subscriptionsContract = Subscriptions(subscriptionsAddress);
 
-        createTrade(_tradeId, _traderId, _instrument, _openTime, _openPrice, _investedPart);
+        createTrade(_tradeId, _traderId, _instrument, _openTime, _openPrice, _investedPercent);
 
         uint _investorsCount = _subscriptionsContract.getCountOfInvestorsByTraderId(_traderId);
         address _investor;
@@ -102,7 +100,7 @@ contract Platform is Owned {
         for (uint i = 0; i < _investorsCount; i++) {
             _investor = _subscriptionsContract.getInvestorByTraderIdAndKey(_traderId, i);
 
-            doInvesting(_investor, _tradeId, _investedPart);
+            doInvesting(_investor, _tradeId, _investedPercent);
         }
     }
 
@@ -138,5 +136,9 @@ contract Platform is Owned {
 //        trade.status = STATUS_CLOSED;
 //        trade.returnAmount = returnAmount;
 // @todo
+    }
+
+    function getTradeIds() public view returns (uint[]) {
+        return tradeIds;
     }
 }

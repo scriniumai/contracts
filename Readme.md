@@ -3,7 +3,7 @@ Scrinium - blockchain investing platform.
 #### How to connect to ethereum network at app13.appdevstage.com:8545 (contracts should be already deployed)
 ```
 #!/bin/bash
-geth attach http://app13.appdevstage.com:8545 --preload ./preload.js
+geth attach http://app13.appdevstage.com:8545 --preload ./preload-development.js
 ```
 
 -----------------------------------
