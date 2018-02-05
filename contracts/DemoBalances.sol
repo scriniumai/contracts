@@ -17,11 +17,16 @@ contract DemoBalances is Owned {
     mapping (address => uint256) balance;
 
     function deposit(uint amount) external {
-        require(balance[msg.sender].add(amount) <= maxDemoBalance
-            && amount <= maxDemoDeposit
+        demoDeposit(amount, msg.sender);
+    }
+
+    function demoDeposit(uint amount, address investor) public {
+        require(
+            balance[investor].add(amount) <= maxDemoBalance &&
+            amount <= maxDemoDeposit
         );
 
-        balance[msg.sender] = balance[msg.sender].add(amount);
+        balance[investor] = balance[investor].add(amount);
     }
 
     function withdrawal(uint amount) external {

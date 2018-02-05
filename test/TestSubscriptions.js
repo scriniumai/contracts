@@ -1,13 +1,16 @@
 var Subscriptions = artifacts.require("Subscriptions");
+var DemoBalances = artifacts.require("DemoBalances");
+
 var { range } = require('lodash');
 
 contract('Subscriptions', function(accounts) {
-  var subscriptions, scrinium;
+  var subscriptions, balances;
   var alice = accounts[0];
   var bob = accounts[1];
 
   before(async () => {
-    subscriptions = await Subscriptions.deployed();
+    balances = await DemoBalances.deployed();
+    subscriptions = await Subscriptions.new(balances.address);
   });
 
   afterEach(async () => {
@@ -117,6 +120,16 @@ contract('Subscriptions', function(accounts) {
     assert.equal(await subscriptions.getCountOfInvestorsByTraderId(2), 2);
     assert.equal(await subscriptions.getCountOfInvestorsByTraderId(3), 1);
     assert.equal(await subscriptions.getCountOfInvestorsByTraderId(4), 0);
+  });
+
+  it("demoSubscribeAndDeposit should works correctly", async () => {
+    await subscriptions.demoSubscribeAndDeposit([1,2,4], 12499, {from:bob})
+
+    var traders = await subscriptions.getTraders({from:bob});
+    traders = traders.map((trader) => Number(trader.valueOf())); // cast to int[]
+    assert.deepEqual(traders, [1,2,4]);
+
+    assert.equal((await balances.getBalanceOf(bob)).valueOf(), '12499');
   });
 
 });

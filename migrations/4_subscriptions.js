@@ -1,9 +1,10 @@
 var Subscriptions = artifacts.require("Subscriptions");
+var DemoBalances = artifacts.require("DemoBalances");
 
 var fs = require('fs');
 
 module.exports = function(deployer, network){
-  deployer.deploy(Subscriptions)
+  deployer.deploy(Subscriptions, DemoBalances.address)
     .then(function () {
 
           var code =`

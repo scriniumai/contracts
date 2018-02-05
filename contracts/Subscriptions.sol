@@ -1,26 +1,33 @@
 pragma solidity ^0.4.18;
 
 import "../libs/Owned.sol";
+import "./DemoBalances.sol";
 
 contract Subscriptions is Owned {
     mapping (address => uint[]) investorTraderIds;
     mapping (uint => address[]) traderIdInvestors;
 
-    uint8 public subscriptionsLimit = 50;
+    uint public subscriptionsLimit = 50;
 
-    function setSubscriptionsLimit(uint8 _subscriptionsLimit) onlyOwner external  {
+    function Subscriptions(address _balancesAddress) public {
+        balancesAddress = _balancesAddress;
+    }
+    address public balancesAddress;
+
+    function setSubscriptionsLimit(uint _subscriptionsLimit) onlyOwner external {
         subscriptionsLimit = _subscriptionsLimit;
     }
 
-    function subscribe(uint[] _traders) external {
-        require(investorTraderIds[msg.sender].length + _traders.length <= subscriptionsLimit);
+    // only for demo
+    function privateSubscribe(uint[] _traderIds, address _investor) internal {
+        require(investorTraderIds[_investor].length + _traderIds.length <= subscriptionsLimit);
 
         bool _isUserExists;
-        for (uint i = 0; i < _traders.length; i++) {
+        for (uint i = 0; i < _traderIds.length; i++) {
             _isUserExists = false;
 
-            for (uint k = 0; k < investorTraderIds[msg.sender].length; k++) {
-                if (investorTraderIds[msg.sender][k] == _traders[i]) {
+            for (uint k = 0; k < investorTraderIds[_investor].length; k++) {
+                if (investorTraderIds[msg.sender][k] == _traderIds[i]) {
                     _isUserExists = true;
                     break;
                 }
@@ -28,9 +35,22 @@ contract Subscriptions is Owned {
             if (_isUserExists) {
                 continue;
             }
-            investorTraderIds[msg.sender].push(_traders[i]);
-            traderIdInvestors[_traders[i]].push(msg.sender);
+            investorTraderIds[_investor].push(_traderIds[i]);
+            traderIdInvestors[_traderIds[i]].push(_investor);
         }
+    }
+
+    function subscribe(uint[] _traderIds) external {
+        // owner, and platform, and demo
+        privateSubscribe(_traderIds, msg.sender);
+    }
+
+    // allowed only for demo
+    function demoSubscribeAndDeposit(uint[] _traderIds, uint _amount) external {
+        privateSubscribe(_traderIds, msg.sender);
+
+        DemoBalances _balances = DemoBalances(balancesAddress);
+        _balances.demoDeposit(_amount, msg.sender);
     }
 
     function unsubscribe(uint[] _traderIdsForUnsubscribe) external {
