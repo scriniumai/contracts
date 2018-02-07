@@ -59,7 +59,6 @@ testrpc
 truffle test --network testing
 ```
 
-
 ### Allowed methods
 ```
 subscriptions.demoSubscribeAndDeposit(uint[] _traderIds, uint _amount) - Subscribe and deposit to demo account (only for demo)

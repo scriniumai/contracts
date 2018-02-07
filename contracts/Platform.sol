@@ -9,38 +9,48 @@ import './DemoBalances.sol';
 contract Platform is Owned {
     using SafeMath for uint;
 
-    uint internal constant STATUS_OPENED = 2;
+    uint internal constant STATUS_PENDING = 1;
+    uint internal constant STATUS_OPEN = 2;
     uint internal constant STATUS_CLOSED = 3;
 
-    mapping (uint => Trade) public trades;
-    uint[] tradeIds;
+    uint internal constant CMD_BUY = 0;
+    uint internal constant CMD_SELL = 1;
+
+    uint internal constant PRICE_MULTIPLIER = 1000000; // 10**6
+    uint internal constant MARGIN_PERCENT_MULTIPLIER = 100;
 
     struct Trade {
-        uint traderId;
+        address liquidProviderAddress;
+        address investor;
+        uint masterTraderId;
 
-        // information
-        string instrument; //@todo - use instrumentId
-        uint openTime;
-        string openPrice;   //@todo: use type uint for price
-        uint closeTime;
-        string closePrice;
+        uint instrumentId;
+        uint marginPercent;
+        uint leverage;
+        uint cmd;
 
-        uint investedPercent;
-        uint returnProfit;
+        uint marginSCR;
+        int profitSCR;
 
         uint status;
-//        Investing[] investings; //?? @todo
     }
 
-    struct Investing {
-        address investorId;
-        uint investedAmount; // in SCR
-        uint returnedAmount; // in SCR
-        // @todo: commisions
+    struct TradeQuotes {
+        uint256 openTime; //@todo: use TimePriceQuote
+        uint256 openPriceInstrument;
+        uint256 openPriceSCRBaseCurrency;
+
+        uint256 closeTime; //@todo: use TimePriceQuote
+        uint256 closePriceInstrument;
+        uint256 closePriceSCRBaseCurrency;
     }
 
+    mapping (uint => Trade) public trades;
+    mapping (uint => TradeQuotes) public tradeQuotes;
 
-    // @todo: set it for owner only
+    uint[] tradeIds;
+
+    // @todo: add setters onlyOwner
     address subscriptionsAddress;
     address balancesAddress;
 
@@ -49,98 +59,152 @@ contract Platform is Owned {
         balancesAddress = _balancesAddress;
     }
 
-    // tradeId => InvestingState[]
-//выпилится
-    mapping (uint => Investing[]) public tradeIdInvestings;
+    function setSubscriptionsAddress(address _subscriptionsAddress) external onlyOwner {
+        subscriptionsAddress = _subscriptionsAddress;
+    }
 
-    uint volumePartMultiplier = 100;
+    function setBalancesAddress(address _balancesAddress) external onlyOwner {
+        balancesAddress = _balancesAddress;
+    }
 
-    function createTrade(
-        uint _tradeId,
-        uint _traderId,
-        string _instrument,
-        uint _openTime,
-        string _openPrice,
-        uint _investedPercent
-    ) private {
-        // 1. write to trades
-        trades[_tradeId] = Trade({
-            traderId: _traderId,
+    struct testMeStruct {
+        int foo;
+    }
 
-            instrument: _instrument,
-            openTime: _openTime,
-            openPrice: _openPrice,
-            closeTime: 0,
-            closePrice: '',
+    mapping (uint => testMeStruct) testMeMapping;
 
-            investedPercent: _investedPercent,
-            returnProfit: 0,
-            status: STATUS_OPENED
-        });
+    function testMe(uint _tradeId) external {
+        trades[_tradeId].profitSCR = -1;
+        trades[_tradeId].profitSCR = -2;
 
-        tradeIds.push(_tradeId);
     }
 
     function openTrade (
-         uint _tradeId,
-         uint _traderId,
-         string _instrument,
-         uint _openTime,
-         string _openPrice,
-         uint _investedPercent
-    ) external {
-        Subscriptions _subscriptionsContract = Subscriptions(subscriptionsAddress);
-
-        createTrade(_tradeId, _traderId, _instrument, _openTime, _openPrice, _investedPercent);
-
-        uint _investorsCount = _subscriptionsContract.getCountOfInvestorsByTraderId(_traderId);
-        address _investor;
-    // var
-        uint _amountToInvest;
-        for (uint i = 0; i < _investorsCount; i++) {
-            _investor = _subscriptionsContract.getInvestorByTraderIdAndKey(_traderId, i);
-
-            doInvesting(_investor, _tradeId, _investedPercent);
-        }
-    }
-
-    function doInvesting(
-        address _investor,
         uint _tradeId,
-        uint _investedPart
-    ) internal returns (bool) {
-        DemoBalances _balancesContract = DemoBalances(balancesAddress); // @todo: use abstract class for Balances
+        address _investor,
+        uint _masterTraderId,
+
+        uint _instrumentId,
+        uint _marginPercent,
+        uint _leverage,
+        uint _cmd,
+
+        uint _openTime,
+        uint _openPriceInstrument,
+        uint _openPriceSCRBase
+    ) external {
+
+        // @todo: check msg.sender is correct liquid provider
+        // @todo: check instrument in Instruments
+
+        // @todo: use abstract class for Balances
+        DemoBalances _balancesContract = DemoBalances(balancesAddress);
         uint _balance = _balancesContract.getBalanceOf(_investor);
-
-        // @todo: check if balance gt than comission or minimal investment
-        if (_balance == 0) {
-            return false;
-        }
-
-        uint _amount = _balance.mul(_investedPart).div(volumePartMultiplier);
-        if (!_balancesContract.decreaseBalance(_investor, _amount)) {
-            return false;
-        }
-
-        tradeIdInvestings[_tradeId].push(
-            Investing(_investor, _amount, 0)
+        require(
+            _balance > 0 &&
+            0 < _marginPercent && _marginPercent < 100
         );
+
+        createTrade(
+            _tradeId,
+            _investor,
+            _masterTraderId,
+            _instrumentId,
+            _marginPercent,
+            _leverage,
+            _cmd,
+            _openTime,
+            _openPriceInstrument,
+            _openPriceSCRBase
+        );
+
+        // count marginSCR
+        trades[_tradeId].marginSCR = _balance.mul(_marginPercent).div(MARGIN_PERCENT_MULTIPLIER);
+
+        // @todo: lock margin for withdrawal or reusing in other trades
     }
 
-    function closeTrade (uint _tradeId, uint _closeTime, string _closePrice, uint _tradeProfit) external {
-        Trade _trade = trades[_tradeId];
+    function closeTrade (
+        uint _tradeId,
+        uint _closeTime,
+        uint _closePriceInstrument,
+        uint _closePriceSCRBase
+    ) external {
+        require(trades[_tradeId].status == STATUS_OPEN);
 
-        require(_trade.status == STATUS_OPENED);
+        // update trade
+        trades[_tradeId].status = STATUS_CLOSED;
+        tradeQuotes[_tradeId].closeTime = _closeTime;
+        tradeQuotes[_tradeId].closePriceInstrument = _closePriceInstrument;
+        tradeQuotes[_tradeId].closePriceSCRBaseCurrency = _closePriceSCRBase;
 
-        _trade.status = STATUS_CLOSED;
-        _trade.closeTime = _closeTime;
-        _trade.closePrice = _closePrice;
+        trades[_tradeId].profitSCR = (int(_closePriceInstrument) - int(tradeQuotes[_tradeId].openPriceInstrument))
+            * int(trades[_tradeId].marginSCR)
+            * int(trades[_tradeId].leverage)
+            / int(PRICE_MULTIPLIER)
+        ;
 
-        // @todo - update Investing
-        // @todo - update Balances
+        if (trades[_tradeId].cmd == CMD_SELL) {
+            trades[_tradeId].profitSCR *= -1;
+        }
+
+        // update profit if price SCR/Base was changed
+        if (tradeQuotes[_tradeId].closePriceSCRBaseCurrency != tradeQuotes[_tradeId].openPriceSCRBaseCurrency) {
+            trades[_tradeId].profitSCR = trades[_tradeId].profitSCR
+                * int(tradeQuotes[_tradeId].openPriceSCRBaseCurrency)
+                / int(tradeQuotes[_tradeId].closePriceSCRBaseCurrency)
+            ;
+        }
+
+        // @todo: use abstract class for Balances
+        DemoBalances _balancesContract = DemoBalances(balancesAddress);
+
+        // @todo: optimize me - _balancesContract.updateBalance()
+        if (trades[_tradeId].profitSCR > 0) {
+            _balancesContract.increaseBalance(
+                trades[_tradeId].investor,
+                uint(trades[_tradeId].profitSCR)
+            );
+        } else {
+            _balancesContract.decreaseBalance(
+                trades[_tradeId].investor,
+                uint(-1 * trades[_tradeId].profitSCR)
+            );
+        }
     }
 
     function getTradeIds() public view returns (uint[]) {
         return tradeIds;
+    }
+
+    function createTrade(
+        uint _tradeId,
+        address _investor,
+        uint _masterTraderId,
+
+        uint _instrumentId,
+        uint _marginPercent,
+        uint _leverage,
+        uint _cmd,
+
+        uint _openTime,
+        uint _openPriceInstrument,
+        uint _openPriceSCRBase
+    ) internal {
+        trades[_tradeId].liquidProviderAddress = msg.sender;
+        trades[_tradeId].investor = _investor;
+        trades[_tradeId].masterTraderId = _masterTraderId;
+        trades[_tradeId].instrumentId = _instrumentId;
+        trades[_tradeId].marginPercent = _marginPercent;
+        trades[_tradeId].leverage = _leverage;
+        trades[_tradeId].cmd = _cmd;
+
+        trades[_tradeId].status = STATUS_OPEN;
+
+        tradeQuotes[_tradeId].openTime = _openTime;
+        tradeQuotes[_tradeId].openPriceInstrument = _openPriceInstrument;
+        tradeQuotes[_tradeId].openPriceSCRBaseCurrency = _openPriceSCRBase;
+
+        tradeIds.push(_tradeId);
     }
 }

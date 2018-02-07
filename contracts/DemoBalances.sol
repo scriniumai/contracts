@@ -55,28 +55,21 @@ contract DemoBalances is Owned {
         scriniumAddress = _scriniumAddress;
     }
 
-    function increaseBalance(address _investor, uint256 amount) external returns (bool) {
+    // @todo: use int
+    function increaseBalance(address _investor, uint256 amount) external {
         // @todo: only for Platform
-        if (balance[address(this)] >= amount) {
-            balance[_investor] = balance[_investor].add(amount);
-            balance[address(this)] = balance[address(this)].sub(amount);
-            return true;
-        }
+//        require(balance[address(this)] >= amount);
 
-        return false;
+        balance[_investor] = balance[_investor].add(amount);
+//        balance[address(this)] = balance[address(this)].sub(amount);
     }
 
-    function decreaseBalance(address _investor, uint256 amount) external returns (bool) {
-        // @todo: only for Platform
+    function decreaseBalance(address _investor, uint256 amount) external {
+// @todo: only for Platform
+//        require(balance[_investor] >= amount);
 
-        if (balance[_investor] >= amount) {
-            balance[_investor] = balance[_investor].sub(amount);
-            balance[address(this)] = balance[address(this)].add(amount);
-
-            return true;
-        }
-
-        return false;
+        balance[_investor] = balance[_investor].sub(amount);
+//        balance[address(this)] = balance[address(this)].add(amount);
     }
 
 }
