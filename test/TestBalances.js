@@ -14,8 +14,8 @@ contract('Balances', function(accounts) {
     balances = await Balances.deployed();
   });
 
-  it("getBalance should returns 0 SCR for new accounts", async () => {
-    var balance = await balances.getBalance({from:alice});
+  it("balanceOf should returns 0 SCR for new accounts", async () => {
+    var balance = await balances.balanceOf(alice);
     assert.equal(balance.valueOf(), 0, "0 SCR should be on first account after deploing contract");
   });
 
@@ -27,7 +27,7 @@ contract('Balances', function(accounts) {
     await balances.deposit.sendTransaction(100, {from: alice});
 
     // Assertions:
-    var balanceOfAliceOnPlatform = await balances.getBalance({from:alice});
+    var balanceOfAliceOnPlatform = await balances.balanceOf(alice);
     var balanceOfAliceOnScrinium = await scrinium.balanceOf(alice);
     var balanceOfContractOnScrinium = await scrinium.balanceOf(Balances.address);
 
@@ -48,7 +48,7 @@ contract('Balances', function(accounts) {
     await balances.withdrawal.sendTransaction(30, {from: alice});
 
     // Assertions:
-    var balanceOfAliceOnPlatform = await balances.getBalance({from:alice});
+    var balanceOfAliceOnPlatform = await balances.balanceOf(alice);
     var balanceOfAliceOnScrinium = await scrinium.balanceOf(alice);
     var balanceOfContractOnScrinium = await scrinium.balanceOf(Balances.address);
 

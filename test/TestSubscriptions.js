@@ -129,7 +129,7 @@ contract('Subscriptions', function(accounts) {
     traders = traders.map((trader) => Number(trader.valueOf())); // cast to int[]
     assert.deepEqual(traders, [1,2,4]);
 
-    assert.equal((await balances.getBalanceOf(bob)).valueOf(), '12499');
+    assert.equal((await balances.balanceOf(bob)).valueOf(), '12499');
   });
 
 });

@@ -99,7 +99,7 @@ contract Platform is Owned {
 
         // @todo: use abstract class for Balances
         DemoBalances _balancesContract = DemoBalances(balancesAddress);
-        uint _balance = _balancesContract.getBalanceOf(_investor);
+        uint _balance = _balancesContract.balanceOf(_investor);
         require(
             _balance > 0 &&
             0 < _marginPercent && _marginPercent < 100

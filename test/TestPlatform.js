@@ -18,7 +18,7 @@ contract('Platform', function(accounts) {
 
   afterEach(async () => {
     // clean balances
-    await balances.withdrawal.sendTransaction(await balances.getBalanceOf(alice), {from: alice});
+    await balances.withdrawal.sendTransaction(await balances.balanceOf(alice), {from: alice});
   });
 
   const CMD_BUY = 0;
@@ -114,7 +114,7 @@ contract('Platform', function(accounts) {
 
       // Alice's balance was not changed = 1000 SCR
       assert.equal(
-        (await balances.getBalanceOf(alice)).valueOf(),
+        (await balances.balanceOf(alice)).valueOf(),
         balanceBefore * 10**8
       );
 
@@ -152,7 +152,7 @@ contract('Platform', function(accounts) {
       assert.equal(status, STATUS_CLOSED, 'status should be closed');
 
       // Alice's balance changed
-      assert.equal((await balances.getBalanceOf(alice)).valueOf(), parseInt((balanceBefore + expectedProfit) * 10**8));
+      assert.equal((await balances.balanceOf(alice)).valueOf(), parseInt((balanceBefore + expectedProfit) * 10**8));
     });
   });
 

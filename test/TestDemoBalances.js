@@ -11,13 +11,13 @@ contract('DemoBalances', function(accounts) {
   });
 
   it("deposit should increase account's balance", async () => {
-    var balanceBefore = await demoBalances.getBalance({from:alice});
+    var balanceBefore = await demoBalances.balanceOf(alice);
     assert.equal(balanceBefore, 0, "Alice dont have any coins in demoBalances");
 
     // Alice just deposit 100 * -10^8 SRC
     await demoBalances.deposit.sendTransaction(100, {from: alice});
 
-    var balanceAfter = await demoBalances.getBalance({from:alice});
+    var balanceAfter = await demoBalances.balanceOf(alice);
     assert.equal(balanceAfter, 100, "Alice just received 100 SCR");
 
     // tearDown
@@ -25,7 +25,7 @@ contract('DemoBalances', function(accounts) {
   });
 
   it("deposit cannot increase balance when amount > 1'000 * 10^8", async () => {
-    var balanceBefore = await demoBalances.getBalance({from:alice});
+    var balanceBefore = await demoBalances.balanceOf(alice);
     assert.equal(balanceBefore, 0, "Alice dont have any coins in demoBalances");
 
     try {
@@ -33,18 +33,18 @@ contract('DemoBalances', function(accounts) {
       assert.fail('Deposit should not be passed');
     } catch (err) {}
 
-    var balanceAfter = await demoBalances.getBalance({from:alice});
+    var balanceAfter = await demoBalances.balanceOf(alice);
     assert.equal(balanceAfter, 0, "Alice do not received any SCR");
   });
 
   it("deposit cannot increase balance when balance > 10'000 * 10^8", async () => {
-    var balanceBefore = await demoBalances.getBalance({from:alice});
+    var balanceBefore = await demoBalances.balanceOf(alice);
     assert.equal(balanceBefore, 0, "Alice dont have any coins in demoBalances");
 
     for (var i = 0; i < 10; i++) {
       await demoBalances.deposit.sendTransaction(1000 * 10 ** 8, {from: alice});
     }
-    var balanceAfter = await demoBalances.getBalance({from:alice});
+    var balanceAfter = await demoBalances.balanceOf(alice);
     assert.equal(balanceAfter, 10000 * 10**8, "Alice received 10000 * 10**8");
 
     try {
@@ -52,7 +52,7 @@ contract('DemoBalances', function(accounts) {
       assert.fail('Deposit should not be passed');
     } catch (err) {}
 
-    var balanceAfterError = await demoBalances.getBalance({from:alice});
+    var balanceAfterError = await demoBalances.balanceOf(alice);
     assert.equal(balanceAfterError, 10000 * 10**8, "Alice dont received any more");
 
     // tearDown
@@ -67,7 +67,7 @@ contract('DemoBalances', function(accounts) {
     // Alice just withdrawal 30 * -10^8 SRC
     await demoBalances.withdrawal.sendTransaction(30, {from: alice});
 
-    var balanceAfter = await demoBalances.getBalance({from:alice});
+    var balanceAfter = await demoBalances.balanceOf(alice);
     assert.equal(balanceAfter, 100-30, "Alice's balance should be equal 70 SCR");
 
     // tearDown
@@ -83,7 +83,7 @@ contract('DemoBalances', function(accounts) {
       assert.fail('Withdrawal should not pass');
     } catch (err) {}
 
-    var balanceAfter = await demoBalances.getBalance({from:alice});
+    var balanceAfter = await demoBalances.balanceOf(alice);
     assert.equal(balanceAfter, 100, "Alice's balance should be equal 70 SCR");
 
     // tearDown

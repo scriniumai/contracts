@@ -35,13 +35,7 @@ contract DemoBalances is Owned {
         balance[msg.sender] = balance[msg.sender].sub(amount);
     }
 
-    function getBalance() public view returns(uint256) {
-        return balance[msg.sender];
-    }
-
-    function getBalanceOf(address _investor) public view returns(uint256) {
-        // @todo: allowed for owner or Platfrorm only
-
+    function balanceOf(address _investor) public view returns(uint256) {
         return balance[_investor];
     }
 
