@@ -49,6 +49,7 @@ contract('Platform', function(accounts) {
       var platform = await Platform.new(subscriptions.address, balances.address);
       platform.setInstrumentsAddress(instruments.address, {from: alice});
       platform.setAllowedLiquidProvider(LIQUID_PROVIDER, {from: alice});
+      balances.setPlatformAddress(platform.address, {from: alice});
 
       await balances.deposit.sendTransaction(balanceBefore * 10**8, {from:bob});
 

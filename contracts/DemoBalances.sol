@@ -1,7 +1,8 @@
 pragma solidity ^0.4.18;
 
 import "./Balances.sol";
-//import "../libs/Owned.sol";
+import "../libs/Owned.sol";
+import "./Platform.sol";
 
 contract DemoBalances is Owned {
     using SafeMath for uint256;
@@ -10,6 +11,7 @@ contract DemoBalances is Owned {
         scriniumAddress = _scriniumAddress;
     }
     address public scriniumAddress;
+    address public platformAddress;
 
     uint64 maxDemoBalance = 10000 * 100000000; // 10000SCR Max balance allowed for increase
     uint64 maxDemoDeposit = 1000 * 100000000; // 1000SCR Max amount to increase balance
@@ -39,9 +41,7 @@ contract DemoBalances is Owned {
         return balance[_investor];
     }
 
-    // @todo: use for Balances too.
-    address public platformAddress;
-    function setPlatform(address _platformAddress) external onlyOwner {
+    function setPlatformAddress(address _platformAddress) external onlyOwner {
         platformAddress = _platformAddress;
     }
 
@@ -49,21 +49,16 @@ contract DemoBalances is Owned {
         scriniumAddress = _scriniumAddress;
     }
 
-    // @todo: use int
-    function increaseBalance(address _investor, uint256 amount) external {
-        // @todo: only for Platform
-//        require(balance[address(this)] >= amount);
-
-        balance[_investor] = balance[_investor].add(amount);
-//        balance[address(this)] = balance[address(this)].sub(amount);
+    function updateBalance(address _investor, int256 amount) external onlyPlatform {
+        if (amount > 0) {
+            balance[_investor] = balance[_investor].add(uint256(amount));
+        } else {
+            balance[_investor] = balance[_investor].sub(uint256(-1 * amount));
+        }
     }
 
-    function decreaseBalance(address _investor, uint256 amount) external {
-// @todo: only for Platform
-//        require(balance[_investor] >= amount);
-
-        balance[_investor] = balance[_investor].sub(amount);
-//        balance[address(this)] = balance[address(this)].add(amount);
+    modifier onlyPlatform {
+        require(msg.sender == platformAddress);
+        _;
     }
-
 }

@@ -92,7 +92,7 @@ contract('DemoBalances', function(accounts) {
 
   it("setPlatform should change allowed platform address", async () => {
     var address = "0x0000000000000000000000000000000000000001";
-    await demoBalances.setPlatform.sendTransaction(address, {from: alice});
+    await demoBalances.setPlatformAddress.sendTransaction(address, {from: alice});
 
     assert.equal(
       await demoBalances.platformAddress.call(),
@@ -105,7 +105,7 @@ contract('DemoBalances', function(accounts) {
     var fakeAddress = "0x0000000000000000000000000000000000000003";
 
     try {
-      await demoBalances.setPlatform.sendTransaction(fakeAddress, {from: bob}); //bob want to change platformAddress
+      await demoBalances.setPlatformAddress.sendTransaction(fakeAddress, {from: bob}); //bob want to change platformAddress
       assert.fail('Bob cannot change platformAddress');
     } catch (err) {}
 

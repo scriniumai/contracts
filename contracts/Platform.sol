@@ -99,7 +99,7 @@ contract Platform is Owned {
         uint _openPriceSCRBase
     ) external onlyAllowedLiquidProvider {
         Instruments _instrumentsContract = Instruments(instrumentsAddress);
-        Balances _balancesContract = Balances(balancesAddress);
+        DemoBalances _balancesContract = DemoBalances(balancesAddress);
 
         uint _balance = _balancesContract.balanceOf(_investor);
         require(
@@ -160,19 +160,10 @@ contract Platform is Owned {
         }
 
         DemoBalances _balancesContract = DemoBalances(balancesAddress);
-
-        // @todo: optimize me - _balancesContract.updateBalance()
-        if (trades[_tradeId].profitSCR > 0) {
-            _balancesContract.increaseBalance(
-                trades[_tradeId].investor,
-                uint(trades[_tradeId].profitSCR)
-            );
-        } else {
-            _balancesContract.decreaseBalance(
-                trades[_tradeId].investor,
-                uint(-1 * trades[_tradeId].profitSCR)
-            );
-        }
+        _balancesContract.updateBalance(
+            trades[_tradeId].investor,
+            trades[_tradeId].profitSCR
+        );
     }
 
     function getTradeIds() public view returns (uint[]) {
