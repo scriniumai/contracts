@@ -1,4 +1,3 @@
-// Specifically request an abstraction for MetaCoin
 var Scrinium = artifacts.require("Scrinium");
 var DemoBalances = artifacts.require("DemoBalances");
 

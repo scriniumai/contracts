@@ -1,19 +1,25 @@
 var Subscriptions = artifacts.require("Subscriptions");
 var Platform = artifacts.require("Platform");
 var DemoBalances = artifacts.require("DemoBalances");
+var Instruments = artifacts.require("Instruments");
 
 var { range } = require('lodash');
 
 contract('Platform', function(accounts) {
-  var subscriptions, platform, balances;
+  var subscriptions, instruments, balances;
   var alice = accounts[0];
 
   const STATUS_OPENED = 2;
   const STATUS_CLOSED = 3;
 
+  const INSTRUMENT_ID = 2; // EURUSD
+
   before(async () => {
     subscriptions = await Subscriptions.deployed();
     balances = await DemoBalances.deployed();
+
+    instruments = await Instruments.deployed();
+    await instruments.add(INSTRUMENT_ID, 'EURUSD', 1);
   });
 
   afterEach(async () => {
@@ -38,9 +44,9 @@ contract('Platform', function(accounts) {
   openTradeAssertions.forEach(({tradeId, masterTradeId, cmd, pips, balanceBefore, expectedProfit}) => {
     it(`openTrade should works correctly for tradeId:${tradeId}`, async () => {
       var platform = await Platform.new(subscriptions.address, balances.address);
+      platform.setInstrumentsAddress(instruments.address, {from: alice});
 
       const LIQUID_PROVIDER = accounts[3];
-      const INSTRUMENT_ID = 2; // EURUSD
 
       await balances.deposit.sendTransaction(balanceBefore * 10**8, {from:alice});
 

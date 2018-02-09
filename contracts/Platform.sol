@@ -4,7 +4,8 @@ import '../libs/Owned.sol';
 import '../libs/SafeMath.sol';
 
 import './Subscriptions.sol';
-import './DemoBalances.sol';
+import './Balances.sol';
+import './Instruments.sol';
 
 contract Platform is Owned {
     using SafeMath for uint;
@@ -50,9 +51,9 @@ contract Platform is Owned {
 
     uint[] tradeIds;
 
-    // @todo: add setters onlyOwner
     address subscriptionsAddress;
     address balancesAddress;
+    address instrumentsAddress;
 
     function Platform(address _subscriptionsAddress, address _balancesAddress) {
         subscriptionsAddress = _subscriptionsAddress;
@@ -65,6 +66,10 @@ contract Platform is Owned {
 
     function setBalancesAddress(address _balancesAddress) external onlyOwner {
         balancesAddress = _balancesAddress;
+    }
+
+    function setInstrumentsAddress(address _instrumentsAddress) external onlyOwner {
+        instrumentsAddress = _instrumentsAddress;
     }
 
     struct testMeStruct {
@@ -93,16 +98,16 @@ contract Platform is Owned {
         uint _openPriceInstrument,
         uint _openPriceSCRBase
     ) external {
-
         // @todo: check msg.sender is correct liquid provider
-        // @todo: check instrument in Instruments
 
-        // @todo: use abstract class for Balances
-        DemoBalances _balancesContract = DemoBalances(balancesAddress);
+        Instruments _instrumentsContract = Instruments(instrumentsAddress);
+        Balances _balancesContract = Balances(balancesAddress);
+
         uint _balance = _balancesContract.balanceOf(_investor);
         require(
             _balance > 0 &&
-            0 < _marginPercent && _marginPercent < 100
+            0 < _marginPercent && _marginPercent < 100 &&
+            _instrumentsContract.isCorrect(_instrumentId)
         );
 
         createTrade(
