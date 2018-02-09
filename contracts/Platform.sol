@@ -37,11 +37,11 @@ contract Platform is Owned {
     }
 
     struct TradeQuotes {
-        uint256 openTime; //@todo: use TimePriceQuote
+        uint256 openTime;
         uint256 openPriceInstrument;
         uint256 openPriceSCRBaseCurrency;
 
-        uint256 closeTime; //@todo: use TimePriceQuote
+        uint256 closeTime;
         uint256 closePriceInstrument;
         uint256 closePriceSCRBaseCurrency;
     }
@@ -70,18 +70,6 @@ contract Platform is Owned {
 
     function setInstrumentsAddress(address _instrumentsAddress) external onlyOwner {
         instrumentsAddress = _instrumentsAddress;
-    }
-
-    struct testMeStruct {
-        int foo;
-    }
-
-    mapping (uint => testMeStruct) testMeMapping;
-
-    function testMe(uint _tradeId) external {
-        trades[_tradeId].profitSCR = -1;
-        trades[_tradeId].profitSCR = -2;
-
     }
 
     function openTrade (
