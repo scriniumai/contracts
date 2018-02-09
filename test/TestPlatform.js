@@ -7,7 +7,10 @@ var { range } = require('lodash');
 
 contract('Platform', function(accounts) {
   var subscriptions, instruments, balances;
-  var alice = accounts[0];
+
+  var alice = accounts[0]; // owner
+  var bob = accounts[1]; // investor
+  const LIQUID_PROVIDER = accounts[3]; //liquidProvider
 
   const STATUS_OPENED = 2;
   const STATUS_CLOSED = 3;
@@ -24,7 +27,7 @@ contract('Platform', function(accounts) {
 
   afterEach(async () => {
     // clean balances
-    await balances.withdrawal.sendTransaction(await balances.balanceOf(alice), {from: alice});
+    await balances.withdrawal.sendTransaction(await balances.balanceOf(bob), {from: bob});
   });
 
   const CMD_BUY = 0;
@@ -45,15 +48,14 @@ contract('Platform', function(accounts) {
     it(`openTrade should works correctly for tradeId:${tradeId}`, async () => {
       var platform = await Platform.new(subscriptions.address, balances.address);
       platform.setInstrumentsAddress(instruments.address, {from: alice});
+      platform.setAllowedLiquidProvider(LIQUID_PROVIDER, {from: alice});
 
-      const LIQUID_PROVIDER = accounts[3];
-
-      await balances.deposit.sendTransaction(balanceBefore * 10**8, {from:alice});
+      await balances.deposit.sendTransaction(balanceBefore * 10**8, {from:bob});
 
       try {
         await platform.openTrade.sendTransaction(
           tradeId,
-          alice,              // investor
+          bob,              // investor
           masterTradeId,
 
           INSTRUMENT_ID,
@@ -88,7 +90,7 @@ contract('Platform', function(accounts) {
         status
       ] = await platform.trades.call(tradeId);
       assert.equal(liquidProviderAddress, LIQUID_PROVIDER);
-      assert.equal(investor, alice);
+      assert.equal(investor, bob);
       assert.equal(masterTraderId, masterTradeId);
       assert.equal(instrumentId, INSTRUMENT_ID);
       assert.equal(marginPercent, 28);
@@ -118,9 +120,9 @@ contract('Platform', function(accounts) {
         [tradeId]
       );
 
-      // Alice's balance was not changed = 1000 SCR
+      // bob's balance was not changed = 1000 SCR
       assert.equal(
-        (await balances.balanceOf(alice)).valueOf(),
+        (await balances.balanceOf(bob)).valueOf(),
         balanceBefore * 10**8
       );
 
@@ -157,8 +159,8 @@ contract('Platform', function(accounts) {
       assert.equal(parseInt(profitSCR), parseInt(expectedProfit * 10**8)); // in SCR cents
       assert.equal(status, STATUS_CLOSED, 'status should be closed');
 
-      // Alice's balance changed
-      assert.equal((await balances.balanceOf(alice)).valueOf(), parseInt((balanceBefore + expectedProfit) * 10**8));
+      // bob's balance changed
+      assert.equal((await balances.balanceOf(bob)).valueOf(), parseInt((balanceBefore + expectedProfit) * 10**8));
     });
   });
 

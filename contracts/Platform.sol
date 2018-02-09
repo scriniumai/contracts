@@ -4,7 +4,7 @@ import '../libs/Owned.sol';
 import '../libs/SafeMath.sol';
 
 import './Subscriptions.sol';
-import './Balances.sol';
+import './DemoBalances.sol';
 import './Instruments.sol';
 
 contract Platform is Owned {
@@ -97,9 +97,7 @@ contract Platform is Owned {
         uint _openTime,
         uint _openPriceInstrument,
         uint _openPriceSCRBase
-    ) external {
-        // @todo: check msg.sender is correct liquid provider
-
+    ) external onlyAllowedLiquidProvider {
         Instruments _instrumentsContract = Instruments(instrumentsAddress);
         Balances _balancesContract = Balances(balancesAddress);
 
@@ -134,7 +132,7 @@ contract Platform is Owned {
         uint _closeTime,
         uint _closePriceInstrument,
         uint _closePriceSCRBase
-    ) external {
+    ) external onlyAllowedLiquidProvider {
         require(trades[_tradeId].status == STATUS_OPEN);
 
         // update trade
@@ -161,7 +159,6 @@ contract Platform is Owned {
             ;
         }
 
-        // @todo: use abstract class for Balances
         DemoBalances _balancesContract = DemoBalances(balancesAddress);
 
         // @todo: optimize me - _balancesContract.updateBalance()
@@ -211,5 +208,15 @@ contract Platform is Owned {
         tradeQuotes[_tradeId].openPriceSCRBaseCurrency = _openPriceSCRBase;
 
         tradeIds.push(_tradeId);
+    }
+
+    address allowedLiquidProvider;
+    function setAllowedLiquidProvider(address _allowedLiquidProvider) public onlyOwner {
+        allowedLiquidProvider = _allowedLiquidProvider;
+    }
+
+    modifier onlyAllowedLiquidProvider {
+        require(msg.sender == allowedLiquidProvider);
+        _;
     }
 }
