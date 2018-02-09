@@ -33,7 +33,7 @@ contract DemoBalances is Owned {
 
     function withdrawal(uint amount) external {
         require(balance[msg.sender] >= amount);
-        // do not send SCR anywhere
+        // do not send SCR anywhere for demo version
         balance[msg.sender] = balance[msg.sender].sub(amount);
     }
 

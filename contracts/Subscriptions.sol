@@ -18,7 +18,6 @@ contract Subscriptions is Owned {
         subscriptionsLimit = _subscriptionsLimit;
     }
 
-    // only for demo
     function privateSubscribe(uint[] _traderIds, address _investor) internal {
         require(investorTraderIds[_investor].length + _traderIds.length <= subscriptionsLimit);
 
@@ -90,8 +89,8 @@ contract Subscriptions is Owned {
         return traderIdInvestors[_traderId][key];
     }
 
-    function getTraders() external view returns (uint[]) {
-        return investorTraderIds[msg.sender];
+    function getTraders(address _investor) external view returns (uint[]) {
+        return investorTraderIds[_investor];
     }
 
     function getInvestors(uint _traderId) external view returns (address[]) {

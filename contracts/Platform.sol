@@ -121,7 +121,6 @@ contract Platform is Owned {
             _openPriceSCRBase
         );
 
-        // count marginSCR
         trades[_tradeId].marginSCR = _balance.mul(_marginPercent).div(MARGIN_PERCENT_MULTIPLIER);
 
         // @todo: lock margin for withdrawal or reusing in other trades

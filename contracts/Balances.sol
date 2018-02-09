@@ -7,14 +7,17 @@ import "../libs/Owned.sol";
 contract Balances is Owned {
     using SafeMath for uint256;
 
+    mapping (address => uint256) balance;
+
     address public scriniumAddress;
 
     function Balances(address _scriniumAddress) public {
         scriniumAddress = _scriniumAddress;
     }
 
-    // @todo: add fn setScrAddress
-    mapping (address => uint256) balance;
+    function setScriniumAddress(address _scriniumAddress) public onlyOwner {
+        scriniumAddress = _scriniumAddress;
+    }
 
     function deposit(uint amount) external {
         Scrinium _contract = Scrinium(scriniumAddress);
@@ -35,6 +38,4 @@ contract Balances is Owned {
     function balanceOf(address _investor) public view returns(uint256) {
         return balance[_investor];
     }
-
-    //@todo: how to withdraw SCR to our addresses? or another investor addresses
 }
