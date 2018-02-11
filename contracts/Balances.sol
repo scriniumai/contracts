@@ -1,8 +1,9 @@
 pragma solidity ^0.4.18;
 
 import "../libs/SafeMath.sol";
-import "./Scrinium.sol";
 import "../libs/Owned.sol";
+
+import "./Scrinium.sol";
 
 contract Balances is Owned {
     using SafeMath for uint256;

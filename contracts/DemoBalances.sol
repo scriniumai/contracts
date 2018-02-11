@@ -1,7 +1,8 @@
 pragma solidity ^0.4.18;
 
-import "./Balances.sol";
 import "../libs/Owned.sol";
+
+import "./Balances.sol";
 import "./Platform.sol";
 
 contract DemoBalances is Owned {

@@ -59,7 +59,7 @@ testrpc
 truffle test --network testing
 ```
 
-### Allowed methods
+#### Allowed methods
 ```
 
 Scrinium
