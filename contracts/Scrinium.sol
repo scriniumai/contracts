@@ -1,71 +1,9 @@
 pragma solidity ^0.4.18;
-/**
-*   Crowdsale contracts edited from original contract code at https://www.ethereum.org/crowdsale#crowdfund-your-idea
-*   Additional crowdsale contracts, functions, libraries from OpenZeppelin
-*       at https://github.com/OpenZeppelin/zeppelin-solidity/tree/master/contracts/token
-*   Token contract edited from original contract code at https://www.ethereum.org/token
-*   ERC20 interface and certain token functions adapted from https://github.com/ConsenSys/Tokens
-**/
-contract ERC20 {
 
-    event Approval(address indexed _owner, address indexed _spender, uint _value);
-    event Transfer(address indexed _from, address indexed _to, uint _value);
-    function allowance(address _owner, address _spender) public constant returns (uint remaining);
-    function approve(address _spender, uint _value) public returns (bool success);
-    function balanceOf(address _owner) public constant returns (uint balance);
-    function transfer(address _to, uint _value) public returns (bool success);
-    function transferFrom(address _from, address _to, uint _value) returns (bool success);
-}
+import '../libs/ERC20.sol';
+import '../libs/Owned.sol';
+import '../libs/SafeMath.sol';
 
-contract Owned {
-
-    address public owner;
-
-    function Owned() {
-        owner = msg.sender;
-    }
-
-    modifier onlyOwner {
-        require(msg.sender == owner);
-        _;
-    }
-
-    function transferOwnership(address newOwner) onlyOwner {
-        owner = newOwner;
-    }
-}
-library SafeMath {
-    function add(uint256 a, uint256 b) internal returns (uint256) {
-        uint256 c = a + b;
-        assert(c >= a);
-        return c;
-    }
-    function div(uint256 a, uint256 b) internal returns (uint256) {
-        uint256 c = a / b;
-        return c;
-    }
-    function max64(uint64 a, uint64 b) internal constant returns (uint64) {
-        return a >= b ? a : b;
-    }
-    function max256(uint256 a, uint256 b) internal constant returns (uint256) {
-        return a >= b ? a : b;
-    }
-    function min64(uint64 a, uint64 b) internal constant returns (uint64) {
-        return a < b ? a : b;
-    }
-    function min256(uint256 a, uint256 b) internal constant returns (uint256) {
-        return a < b ? a : b;
-    }
-    function mul(uint256 a, uint256 b) internal returns (uint256) {
-        uint256 c = a * b;
-        assert(a == 0 || c / a == b);
-        return c;
-    }
-    function sub(uint256 a, uint256 b) internal returns (uint256) {
-        assert(b <= a);
-        return a - b;
-    }
-}
 contract Scrinium is ERC20, Owned {
 
     using SafeMath for uint256;
@@ -76,10 +14,10 @@ contract Scrinium is ERC20, Owned {
     uint256 multiplier = 100000000;
 
     uint256 public totalSupply;
-    uint256 public hardcap;
+    uint256 public hardcap = 180000000;
 
-    uint256 public constant startTime = 1521590400; //5.12.2017
-    uint256 public constant stopTime = 1514678400; //21.03.2018
+    uint256 public constant startTime = 1514678400; //5.12.2017
+    uint256 public constant stopTime = 1521590400; //21.03.2018
 
     mapping (address => uint256) balance;
     mapping (address => mapping (address => uint256)) allowed;
@@ -95,7 +33,7 @@ contract Scrinium is ERC20, Owned {
     }
 
     function allowance(address _owner, address _spender) constant returns (uint256 remaining) {
-      return allowed[_owner][_spender];
+        return allowed[_owner][_spender];
     }
 
     function approve(address _spender, uint256 _value) returns (bool success) {
@@ -110,8 +48,8 @@ contract Scrinium is ERC20, Owned {
 
     function mintToken(address target, uint256 mintedAmount) onlyOwner returns (bool success) {
         require(mintedAmount > 0
-            && (now < stopTime)
-            && (totalSupply.add(mintedAmount) <= hardcap));
+        && (now < stopTime)
+        && (totalSupply.add(mintedAmount) <= hardcap));
 
         uint256 addTokens = mintedAmount;
         balance[target] += addTokens;
