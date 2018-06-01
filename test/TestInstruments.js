@@ -5,7 +5,7 @@ contract('Instruments', function(accounts) {
   var alice = accounts[0];
 
   before(async () => {
-    instruments = await Instruments.deployed();
+    instruments = await Instruments.new();
   });
 
   it("instruments.add should works correctly", async () => {

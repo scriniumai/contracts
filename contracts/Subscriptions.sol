@@ -1,50 +1,24 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.23;
 
-import "../libs/Owned.sol";
+import "./shared/Owned.sol";
+
 import "./DemoBalances.sol";
 
+
 contract Subscriptions is Owned {
-    mapping (address => uint[]) investorTraderIds;
-    mapping (uint => address[]) traderIdInvestors;
+
+    address public balancesAddress;
 
     uint public subscriptionsLimit = 50;
 
-    function Subscriptions(address _balancesAddress) public {
+    mapping (address => uint[]) investorTraderIds;
+    mapping (uint => address[]) traderIdInvestors;
+
+    constructor(address _balancesAddress) public {
         balancesAddress = _balancesAddress;
     }
-    address public balancesAddress;
 
-    function setSubscriptionsLimit(uint _subscriptionsLimit) onlyOwner external {
-        subscriptionsLimit = _subscriptionsLimit;
-    }
-
-    function privateSubscribe(uint[] _traderIds, address _investor) internal {
-        require(investorTraderIds[_investor].length + _traderIds.length <= subscriptionsLimit);
-
-        bool _isUserExists;
-        for (uint i = 0; i < _traderIds.length; i++) {
-            _isUserExists = false;
-
-            for (uint k = 0; k < investorTraderIds[_investor].length; k++) {
-                if (investorTraderIds[msg.sender][k] == _traderIds[i]) {
-                    _isUserExists = true;
-                    break;
-                }
-            }
-            if (_isUserExists) {
-                continue;
-            }
-            investorTraderIds[_investor].push(_traderIds[i]);
-            traderIdInvestors[_traderIds[i]].push(_investor);
-        }
-    }
-
-    function subscribe(uint[] _traderIds) external {
-        // owner, and platform, and demo
-        privateSubscribe(_traderIds, msg.sender);
-    }
-
-    // allowed only for demo
+    // Allowed only for demo purposes!
     function demoSubscribeAndDeposit(uint[] _traderIds, uint _amount) external {
         privateSubscribe(_traderIds, msg.sender);
 
@@ -52,9 +26,13 @@ contract Subscriptions is Owned {
         _balances.demoDeposit(_amount, msg.sender);
     }
 
+    function subscribe(uint[] _traderIds) external {
+        privateSubscribe(_traderIds, msg.sender);
+    }
+
     function unsubscribe(uint[] _traderIdsForUnsubscribe) external {
         for (uint i = 0; i < _traderIdsForUnsubscribe.length; i++) {
-            //traderId
+
             uint traderIdForUnsubsribe = _traderIdsForUnsubscribe[i];
 
             for (uint k = 0; k < traderIdInvestors[traderIdForUnsubsribe].length; k++) {
@@ -81,19 +59,44 @@ contract Subscriptions is Owned {
         }
     }
 
-    function getCountOfInvestorsByTraderId(uint _traderId) public view returns (uint) {
+    function getCountOfInvestorsByTraderId(uint _traderId) external view returns (uint) {
         return traderIdInvestors[_traderId].length;
+    }
+
+    function getInvestors(uint _traderId) external view returns (address[]) {
+        return traderIdInvestors[_traderId];
     }
 
     function getInvestorByTraderIdAndKey(uint _traderId, uint key) external view returns (address) {
         return traderIdInvestors[_traderId][key];
     }
 
+    function setSubscriptionsLimit(uint _subscriptionsLimit) onlyOwner external {
+        subscriptionsLimit = _subscriptionsLimit;
+    }
+
     function getTraders(address _investor) external view returns (uint[]) {
         return investorTraderIds[_investor];
     }
 
-    function getInvestors(uint _traderId) external view returns (address[]) {
-        return traderIdInvestors[_traderId];
+    function privateSubscribe(uint[] _traderIds, address _investor) internal {
+        require(investorTraderIds[_investor].length + _traderIds.length <= subscriptionsLimit);
+
+        bool _isUserExists;
+        for (uint i = 0; i < _traderIds.length; i++) {
+            _isUserExists = false;
+
+            for (uint k = 0; k < investorTraderIds[_investor].length; k++) {
+                if (investorTraderIds[msg.sender][k] == _traderIds[i]) {
+                    _isUserExists = true;
+                    break;
+                }
+            }
+            if (_isUserExists) {
+                continue;
+            }
+            investorTraderIds[_investor].push(_traderIds[i]);
+            traderIdInvestors[_traderIds[i]].push(_investor);
+        }
     }
 }

@@ -1,16 +1,12 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.23;
 
-import "../libs/Owned.sol";
+import "./shared/Owned.sol";
+import "./shared/SafeMath.sol";
 
-import "./Balances.sol";
-import "./Platform.sol";
 
 contract DemoBalances is Owned {
     using SafeMath for uint256;
 
-    function DemoBalances(address _scriniumAddress) public {
-        scriniumAddress = _scriniumAddress;
-    }
     address public scriniumAddress;
     address public platformAddress;
 
@@ -19,27 +15,13 @@ contract DemoBalances is Owned {
 
     mapping (address => uint256) balance;
 
-    function deposit(uint amount) external {
-        demoDeposit(amount, msg.sender);
+    modifier onlyPlatform {
+        require(msg.sender == platformAddress);
+        _;
     }
 
-    function demoDeposit(uint amount, address investor) public {
-        require(
-            balance[investor].add(amount) <= maxDemoBalance &&
-            amount <= maxDemoDeposit
-        );
-
-        balance[investor] = balance[investor].add(amount);
-    }
-
-    function withdrawal(uint amount) external {
-        require(balance[msg.sender] >= amount);
-        // do not send SCR anywhere for demo version
-        balance[msg.sender] = balance[msg.sender].sub(amount);
-    }
-
-    function balanceOf(address _investor) public view returns(uint256) {
-        return balance[_investor];
+    constructor (address _scriniumAddress) public {
+        scriniumAddress = _scriniumAddress;
     }
 
     function setPlatformAddress(address _platformAddress) external onlyOwner {
@@ -58,8 +40,26 @@ contract DemoBalances is Owned {
         }
     }
 
-    modifier onlyPlatform {
-        require(msg.sender == platformAddress);
-        _;
+    function deposit(uint amount) external {
+        demoDeposit(amount, msg.sender);
+    }
+
+    function withdrawal(uint amount) external {
+        require(balance[msg.sender] >= amount);
+        // do not send SCR anywhere for demo version
+        balance[msg.sender] = balance[msg.sender].sub(amount);
+    }
+
+    function balanceOf(address _investor) public view returns(uint256) {
+        return balance[_investor];
+    }
+
+    function demoDeposit(uint amount, address investor) public {
+        require(
+            balance[investor].add(amount) <= maxDemoBalance &&
+            amount <= maxDemoDeposit
+        );
+
+        balance[investor] = balance[investor].add(amount);
     }
 }
