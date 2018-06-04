@@ -8,21 +8,22 @@ module.exports = function(deployer, network) {
   ).then(function () {
     return deployer.deploy(Balances, Scrinium.address);
   }).then(function () {
-    return global.writeGethClientPreload(
-      network,
-      {
-        scrinium: {
-          comment: __filename,
-          abi: Scrinium.abi,
-          address: Scrinium.address
-        },
-        balances: {
-          comment: __filename,
-          abi: Balances.abi,
-          address: Balances.address
-        }
+
+    global.dataForWriting = {
+      ...global.dataForWriting,
+
+      scrinium: {
+        comment: __filename,
+        abi: Scrinium.abi,
+        address: Scrinium.address
       },
-      true
-    );
+      balances: {
+        comment: __filename,
+        abi: Balances.abi,
+        address: Balances.address
+      }
+    };
+
+    return Promise.resolve()
   });
 };

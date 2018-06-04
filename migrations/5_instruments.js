@@ -18,15 +18,17 @@ module.exports = function(deployer, network, accounts) {
 
       return Promise.all(txs);
     }).then(function () {
-      return global.writeGethClientPreload(
-        network,
-        {
-         instruments: {
-            comment: __filename,
-            abi: Instruments.abi,
-            address: Instruments.address
-          }
+
+      global.dataForWriting = {
+        ...global.dataForWriting,
+
+        instruments: {
+          comment: __filename,
+          abi: Instruments.abi,
+          address: Instruments.address
         }
-      );
+      }
+
+      return Promise.resolve()
     });
 };

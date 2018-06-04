@@ -7,15 +7,17 @@ module.exports = function(deployer, network) {
     DemoBalances,
     Scrinium.address
   ).then(function () {
-    return global.writeGethClientPreload(
-      network,
-      {
-        demoBalances: {
-          comment: __filename,
-          abi: DemoBalances.abi,
-          address: DemoBalances.address
-        }
+
+    global.dataForWriting = {
+      ...global.dataForWriting,
+
+      demoBalances: {
+        comment: __filename,
+        abi: DemoBalances.abi,
+        address: DemoBalances.address
       }
-    );
+    }
+
+    return Promise.resolve()
   });
 }

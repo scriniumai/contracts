@@ -19,7 +19,7 @@ module.exports = (network, data, truncate = false) => {
   for (const contractVariableName in data) {
     const { comment, abi, address } = data[contractVariableName]
 
-    code = `
+    code += `
 // ${comment || ''}
 var ${contractVariableName} = eth.contract(JSON.parse('${JSON.stringify(abi)}')).at('${address}')
 `

@@ -7,15 +7,17 @@ module.exports = function(deployer, network) {
     Subscriptions,
     DemoBalances.address
   ).then(function () {
-    return global.writeGethClientPreload(
-      network,
-      {
-       subscriptions: {
-          comment: __filename,
-          abi: Subscriptions.abi,
-          address: Subscriptions.address
-        }
+
+    global.dataForWriting = {
+      ...global.dataForWriting,
+
+      subscriptions: {
+        comment: __filename,
+        abi: Subscriptions.abi,
+        address: Subscriptions.address
       }
-    );
+    }
+
+    return Promise.resolve()
   });
 };

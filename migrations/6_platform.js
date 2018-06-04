@@ -22,15 +22,17 @@ module.exports = function(deployer, network, accounts) {
 
       return demoBalancesInstance.setPlatformAddress(platformInstance.address)
     }).then(function () {
-      return global.writeGethClientPreload(
-        network,
-        {
-         platform: {
-            comment: __filename,
-            abi: Platform.abi,
-            address: Platform.address
-          }
+
+      global.dataForWriting = {
+        ...global.dataForWriting,
+
+        platform: {
+          comment: __filename,
+          abi: Platform.abi,
+          address: Platform.address
         }
-      );
+      }
+
+      return Promise.resolve()
   });
 };
