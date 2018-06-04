@@ -1,8 +1,6 @@
 var Instruments = artifacts.require("Instruments");
 
-var fs = require("fs");
-
-module.exports = function(deployer, network, accounts){
+module.exports = function(deployer, network, accounts) {
     deployer.deploy(
       Instruments
     ).then(function (instruments) {
@@ -20,12 +18,15 @@ module.exports = function(deployer, network, accounts){
 
       return Promise.all(txs);
     }).then(function () {
-
-      var code = `
-// migrations/5_instruments.js
-var instruments = eth.contract(JSON.parse('${JSON.stringify(Instruments.abi)}')).at('${Instruments.address}');
-`;
-
-      return fs.appendFileSync(`./preload-${network}.js`, code);
+      return global.writeGethClientPreload(
+        network,
+        {
+         instruments: {
+            comment: __filename,
+            abi: Instruments.abi,
+            address: Instruments.address
+          }
+        }
+      );
     });
 };
