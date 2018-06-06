@@ -13,7 +13,7 @@ module.exports = (network, data) => {
 
   const resolved = Promise.resolve()
 
-  let { CONTRACTS_OUTSIDE_PATHS: outsidePaths } = process.env
+  let { TRUFFLE_ARTIFACTS_OUTSIDE_PATHS: outsidePaths } = process.env
 
   if (typeof outsidePaths !== 'string') {
     return resolved
