@@ -51,17 +51,20 @@ contract('Subscriptions', function(accounts) {
     await subscriptions.subscribe.sendTransaction([1,2,3,4,5], {from:bob});
     await subscriptions.unsubscribe.sendTransaction([1,3], {from:alice});
     await subscriptions.unsubscribe.sendTransaction([2,4], {from:bob});
+    await subscriptions.unsubscribe.sendTransaction([2,4,5], {from:alice});
+    await subscriptions.subscribe.sendTransaction([6], {from:alice});
 
     var traders = await subscriptions.getTraders(bob);
     traders = traders.map((trader) => Number(trader.toNumber())).sort(); // cast to int[]
     assert.deepEqual(traders, [1,3,5]);
 
     assert.deepEqual(await subscriptions.getInvestors(1), [bob]);
-    assert.deepEqual(await subscriptions.getInvestors(2), [alice]);
+    assert.deepEqual(await subscriptions.getInvestors(2), []);
     assert.deepEqual(await subscriptions.getInvestors(3), [bob]);
-    assert.deepEqual(await subscriptions.getInvestors(4), [alice]);
-    assert.deepEqual(await subscriptions.getInvestors(5), [alice,bob]);
-    assert.deepEqual(await subscriptions.getInvestors(6), []);
+    assert.deepEqual(await subscriptions.getInvestors(4), []);
+    assert.deepEqual(await subscriptions.getInvestors(5), [bob]);
+    assert.deepEqual(await subscriptions.getInvestors(6), [alice]);
+    assert.deepEqual(await subscriptions.getInvestors(7), []);
   });
 
   it("setSubscriptionsLimit should works correctly", async () => {
