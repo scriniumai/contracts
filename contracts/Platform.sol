@@ -63,6 +63,38 @@ contract Platform is Owned {
         _;
     }
 
+    event AllowedLiquidityProviderSetted(address indexed _owner, address _allowedLiquidityProvider);
+    event BalancesAddressSetted(address indexed _owner, address _balancesAddress);
+    event InstrumentsAddressSetted(address indexed _owner, address _instrumentsAddress);
+    event SubscriptionsAddressSetted(address indexed _owner, address _subscriptionsAddress);
+
+    event TradeOpened(
+        uint indexed _tradeId,
+        address indexed _investor,
+        uint indexed _masterTraderId,
+
+        uint _instrumentId,
+        uint _marginPercent,
+        uint _marginSCR,
+        uint _leverage,
+        uint _cmd,
+
+        uint _openTime,
+        uint _openPriceInstrument,
+        uint _openPriceSCRBase
+    );
+    event TradeClosed(
+        uint indexed _tradeId,
+        address indexed _investor,
+        uint indexed _masterTraderId,
+
+        uint _closeTime,
+        uint _closePriceInstrument,
+        uint _closePriceSCRBase,
+
+        int _profitSCR
+    );
+
     constructor(
         address _allowedLiquidityProvider,
         address _balancesAddress,
@@ -77,18 +109,22 @@ contract Platform is Owned {
 
     function setAllowedLiquidityProvider(address _allowedLiquidityProvider) external onlyOwner {
         allowedLiquidityProvider = _allowedLiquidityProvider;
+        emit AllowedLiquidityProviderSetted(msg.sender, _allowedLiquidityProvider);
     }
 
     function setBalancesAddress(address _balancesAddress) external onlyOwner {
         balancesAddress = _balancesAddress;
+        emit BalancesAddressSetted(msg.sender, _balancesAddress);
     }
 
     function setInstrumentsAddress(address _instrumentsAddress) external onlyOwner {
         instrumentsAddress = _instrumentsAddress;
+        emit InstrumentsAddressSetted(msg.sender, _instrumentsAddress);
     }
 
     function setSubscriptionsAddress(address _subscriptionsAddress) external onlyOwner {
         subscriptionsAddress = _subscriptionsAddress;
+        emit SubscriptionsAddressSetted(msg.sender, _subscriptionsAddress);
     }
 
     function openTrade (
@@ -130,6 +166,19 @@ contract Platform is Owned {
             _openPriceSCRBase
         );
 
+        emit TradeOpened(
+            _tradeId,
+            _investor,
+            _masterTraderId,
+            _instrumentId,
+            _marginPercent,
+            _marginSCR,
+            _leverage,
+            _cmd,
+            _openTime,
+            _openPriceInstrument,
+            _openPriceSCRBase
+        );
         // @todo: lock margin for withdrawal or reusing in other trades
     }
 
@@ -166,6 +215,18 @@ contract Platform is Owned {
         DemoBalances _balancesContract = DemoBalances(balancesAddress);
         _balancesContract.updateBalance(
             trades[_tradeId].investor,
+            trades[_tradeId].profitSCR
+        );
+
+        emit TradeClosed(
+            _tradeId,
+            trades[_tradeId].investor,
+            trades[_tradeId].masterTraderId,
+
+            _closeTime,
+            _closePriceInstrument,
+            _closePriceSCRBase,
+
             trades[_tradeId].profitSCR
         );
     }

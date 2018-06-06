@@ -15,22 +15,27 @@ contract Instruments is Owned {
         uint assetType;
     }
 
-    mapping (uint => Asset) public data;
+    event InstrumentAdded(address indexed _owner, uint indexed _id, string _name, uint _type);
+    event InstrumentRemoved(address indexed _owner, uint indexed _id);
+
+    mapping (uint => Asset) public instruments;
 
     function add(uint _id, string _name, uint _type) external onlyOwner {
-        data[_id] = Asset(_name, _type);
+        instruments[_id] = Asset(_name, _type);
+        emit InstrumentAdded(msg.sender, _id, _name, _type);
     }
 
     function remove(uint _id) external onlyOwner {
-        delete data[_id];
+        delete instruments[_id];
+        emit InstrumentRemoved(msg.sender, _id);
     }
 
     function isCorrect(uint _id) public view returns (bool) {
         return (
-            data[_id].assetType == TYPE_CURRENCIES ||
-            data[_id].assetType == TYPE_CRYPTO ||
-            data[_id].assetType == TYPE_COMMODITIES ||
-            data[_id].assetType == TYPE_INDECES
+            instruments[_id].assetType == TYPE_CURRENCIES ||
+            instruments[_id].assetType == TYPE_CRYPTO ||
+            instruments[_id].assetType == TYPE_COMMODITIES ||
+            instruments[_id].assetType == TYPE_INDECES
         );
     }
 }
