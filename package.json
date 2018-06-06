@@ -5,7 +5,7 @@
     "ganache": "./bin/ganache.sh",
     "lint": "yarn solium -d ./contracts",
     "migrate": "yarn run truffle migrate --reset --compile-all",
-    "remix": "yarn run remix-ide ./contratcs",
+    "remix": "yarn run remix-ide ./contracts",
     "test": "yarn run truffle test"
   },
   "dependencies": {
