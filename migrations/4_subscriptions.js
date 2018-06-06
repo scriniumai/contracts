@@ -1,17 +1,23 @@
 var Subscriptions = artifacts.require("Subscriptions");
+
 var DemoBalances = artifacts.require("DemoBalances");
 
-var fs = require('fs');
+module.exports = function(deployer, network) {
+  deployer.deploy(
+    Subscriptions,
+    DemoBalances.address
+  ).then(function () {
 
-module.exports = function(deployer, network){
-  deployer.deploy(Subscriptions, DemoBalances.address)
-    .then(function () {
+    global.dataForWriting = {
+      ...global.dataForWriting,
 
-          var code =`
-// migrations/4_subscriptions.js
-var subscriptions = eth.contract(JSON.parse('${JSON.stringify(Subscriptions.abi)}')).at('${Subscriptions.address}');
-`;
+      subscriptions: {
+        comment: __filename,
+        abi: Subscriptions.abi,
+        address: Subscriptions.address
+      }
+    }
 
-      return fs.appendFileSync(`./preload-${network}.js`, code);
-    });
+    return Promise.resolve()
+  });
 };

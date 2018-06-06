@@ -1,7 +1,7 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.23;
 
-import "../libs/SafeMath.sol";
-import "../libs/Owned.sol";
+import "./shared/SafeMath.sol";
+import "./shared/Owned.sol";
 
 import "./Scrinium.sol";
 
@@ -12,7 +12,7 @@ contract Balances is Owned {
 
     address public scriniumAddress;
 
-    function Balances(address _scriniumAddress) public {
+    constructor(address _scriniumAddress) public {
         scriniumAddress = _scriniumAddress;
     }
 

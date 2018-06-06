@@ -1,5 +1,7 @@
-#
-preload-*.js
+.idea/
+.vscode/
+
 build/
-.idea
 node_modules/
+
+**/preload-*.js

@@ -5,13 +5,13 @@ contract('Instruments', function(accounts) {
   var alice = accounts[0];
 
   before(async () => {
-    instruments = await Instruments.deployed();
+    instruments = await Instruments.new();
   });
 
   it("instruments.add should works correctly", async () => {
     await instruments.add.sendTransaction(1, 'EURUSD', 3, {from:alice});
 
-    var eurusd = await instruments.data.call(1);
+    var eurusd = await instruments.instruments.call(1);
     assert.equal(eurusd[0], 'EURUSD');
     assert.equal(eurusd[1], 3);
   });

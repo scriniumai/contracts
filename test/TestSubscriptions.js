@@ -24,7 +24,7 @@ contract('Subscriptions', function(accounts) {
     await subscriptions.subscribe.sendTransaction([3,4], {from:alice});
 
     var traders = await subscriptions.getTraders(alice);
-    traders = traders.map((trader) => Number(trader.valueOf())); // cast to int[]
+    traders = traders.map((trader) => Number(trader.toNumber())); // cast to int[]
     assert.deepEqual(traders, [1,2,3,4]);
   });
 
@@ -33,7 +33,7 @@ contract('Subscriptions', function(accounts) {
     await subscriptions.subscribe.sendTransaction([2,3], {from:alice});
 
     var traders = await subscriptions.getTraders(alice);
-    traders = traders.map((trader) => Number(trader.valueOf())); // cast to int[]
+    traders = traders.map((trader) => Number(trader.toNumber())); // cast to int[]
     assert.deepEqual(traders, [1,2,3]);
   });
 
@@ -51,17 +51,20 @@ contract('Subscriptions', function(accounts) {
     await subscriptions.subscribe.sendTransaction([1,2,3,4,5], {from:bob});
     await subscriptions.unsubscribe.sendTransaction([1,3], {from:alice});
     await subscriptions.unsubscribe.sendTransaction([2,4], {from:bob});
+    await subscriptions.unsubscribe.sendTransaction([2,4,5], {from:alice});
+    await subscriptions.subscribe.sendTransaction([6], {from:alice});
 
     var traders = await subscriptions.getTraders(bob);
-    traders = traders.map((trader) => Number(trader.valueOf())).sort(); // cast to int[]
+    traders = traders.map((trader) => Number(trader.toNumber())).sort(); // cast to int[]
     assert.deepEqual(traders, [1,3,5]);
 
     assert.deepEqual(await subscriptions.getInvestors(1), [bob]);
-    assert.deepEqual(await subscriptions.getInvestors(2), [alice]);
+    assert.deepEqual(await subscriptions.getInvestors(2), []);
     assert.deepEqual(await subscriptions.getInvestors(3), [bob]);
-    assert.deepEqual(await subscriptions.getInvestors(4), [alice]);
-    assert.deepEqual(await subscriptions.getInvestors(5), [alice,bob]);
-    assert.deepEqual(await subscriptions.getInvestors(6), []);
+    assert.deepEqual(await subscriptions.getInvestors(4), []);
+    assert.deepEqual(await subscriptions.getInvestors(5), [bob]);
+    assert.deepEqual(await subscriptions.getInvestors(6), [alice]);
+    assert.deepEqual(await subscriptions.getInvestors(7), []);
   });
 
   it("setSubscriptionsLimit should works correctly", async () => {
@@ -125,9 +128,9 @@ contract('Subscriptions', function(accounts) {
     await subscriptions.demoSubscribeAndDeposit([1,2,4], 12499, {from:bob})
 
     var traders = await subscriptions.getTraders(bob);
-    traders = traders.map((trader) => Number(trader.valueOf())); // cast to int[]
+    traders = traders.map((trader) => Number(trader.toNumber())); // cast to int[]
     assert.deepEqual(traders, [1,2,4]);
 
-    assert.equal((await balances.balanceOf(bob)).valueOf(), '12499');
+    assert.equal((await balances.balanceOf(bob)).toNumber(), '12499');
   });
 });

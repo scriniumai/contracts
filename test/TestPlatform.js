@@ -46,9 +46,14 @@ contract('Platform', function(accounts) {
 
   openTradeAssertions.forEach(({tradeId, masterTradeId, cmd, pips, balanceBefore, expectedProfit}) => {
     it(`openTrade should works correctly for tradeId:${tradeId}`, async () => {
-      var platform = await Platform.new(subscriptions.address, balances.address);
+      var platform = await Platform.new(
+        LIQUID_PROVIDER,
+        balances.address,
+        instruments.address,
+        subscriptions.address
+      );
       platform.setInstrumentsAddress(instruments.address, {from: alice});
-      platform.setAllowedLiquidProvider(LIQUID_PROVIDER, {from: alice});
+      platform.setAllowedLiquidityProvider(LIQUID_PROVIDER, {from: alice});
       balances.setPlatformAddress(platform.address, {from: alice});
 
       await balances.deposit.sendTransaction(balanceBefore * 10**8, {from:bob});
@@ -98,8 +103,8 @@ contract('Platform', function(accounts) {
       assert.equal(leverage, 500);
       assert.equal(existingCmd, cmd);
 
-      assert.equal(marginSCR.valueOf(), 28 * 10**8);
-      assert.equal(profitSCR.valueOf(), 0);
+      assert.equal(marginSCR.toNumber(), 28 * 10**8);
+      assert.equal(profitSCR.toNumber(), 0);
 
       assert.equal(status, STATUS_OPENED);
 
@@ -109,7 +114,7 @@ contract('Platform', function(accounts) {
         closeTime, closePriceInstrument, closePriceSCRBaseCurrency,
       ] = await platform.tradeQuotes.call(tradeId);
       assert.equal(openTime, 1234567890);
-      assert.equal(openPriceInstrument.valueOf(), 1300000);
+      assert.equal(openPriceInstrument.toNumber(), 1300000);
       assert.equal(openPriceSCRBaseCurrency, parseInt(5000000/1.4)+1);
       assert.equal(closeTime, 0);
       assert.equal(closePriceInstrument, 0);
@@ -117,13 +122,13 @@ contract('Platform', function(accounts) {
 
       // //only one trade in array
       assert.deepEqual(
-        (await platform.getTradeIds()).map((item) => Number(item.valueOf())),
+        (await platform.getTradeIds()).map((item) => Number(item.toNumber())),
         [tradeId]
       );
 
       // bob's balance was not changed = 1000 SCR
       assert.equal(
-        (await balances.balanceOf(bob)).valueOf(),
+        (await balances.balanceOf(bob)).toNumber(),
         balanceBefore * 10**8
       );
 
@@ -161,7 +166,7 @@ contract('Platform', function(accounts) {
       assert.equal(status, STATUS_CLOSED, 'status should be closed');
 
       // bob's balance changed
-      assert.equal((await balances.balanceOf(bob)).valueOf(), parseInt((balanceBefore + expectedProfit) * 10**8));
+      assert.equal((await balances.balanceOf(bob)).toNumber(), parseInt((balanceBefore + expectedProfit) * 10**8));
     });
   });
 

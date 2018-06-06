@@ -1,8 +1,9 @@
 pragma solidity ^0.4.18;
 
-import '../libs/ERC20.sol';
-import '../libs/Owned.sol';
-import '../libs/SafeMath.sol';
+import "./shared/ERC20.sol";
+import "./shared/Owned.sol";
+import "./shared/SafeMath.sol";
+
 
 contract Scrinium is ERC20, Owned {
 

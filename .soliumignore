@@ -1,0 +1,4 @@
+node_modules/
+
+contracts/Scrinium.sol
+contracts/shared/ERC20.sol

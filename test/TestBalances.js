@@ -15,7 +15,7 @@ contract('Balances', function(accounts) {
 
   it("balanceOf should returns 0 SCR for new accounts", async () => {
     var balance = await balances.balanceOf(alice);
-    assert.equal(balance.valueOf(), 0, "0 SCR should be on first account after deploing contract");
+    assert.equal(balance.toNumber(), 0, "0 SCR should be on first account after deploing contract");
   });
 
   it("deposit should works correctly: 100SCR from alice", async () => {

@@ -1,16 +1,12 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.23;
 
-import "../libs/Owned.sol";
+import "./shared/Owned.sol";
+import "./shared/SafeMath.sol";
 
-import "./Balances.sol";
-import "./Platform.sol";
 
 contract DemoBalances is Owned {
     using SafeMath for uint256;
 
-    function DemoBalances(address _scriniumAddress) public {
-        scriniumAddress = _scriniumAddress;
-    }
     address public scriniumAddress;
     address public platformAddress;
 
@@ -19,47 +15,64 @@ contract DemoBalances is Owned {
 
     mapping (address => uint256) balance;
 
+    modifier onlyPlatform {
+        require(msg.sender == platformAddress);
+        _;
+    }
+
+    event PlatformAddressSetted(address indexed _owner, address indexed _platformAddress);
+    event ScriniumAddressSetted(address indexed _owner, address indexed _scriniumAddress);
+    event DemoDeposited(address indexed _investor, uint _amount);
+    event DemoWithdrawed(address indexed _investor, uint _amount);
+    event BalanceUpdated(address indexed _investor, int _amount);
+
+    constructor (address _scriniumAddress) public {
+        scriniumAddress = _scriniumAddress;
+    }
+
     function deposit(uint amount) external {
         demoDeposit(amount, msg.sender);
     }
 
-    function demoDeposit(uint amount, address investor) public {
-        require(
-            balance[investor].add(amount) <= maxDemoBalance &&
-            amount <= maxDemoDeposit
-        );
-
-        balance[investor] = balance[investor].add(amount);
+    function setPlatformAddress(address _platformAddress) external onlyOwner {
+        platformAddress = _platformAddress;
+        emit PlatformAddressSetted(msg.sender, _platformAddress);
     }
 
-    function withdrawal(uint amount) external {
-        require(balance[msg.sender] >= amount);
+    function setScriniumAddress(address _scriniumAddress) external onlyOwner {
+        scriniumAddress = _scriniumAddress;
+        emit ScriniumAddressSetted(msg.sender, _scriniumAddress);
+    }
+
+    function updateBalance(address _investor, int256 _amount) external onlyPlatform {
+        if (_amount > 0) {
+            balance[_investor] = balance[_investor].add(uint256(_amount));
+        } else {
+            balance[_investor] = balance[_investor].sub(uint256(-1 * _amount));
+        }
+
+        emit BalanceUpdated(_investor, _amount);
+    }
+
+    function withdrawal(uint _amount) external {
+        require(balance[msg.sender] >= _amount);
         // do not send SCR anywhere for demo version
-        balance[msg.sender] = balance[msg.sender].sub(amount);
+        balance[msg.sender] = balance[msg.sender].sub(_amount);
+        emit DemoDeposited(msg.sender, _amount);
     }
 
     function balanceOf(address _investor) public view returns(uint256) {
         return balance[_investor];
     }
 
-    function setPlatformAddress(address _platformAddress) external onlyOwner {
-        platformAddress = _platformAddress;
-    }
+    function demoDeposit(uint _amount, address _investor) public {
+        require(
+            balance[_investor].add(_amount) <= maxDemoBalance &&
+            _amount <= maxDemoDeposit
+        );
 
-    function setScriniumAddress(address _scriniumAddress) external onlyOwner {
-        scriniumAddress = _scriniumAddress;
-    }
+        balance[_investor] = balance[_investor].add(_amount);
 
-    function updateBalance(address _investor, int256 amount) external onlyPlatform {
-        if (amount > 0) {
-            balance[_investor] = balance[_investor].add(uint256(amount));
-        } else {
-            balance[_investor] = balance[_investor].sub(uint256(-1 * amount));
-        }
-    }
-
-    modifier onlyPlatform {
-        require(msg.sender == platformAddress);
-        _;
+        emit DemoDeposited(_investor, _amount);
     }
 }
