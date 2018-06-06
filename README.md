@@ -23,11 +23,11 @@ yarn truffle develop
 # with already running Ganache private node on 9545 port
 truffle(develop)> test
 ```
-*Note:* tests for *Scrinium.sol* contract may fail in reason of hardcoded ICO timestamps.
+*Note:* tests for *Scrinium.sol* contract may fail because of hardcoded ICO timestamps.
 
 ## Development
 
-You may run Remix IDE by executing of `yarn remix` command. It will run on http://localhost:8080. To mount local directory with contracts you should click to chain icon in the IDE and accept prompt.
+You may run Remix IDE by executing of `yarn remix` command. It will run on http://localhost:8080. To mount local directory with contracts you should click on the chain icon in the IDE and accept prompt.
 
 ## Deploying
 
@@ -37,10 +37,10 @@ Before starting the deployment of smart contracts, you must have running Ethereu
 # 1. Unlock base account
 geth attach <protocol>://<host>:<port> --exec "personal.unlockAccount(eth.accounts[0], <accountPassPhrase>)"
 
-# 2. Run migrations (allready migrated contracts will be rewrited)
+# 2. Run migrations (contracts that are already migrated will be rewritten)
 yarn migrate [--network <network_name>]
 
-# 3. Connect to console for checking deployed contracts
+# 3. Connect to the console for checking deployed contracts
 geth attach <protocol>://<host>:<port> --preload ./preload-<network_name>.js
 
 # 4. Try to run some commands such as:
