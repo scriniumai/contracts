@@ -2,49 +2,49 @@ const WalletProvider = require('truffle-wallet-provider')
 const Wallet = require('ethereumjs-wallet')
 
 const development = {
-	host: '127.0.0.1',
-	port: 8545,
-	network_id: 5777,
-	gas: process.env.TRUFFLE_GAS || 3 * 10**6,
-	gasPrice: process.env.TRUFFLE_GAS_PRICE || 20 * 10**9
+  host: '127.0.0.1',
+  port: 8545,
+  network_id: 5777,
+  gas: process.env.TRUFFLE_GAS || 3 * 10**6,
+  gasPrice: process.env.TRUFFLE_GAS_PRICE || 20 * 10**9
 }
 
 const infuraAccessToken = process.env.INFURA_ACCESS_TOKEN
 
 const infuraNetworks = ! infuraAccessToken ?
-	{}:
-		['ropsten', 'rinkeby', 'kovan', 'mainnet'].reduce(
-			(result, network) => {
+  {}:
+    ['ropsten', 'rinkeby', 'kovan', 'mainnet'].reduce(
+      (result, network) => {
 
-				const envForPrivateKey = `${network.toUpperCase()}_PRIVATE_KEY`
-				const privateKeyString = process.env[envForPrivateKey]
+        const envForPrivateKey = `${network.toUpperCase()}_PRIVATE_KEY`
+        const privateKeyString = process.env[envForPrivateKey]
 
-				if (privateKeyString) {
+        if (privateKeyString) {
 
-					const privateKey = Buffer.from(
-						privateKeyString.replace('0x', ''),
-						'hex'
-					)
-					const wallet = Wallet.fromPrivateKey(privateKey)
-					const provider = new WalletProvider(
-						wallet,
-						`https://${network}.infura.io/${infuraAccessToken}`
-					)
+          const privateKey = Buffer.from(
+            privateKeyString.replace('0x', ''),
+            'hex'
+          )
+          const wallet = Wallet.fromPrivateKey(privateKey)
+          const provider = new WalletProvider(
+            wallet,
+            `https://${network}.infura.io/${infuraAccessToken}`
+          )
 
-					result[network] = {
-						...development,
-						provider
-					}
-				}
+          result[network] = {
+            ...development,
+            provider
+          }
+        }
 
-				return result
-			},
-			{}
-		)
+        return result
+      },
+      {}
+    )
 
 module.exports = {
-	rpc: development,
-	networks: {
+  rpc: development,
+  networks: {
     ...infuraNetworks,
     staging: {
       ...development,
@@ -52,11 +52,11 @@ module.exports = {
       network_id: "*",
     },
     development,
-	},
-	solc: {
-		optimizer: {
-			enabled: true,
-			runs: 200
-		}
-	}
+  },
+  solc: {
+    optimizer: {
+      enabled: true,
+      runs: 200
+    }
+  }
 }
