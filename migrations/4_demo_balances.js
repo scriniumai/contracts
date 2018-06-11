@@ -1,12 +1,12 @@
-var DemoBalances = artifacts.require("DemoBalances");
+const DemoBalances = artifacts.require("DemoBalances")
 
-var Scrinium = artifacts.require("Scrinium");
+const Scrinium = artifacts.require("Scrinium")
 
-module.exports = function(deployer, network) {
-  deployer.deploy(
+module.exports = global.omitMigration(__filename, (deployer, network) => {
+  return deployer.deploy(
     DemoBalances,
     Scrinium.address
-  ).then(function () {
+  ).then(() => {
 
     global.dataForWriting = {
       ...global.dataForWriting,
@@ -20,4 +20,4 @@ module.exports = function(deployer, network) {
 
     return Promise.resolve()
   });
-}
+})

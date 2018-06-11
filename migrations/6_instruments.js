@@ -1,11 +1,11 @@
-var Instruments = artifacts.require("Instruments");
+const Instruments = artifacts.require("Instruments")
 
-module.exports = function(deployer, network, accounts) {
+module.exports = global.omitMigration(__filename, (deployer, network, accounts) => {
     deployer.deploy(
       Instruments
-    ).then(function (instruments) {
+    ).then((instruments) => {
 
-      const instrumentsData = require('../data/instruments.json');
+      const instrumentsData = require('../data/instruments.json')
 
       const txs = instrumentsData.map(
         ({ id, name, type }) => instruments.add(
@@ -14,10 +14,10 @@ module.exports = function(deployer, network, accounts) {
           type,
           { from: accounts[0] }
         )
-      );
+      )
 
-      return Promise.all(txs);
-    }).then(function () {
+      return Promise.all(txs)
+    }).then(() => {
 
       global.dataForWriting = {
         ...global.dataForWriting,
@@ -30,5 +30,5 @@ module.exports = function(deployer, network, accounts) {
       }
 
       return Promise.resolve()
-    });
-};
+    })
+})

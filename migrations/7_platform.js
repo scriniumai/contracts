@@ -1,27 +1,27 @@
-var Platform = artifacts.require("Platform");
+const Platform = artifacts.require("Platform")
 
-var DemoBalances = artifacts.require("DemoBalances");
-var Instruments = artifacts.require("Instruments");
-var Subscriptions = artifacts.require("Subscriptions");
+const DemoBalances = artifacts.require("DemoBalances")
+const Instruments = artifacts.require("Instruments")
+const Subscriptions = artifacts.require("Subscriptions")
 
-var platformInstance, demoBalancesInstance;
+let platformInstance, demoBalancesInstance
 
-module.exports = function(deployer, network, accounts) {
-    deployer.deploy(
+module.exports = global.omitMigration(__filename, (deployer, network, accounts) => {
+    return deployer.deploy(
       Platform,
       accounts[0],
       DemoBalances.address,
       Instruments.address,
       Subscriptions.address
-    ).then(function (instance) {
+    ).then((instance) => {
       platformInstance = instance
 
       return DemoBalances.deployed()
-    }).then(function (instance) {
+    }).then((instance) => {
       demoBalancesInstance = instance
 
       return demoBalancesInstance.setPlatformAddress(platformInstance.address)
-    }).then(function () {
+    }).then(() => {
 
       global.dataForWriting = {
         ...global.dataForWriting,
@@ -34,5 +34,5 @@ module.exports = function(deployer, network, accounts) {
       }
 
       return Promise.resolve()
-  });
-};
+  })
+})

@@ -131,11 +131,12 @@ yarn migrate
 * `yarn migrate` &mdash; compilation and deployment of smart contracts in the specified network
 
     * `NETWORK=<network_name>`
-	* `TRUFFLE_GAS=<gas_limit>`
-	* `TRUFFLE_GAS_PRICE=<gas_price_in_wei>`
-	* `TRUFFLE_ARTIFACTS_OUTSIDE_PATHS=<json|module>:<path_1>,<json|module>:<path_N>` &mdash; contracts artifacts (ABIs and addresses) will be written to all files in the paths in specified format (*it will be appended to files [plain JSON or CommonJS module]*)
-	* `INFURA_ACCESS_TOKEN=<infura_access_token>`
-	* `<INFURA_NETWORK_NAME>_PRIVATE_KEY=<account_private_key>`
+    * `TRUFFLE_GAS=<gas_limit>`
+    * `TRUFFLE_GAS_PRICE=<gas_price_in_wei>`
+    * `TRUFFLE_ARTIFACTS_OUTSIDE_PATHS=<json|module>:<path_1>,...,<json|module>:<path_N>` &mdash; contracts artifacts (ABIs and addresses) will be written to all files in the paths in specified format (*it will be appended to files [plain JSON or CommonJS module]*)
+    * `TRUFFLE_MIGRATIONS_OMIT=<migration_number_1>,...,<migration_number_N>` &mdash; specified migrations will be omitted
+    * `INFURA_ACCESS_TOKEN=<infura_access_token>`
+    * `<INFURA_NETWORK_NAME>_PRIVATE_KEY=<account_private_key>`
 
 * `yarn remix` &mdash; starting the Remix IDE on http://localhost:8080 with ability to mount local directory with contracts
 

@@ -1,12 +1,12 @@
-var Subscriptions = artifacts.require("Subscriptions");
+const Subscriptions = artifacts.require("Subscriptions")
 
-var DemoBalances = artifacts.require("DemoBalances");
+const DemoBalances = artifacts.require("DemoBalances")
 
-module.exports = function(deployer, network) {
-  deployer.deploy(
+module.exports = global.omitMigration(__filename, (deployer, network) => {
+  return deployer.deploy(
     Subscriptions,
     DemoBalances.address
-  ).then(function () {
+  ).then(() => {
 
     global.dataForWriting = {
       ...global.dataForWriting,
@@ -19,5 +19,5 @@ module.exports = function(deployer, network) {
     }
 
     return Promise.resolve()
-  });
-};
+  })
+})
