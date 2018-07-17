@@ -34,7 +34,7 @@ module.exports = (network, data) => {
       const pathData = path.split(':')
 
       if (pathData.length > 1) {
-        pathType = 'module'
+        pathType = pathData[0]
         path = pathData[1]
       } else {
         pathType = 'json'
