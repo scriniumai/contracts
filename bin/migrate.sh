@@ -6,4 +6,4 @@ else
 	NETWORK_ARG="--network ${NETWORK}"
 fi
 
-yarn run truffle migrate --reset --compile-all $NETWORK_ARG
+DEBUG="truffle_migrate" yarn run truffle migrate --reset --compile-all $NETWORK_ARG
