@@ -1,5 +1,6 @@
 const fs = require('fs')
 
+
 /**
  * data = {
  *    <contractVariableName>: {
@@ -9,7 +10,6 @@ const fs = require('fs')
  *    }
  * }
  */
-
 module.exports = (network, data, truncate = false) => {
 
   const filePath = `${process.cwd()}/preload-${network}.js`

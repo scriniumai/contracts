@@ -1,4 +1,6 @@
 const fs = require('fs')
+const YAML = require('yamljs')
+
 
 /**
  * data = {
@@ -8,7 +10,6 @@ const fs = require('fs')
  *    }
  * }
  */
-
 module.exports = (network, data) => {
 
   const resolved = Promise.resolve()
@@ -41,34 +42,32 @@ module.exports = (network, data) => {
         path = pathData[0]
       }
 
-      if (
-        ! ['module', 'json'].includes(pathType) ||
-        ! fs.existsSync(path)
-      ) {
+      if (! fs.existsSync(path)) {
         continue
       }
 
-      let existingData = {}
+      let existingData = null
+      let dataForWrite = null
 
       switch(pathType) {
         case 'module':
           existingData = require(path)
+          dataForWrite = `
+            module.exports = ${JSON.stringify({ ...existingData, ...data }, null, '\t')};
+          `
         break;
         case 'json':
           existingData = JSON.parse(fs.readFileSync(path, 'utf-8'))
+          dataForWrite = JSON.stringify({ ...existingData, ...data }, null, '\t')
+        break;
+        case 'yaml':
+          existingData = YAML.parse(fs.readFileSync(path, 'utf-8'))
+          dataForWrite = YAML.stringify({ ...existingData, ...data })
         break;
         default:continue;
       }
 
-      const dataForWrite = JSON.stringify({
-        ...existingData,
-        ...data
-      }, null, '\t')
-
-      fs.writeFileSync(
-        path,
-        pathType === 'module' ? `module.exports = ${dataForWrite};` : dataForWrite
-      )
+      fs.writeFileSync(path, dataForWrite)
 
     } catch (error) {
       console.error(error)

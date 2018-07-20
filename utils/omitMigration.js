@@ -1,6 +1,7 @@
 const { basename } = require('path')
 const debug = require('debug')('truffle_migrate')
 
+
 let { TRUFFLE_MIGRATIONS_OMIT: omitMigrations } = process.env
 
 omitMigrations = typeof omitMigrations === 'string'
