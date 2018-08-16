@@ -4,6 +4,8 @@
     "security"
   ],
   "rules": {
+    "error-reason": 0,
+    "operator-whitespace": 0,
     "security/no-block-members": 0,
     "security/no-low-level-calls": [
       "error", [
@@ -11,7 +13,6 @@
         "delegatecall"
       ]
     ],
-    "operator-whitespace": 0,
     "quotes": [
       "error",
       "double"

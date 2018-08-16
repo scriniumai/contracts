@@ -152,13 +152,8 @@ Scrinium
     function balanceOf(address _owner) constant returns (uint256)
     function transfer(address _to, uint256 _value) returns (bool)
 
-DemoBalances
-    function deposit(uint amount) external
-    function balanceOf(address _investor) public view returns(uint256)
-
 Subscriptions
    function subscribe(uint[] _traderIds) external
-   function demoSubscribeAndDeposit(uint[] _traderIds, uint _amount) external
    function unsubscribe(uint[] _traderIdsForUnsubscribe) external
    function getTraders() external view returns (uint[])
    function getInvestors(uint _traderId) external view returns (address[])

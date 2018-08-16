@@ -1,26 +1,25 @@
 const Platform = artifacts.require("Platform")
 
-const DemoBalances = artifacts.require("DemoBalances")
+const Balances = artifacts.require("Balances")
 const Instruments = artifacts.require("Instruments")
 const Subscriptions = artifacts.require("Subscriptions")
-
-let platformInstance, demoBalancesInstance
+const LiquidityProvider = artifacts.require("LiquidityProvider")
 
 module.exports = global.omitMigration(__filename, (deployer, network, accounts) => {
     return deployer.deploy(
       Platform,
-      accounts[0],
-      DemoBalances.address,
+      Balances.address,
       Instruments.address,
-      Subscriptions.address
-    ).then((instance) => {
-      platformInstance = instance
+      Subscriptions.address,
+      LiquidityProvider.address,
+    ).then(async (platformInstance) => {
+      const liquidityProviderInstance = await LiquidityProvider.deployed()
+      await liquidityProviderInstance.setPlatformAddress(platformInstance.address)
 
-      return DemoBalances.deployed()
-    }).then((instance) => {
-      demoBalancesInstance = instance
+      const balancesInstance = await Balances.deployed()
+      await balancesInstance.setPlatformAddress(platformInstance.address)
 
-      return demoBalancesInstance.setPlatformAddress(platformInstance.address)
+      return Promise.resolve()
     }).then(() => {
 
       global.dataForWriting = {
@@ -29,8 +28,8 @@ module.exports = global.omitMigration(__filename, (deployer, network, accounts) 
         platform: {
           comment: __filename,
           abi: Platform.abi,
-          address: Platform.address
-        }
+          address: Platform.address,
+        },
       }
 
       return Promise.resolve()

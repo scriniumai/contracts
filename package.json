@@ -2,6 +2,7 @@
   "scripts": {
     "combine": "./bin/combine.sh",
     "compile": "yarn run truffle compile --all",
+    "develop": "DEBUG=test:* yarn run truffle develop",
     "ganache": "./bin/ganache.sh",
     "lint": "yarn solium -d ./contracts",
     "migrate": "./bin/migrate.sh",

@@ -1,15 +1,18 @@
 pragma solidity ^0.4.23;
 
-import "./shared/Owned.sol";
+import "./shared/AddressTools.sol";
 import "./shared/SafeMath.sol";
+import "./shared/Owned.sol";
 
 import "./Subscriptions.sol";
-import "./DemoBalances.sol";
+import "./Balances.sol";
 import "./Instruments.sol";
+import "./LiquidityProvider.sol";
 
 
 contract Platform is Owned {
-    using SafeMath for uint;
+    using AddressTools for address;
+    using SafeMath for uint256;
 
     uint constant STATUS_PENDING = 1;
     uint constant STATUS_OPEN = 2;
@@ -52,21 +55,26 @@ contract Platform is Owned {
 
     uint[] tradeIds;
 
-    address subscriptionsAddress;
-    address balancesAddress;
-    address instrumentsAddress;
+    address public balancesAddress;
+    address public instrumentsAddress;
+    address public subscriptionsAddress;
+    address public liquidityProviderAddress;
 
-    address allowedLiquidityProvider;
 
-    modifier onlyAllowedLiquidityProvider {
-        require(msg.sender == allowedLiquidityProvider);
+    modifier onlyLiquidityProvider {
+        require(msg.sender == liquidityProviderAddress);
         _;
     }
 
-    event AllowedLiquidityProviderSetted(address indexed _owner, address _allowedLiquidityProvider);
+    modifier notZeroAddr (address _address) {
+        require(_address.isContract());
+        _;
+    }
+
     event BalancesAddressSetted(address indexed _owner, address _balancesAddress);
     event InstrumentsAddressSetted(address indexed _owner, address _instrumentsAddress);
     event SubscriptionsAddressSetted(address indexed _owner, address _subscriptionsAddress);
+    event LiquidityProviderAddressSetted(address indexed _owner, address _liquidityProviderAddress);
 
     event TradeOpened(
         uint indexed _tradeId,
@@ -96,35 +104,105 @@ contract Platform is Owned {
     );
 
     constructor(
-        address _allowedLiquidityProvider,
         address _balancesAddress,
         address _instrumentsAddress,
-        address _subscriptionsAddress
+        address _subscriptionsAddress,
+        address _liquidityProviderAddress
     ) public {
-        allowedLiquidityProvider = _allowedLiquidityProvider;
+        require(_balancesAddress.isContract());
+        require(_instrumentsAddress.isContract());
+        require(_subscriptionsAddress.isContract());
+        require(_liquidityProviderAddress.isContract());
+
         balancesAddress = _balancesAddress;
         instrumentsAddress = _instrumentsAddress;
         subscriptionsAddress = _subscriptionsAddress;
+        liquidityProviderAddress = _liquidityProviderAddress;
+
+        emit BalancesAddressSetted(msg.sender, _balancesAddress);
+        emit InstrumentsAddressSetted(msg.sender, _instrumentsAddress);
+        emit InstrumentsAddressSetted(msg.sender, _instrumentsAddress);
+        emit LiquidityProviderAddressSetted(msg.sender, _liquidityProviderAddress);
     }
 
-    function setAllowedLiquidityProvider(address _allowedLiquidityProvider) external onlyOwner {
-        allowedLiquidityProvider = _allowedLiquidityProvider;
-        emit AllowedLiquidityProviderSetted(msg.sender, _allowedLiquidityProvider);
-    }
-
-    function setBalancesAddress(address _balancesAddress) external onlyOwner {
+    function setBalancesAddress(address _balancesAddress) external onlyOwner notZeroAddr(_balancesAddress) {
         balancesAddress = _balancesAddress;
         emit BalancesAddressSetted(msg.sender, _balancesAddress);
     }
 
-    function setInstrumentsAddress(address _instrumentsAddress) external onlyOwner {
+    function setInstrumentsAddress(address _instrumentsAddress) external onlyOwner notZeroAddr(_instrumentsAddress) {
         instrumentsAddress = _instrumentsAddress;
         emit InstrumentsAddressSetted(msg.sender, _instrumentsAddress);
     }
 
-    function setSubscriptionsAddress(address _subscriptionsAddress) external onlyOwner {
+    function setSubscriptionsAddress(address _subscriptionsAddress) external onlyOwner notZeroAddr(_subscriptionsAddress) {
         subscriptionsAddress = _subscriptionsAddress;
         emit SubscriptionsAddressSetted(msg.sender, _subscriptionsAddress);
+    }
+
+    function setLiquidityProviderAddress(address _liquidityProviderAddress) external onlyOwner notZeroAddr(_liquidityProviderAddress) {
+        liquidityProviderAddress = _liquidityProviderAddress;
+        emit LiquidityProviderAddressSetted(msg.sender, _liquidityProviderAddress);
+    }
+
+    function getTradesIds() public view returns (uint[]) {
+        return tradeIds;
+    }
+
+    function getTradeQuote(uint _tradeId) external view returns (
+        uint256 _openTime,
+        uint256 _openPriceInstrument,
+        uint256 _openPriceSCRBaseCurrency,
+
+        uint256 _closeTime,
+        uint256 _closePriceInstrument,
+        uint256 _closePriceSCRBaseCurrency
+    ) {
+        TradeQuotes memory _tradeQuotes = tradeQuotes[_tradeId];
+
+        return (
+            _tradeQuotes.openTime,
+            _tradeQuotes.openPriceInstrument,
+            _tradeQuotes.openPriceSCRBaseCurrency,
+
+            _tradeQuotes.closeTime,
+            _tradeQuotes.closePriceInstrument,
+            _tradeQuotes.closePriceSCRBaseCurrency
+        );
+    }
+
+    function getTrade(uint _tradeId) external view returns (
+        address _liquidityProviderAddress,
+        address _investor,
+        uint _masterTraderId,
+
+        uint _instrumentId,
+        uint _marginPercent,
+        uint _leverage,
+        uint _cmd,
+
+        uint _marginSCR,
+        int _profitSCR,
+
+        uint _status
+    ) {
+        Trade memory _trade = trades[_tradeId];
+
+        return (
+            _trade.liquidityProviderAddress,
+            _trade.investor,
+            _trade.masterTraderId,
+
+            _trade.instrumentId,
+            _trade.marginPercent,
+            _trade.leverage,
+            _trade.cmd,
+
+            _trade.marginSCR,
+            _trade.profitSCR,
+
+            _trade.status
+        );
     }
 
     function openTrade (
@@ -140,19 +218,21 @@ contract Platform is Owned {
         uint _openTime,
         uint _openPriceInstrument,
         uint _openPriceSCRBase
-    ) external onlyAllowedLiquidityProvider {
+    ) external onlyLiquidityProvider {
         require(_marginPercent > 0 && _marginPercent < 100);
 
         Instruments _instrumentsContract = Instruments(instrumentsAddress);
         require(_instrumentsContract.isCorrect(_instrumentId));
 
-        DemoBalances _balancesContract = DemoBalances(balancesAddress);
+        Balances _balancesContract = Balances(balancesAddress);
         uint _balance = _balancesContract.balanceOf(_investor);
         require(_balance > 0);
 
         uint _marginSCR = _balance.mul(_marginPercent).div(MARGIN_PERCENT_MULTIPLIER);
 
-        createTrade(
+        // TODO: Check _investor to _masterTraderId subscription
+
+        _openTrade(
             _tradeId,
             _investor,
             _masterTraderId,
@@ -165,6 +245,8 @@ contract Platform is Owned {
             _openPriceInstrument,
             _openPriceSCRBase
         );
+
+        // TODO: Lock margin for withdrawal or reusing in other trades
 
         emit TradeOpened(
             _tradeId,
@@ -179,7 +261,6 @@ contract Platform is Owned {
             _openPriceInstrument,
             _openPriceSCRBase
         );
-        // @todo: lock margin for withdrawal or reusing in other trades
     }
 
     function closeTrade (
@@ -187,55 +268,55 @@ contract Platform is Owned {
         uint _closeTime,
         uint _closePriceInstrument,
         uint _closePriceSCRBase
-    ) external onlyAllowedLiquidityProvider {
-        require(trades[_tradeId].status == STATUS_OPEN);
+    ) external onlyLiquidityProvider {
+        Trade memory _trade = trades[_tradeId];
+        TradeQuotes memory _tradeQuotes = tradeQuotes[_tradeId];
 
-        // update trade
-        trades[_tradeId].status = STATUS_CLOSED;
-        tradeQuotes[_tradeId].closeTime = _closeTime;
-        tradeQuotes[_tradeId].closePriceInstrument = _closePriceInstrument;
-        tradeQuotes[_tradeId].closePriceSCRBaseCurrency = _closePriceSCRBase;
+        require(_trade.status == STATUS_OPEN);
 
-        trades[_tradeId].profitSCR = (int(_closePriceInstrument) - int(tradeQuotes[_tradeId].openPriceInstrument))
-            * int(trades[_tradeId].marginSCR)
-            * int(trades[_tradeId].leverage)
+        int _profitSCR = (int(_closePriceInstrument) - int(_tradeQuotes.openPriceInstrument))
+            * int(_trade.marginSCR)
+            * int(_trade.leverage)
             / int(PRICE_MULTIPLIER);
 
-        if (trades[_tradeId].cmd == CMD_SELL) {
-            trades[_tradeId].profitSCR *= -1;
+        if (_trade.cmd == CMD_SELL) {
+            _profitSCR *= -1;
         }
 
-        // update profit if price SCR/Base was changed
-        if (tradeQuotes[_tradeId].closePriceSCRBaseCurrency != tradeQuotes[_tradeId].openPriceSCRBaseCurrency) {
-            trades[_tradeId].profitSCR = trades[_tradeId].profitSCR
-                * int(tradeQuotes[_tradeId].openPriceSCRBaseCurrency)
-                / int(tradeQuotes[_tradeId].closePriceSCRBaseCurrency);
+        if (_closePriceSCRBase != _tradeQuotes.openPriceSCRBaseCurrency) {
+            _profitSCR = _profitSCR
+                * int(_tradeQuotes.openPriceSCRBaseCurrency)
+                / int(_closePriceSCRBase);
         }
 
-        DemoBalances _balancesContract = DemoBalances(balancesAddress);
+        _closeTrade(
+            _tradeId,
+            _closeTime,
+            _closePriceInstrument,
+            _closePriceSCRBase,
+            _profitSCR
+        );
+
+        Balances _balancesContract = Balances(balancesAddress);
         _balancesContract.updateBalance(
-            trades[_tradeId].investor,
-            trades[_tradeId].profitSCR
+            _trade.investor,
+            _profitSCR
         );
 
         emit TradeClosed(
             _tradeId,
-            trades[_tradeId].investor,
-            trades[_tradeId].masterTraderId,
+            _trade.investor,
+            _trade.masterTraderId,
 
             _closeTime,
             _closePriceInstrument,
             _closePriceSCRBase,
 
-            trades[_tradeId].profitSCR
+            _profitSCR
         );
     }
 
-    function getTradeIds() public view returns (uint[]) {
-        return tradeIds;
-    }
-
-    function createTrade(
+    function _openTrade(
         uint _tradeId,
         address _investor,
         uint _masterTraderId,
@@ -249,7 +330,7 @@ contract Platform is Owned {
         uint _openTime,
         uint _openPriceInstrument,
         uint _openPriceSCRBase
-    ) internal {
+    ) private {
         trades[_tradeId].liquidityProviderAddress = msg.sender;
         trades[_tradeId].investor = _investor;
         trades[_tradeId].masterTraderId = _masterTraderId;
@@ -266,5 +347,20 @@ contract Platform is Owned {
         tradeQuotes[_tradeId].openPriceSCRBaseCurrency = _openPriceSCRBase;
 
         tradeIds.push(_tradeId);
+    }
+
+    function _closeTrade(
+        uint _tradeId,
+        uint _closeTime,
+        uint _closePriceInstrument,
+        uint _closePriceSCRBase,
+
+        int _profitSCR
+    ) private {
+        trades[_tradeId].status = STATUS_CLOSED;
+        tradeQuotes[_tradeId].closeTime = _closeTime;
+        tradeQuotes[_tradeId].closePriceInstrument = _closePriceInstrument;
+        tradeQuotes[_tradeId].closePriceSCRBaseCurrency = _closePriceSCRBase;
+        trades[_tradeId].profitSCR = _profitSCR;
     }
 }

@@ -2,7 +2,8 @@ const Scrinium = artifacts.require("Scrinium")
 
 module.exports = global.omitMigration(__filename, (deployer, network) => {
   return deployer.deploy(
-    Scrinium
+    Scrinium,
+    deployer.network_id,
   ).then(() => {
 
     global.dataForWriting = {
