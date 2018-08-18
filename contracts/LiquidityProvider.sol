@@ -13,11 +13,17 @@ contract LiquidityProvider is Owned {
     using AddressTools for address;
     using SafeMath for uint256;
 
-    uint256 comissionsBalance = 0;
-
     address public scriniumAddress;
     address public balancesAddress;
     address public platformAddress;
+
+    address public commissionsAddress;
+    mapping (uint => uint) public commissions;
+
+    modifier onlyPlatform () {
+        require(msg.sender == platformAddress);
+        _;
+    }
 
     modifier notZeroAddr (address _address) {
         require(_address.isContract());
@@ -26,21 +32,24 @@ contract LiquidityProvider is Owned {
 
     event BalancesAddressSetted(address indexed _owner, address indexed _balancesAddress);
     event PlatformAddressSetted(address indexed _owner, address indexed _platformAddress);
+    event CommissionsAddressSetted(address indexed _owner, address indexed _commissionsAddress);
     event CommissionTaken(
-        bytes32 indexed _direction,
         address indexed _investor,
         uint indexed _tradeId,
         uint _amount
     );
 
-    constructor (address _scriniumAddress, address _balancesAddress) public {
+    constructor (address _scriniumAddress, address _balancesAddress, address _commissionsAddress) public {
         require(_scriniumAddress.isContract());
         require(_balancesAddress.isContract());
+        require(_commissionsAddress != address(0));
 
         scriniumAddress = _scriniumAddress;
         balancesAddress = _balancesAddress;
+        commissionsAddress = _commissionsAddress;
 
         emit BalancesAddressSetted(msg.sender, _balancesAddress);
+        emit CommissionsAddressSetted(msg.sender, _commissionsAddress);
     }
 
     function setBalancesAddress(address _balancesAddress) external onlyOwner notZeroAddr(_balancesAddress) {
@@ -55,37 +64,29 @@ contract LiquidityProvider is Owned {
         emit PlatformAddressSetted(msg.sender, _platformAddress);
     }
 
-    function addBalancesTransferAllowance() external onlyOwner {
-        Scrinium _scrinium = Scrinium(scriniumAddress);
-        _scrinium.approve(balancesAddress, 2 ** 256 - 1);
+    function setCommissionsAddress(address _commissionsAddress) external onlyOwner {
+        require(_commissionsAddress != address(0));
+        commissionsAddress = _commissionsAddress;
+        emit CommissionsAddressSetted(msg.sender, _commissionsAddress);
     }
 
-    function removeBalancesTransferAllowance() external onlyOwner {
-        require(balancesAddress != address(0));
-
-        Scrinium _scrinium = Scrinium(scriniumAddress);
-        _scrinium.approve(balancesAddress, 0);
+    function addBalancesTransferAllowance() external onlyOwnerOrThis {
+        Scrinium(scriniumAddress).approve(balancesAddress, 2 ** 256 - 1);
     }
 
-    function withdrawPool(address _target) external onlyOwner returns (bool) {
+    function removeBalancesTransferAllowance() external onlyOwnerOrThis {
+        Scrinium(scriniumAddress).approve(balancesAddress, 0);
+    }
+
+    function withdrawPool(address _target, uint256 _value) external onlyOwner returns (bool) {
         Scrinium _scrinium = Scrinium(scriniumAddress);
 
         uint256 balance = _scrinium.balanceOf(address(this));
-        address _to = _target != address(0) ? _target : owner;
 
-        return _scrinium.transfer(_to, balance);
-    }
+        uint256 _amount = (_value == 0 || _value > balance) ? balance : _value;
+        address _to = (_target != address(0)) ? _target : owner;
 
-    function withdrawCommisions(address _target) external onlyOwner returns (bool) {
-        Scrinium _scrinium = Scrinium(scriniumAddress);
-
-        address _to = _target != address(0) ? _target : owner;
-
-        if (comissionsBalance <= 0) {
-            return true;
-        }
-
-        return _scrinium.transfer(_to, comissionsBalance);
+        return _scrinium.transfer(_to, _amount);
     }
 
     function openTrade (
@@ -104,14 +105,13 @@ contract LiquidityProvider is Owned {
 
         uint _commission
     ) external onlyOwner {
-        require(_takeCommission(
-            bytes32("open"),
-            _investor,
-            _tradeId,
-            _commission
-        ));
+        // TODO: Make a more strict checking of the balance
+        require(Scrinium(scriniumAddress).balanceOf(address(this)) > 0);
 
         Platform _platform = Platform(platformAddress);
+
+        commissions[_tradeId] = _commission;
+
         _platform.openTrade(
             _tradeId,
             _investor,
@@ -136,40 +136,40 @@ contract LiquidityProvider is Owned {
 
         uint _commission
     ) external onlyOwner {
+        // TODO: Make a more strict checking of the balance
+        require(Scrinium(scriniumAddress).balanceOf(address(this)) > 0);
+
         Platform _platform = Platform(platformAddress);
 
         address _investor;
-
         (, _investor,,,,,,,,) = _platform.getTrade(_tradeId);
 
-        require(_takeCommission(
-            bytes32("close"),
-            _investor,
-            _tradeId,
-            _commission
-        ));
+        commissions[_tradeId] = commissions[_tradeId].add(_commission);
 
-        _platform.closeTrade(
+        require(_platform.closeTrade(
             _tradeId,
             _closeTime,
             _closePriceInstrument,
             _closePriceSCRBase
-        );
+        ));
+
+        require(takeCommission(_investor, _tradeId));
     }
 
-    function _takeCommission (
-        bytes32 _direction,
+    function takeCommission (
         address _investor,
-        uint _tradeId,
-        uint _commission
-    ) private returns (bool success) {
-        comissionsBalance = comissionsBalance.add(_commission);
+        uint _tradeId
+    ) private returns (bool) {
+        require(Platform(platformAddress).takeCommission(
+            _investor,
+            commissionsAddress,
+            commissions[_tradeId]
+        ));
 
         emit CommissionTaken(
-            _direction,
             _investor,
             _tradeId,
-            _commission
+            commissions[_tradeId]
         );
 
         return true;

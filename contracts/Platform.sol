@@ -218,14 +218,12 @@ contract Platform is Owned {
         uint _openTime,
         uint _openPriceInstrument,
         uint _openPriceSCRBase
-    ) external onlyLiquidityProvider {
+    ) external onlyLiquidityProvider returns (bool) {
         require(_marginPercent > 0 && _marginPercent < 100);
 
-        Instruments _instrumentsContract = Instruments(instrumentsAddress);
-        require(_instrumentsContract.isCorrect(_instrumentId));
+        require(Instruments(instrumentsAddress).isCorrect(_instrumentId));
 
-        Balances _balancesContract = Balances(balancesAddress);
-        uint _balance = _balancesContract.balanceOf(_investor);
+        uint _balance = Balances(balancesAddress).balanceOf(_investor);
         require(_balance > 0);
 
         uint _marginSCR = _balance.mul(_marginPercent).div(MARGIN_PERCENT_MULTIPLIER);
@@ -261,6 +259,8 @@ contract Platform is Owned {
             _openPriceInstrument,
             _openPriceSCRBase
         );
+
+        return true;
     }
 
     function closeTrade (
@@ -268,7 +268,7 @@ contract Platform is Owned {
         uint _closeTime,
         uint _closePriceInstrument,
         uint _closePriceSCRBase
-    ) external onlyLiquidityProvider {
+    ) external onlyLiquidityProvider returns (bool) {
         Trade memory _trade = trades[_tradeId];
         TradeQuotes memory _tradeQuotes = tradeQuotes[_tradeId];
 
@@ -297,8 +297,7 @@ contract Platform is Owned {
             _profitSCR
         );
 
-        Balances _balancesContract = Balances(balancesAddress);
-        _balancesContract.updateBalance(
+        Balances(balancesAddress).updateBalance(
             _trade.investor,
             _profitSCR
         );
@@ -314,6 +313,21 @@ contract Platform is Owned {
 
             _profitSCR
         );
+
+        return true;
+    }
+
+    function takeCommission (
+        address _investor,
+        address _commissionsAddress,
+        uint _commission
+    ) external onlyLiquidityProvider returns (bool) {
+        require(Balances(balancesAddress).updateBalanceCommission(
+            _investor,
+            _commissionsAddress,
+            _commission
+        ));
+        return true;
     }
 
     function _openTrade(

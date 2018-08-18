@@ -3,6 +3,5 @@
 
 build/
 node_modules/
-tmp/
 
 **/preload-*.js

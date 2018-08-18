@@ -34,7 +34,7 @@ contract Balances is Owned {
 
     event BalanceDeposited(address indexed _investor, uint _amount);
     event BalanceWithdrawed(address indexed _investor, uint _amount);
-    event BalanceUpdated(address indexed _investor, int _amount);
+    event BalanceUpdated(bytes32 indexed _updateType, address indexed _investor, int _amount);
 
     constructor(address _scriniumAddress) public {
         require(_scriniumAddress.isContract());
@@ -52,8 +52,7 @@ contract Balances is Owned {
     }
 
     function deposit(uint _amount) external {
-        Scrinium _scrinium = Scrinium(scriniumAddress);
-        require(_scrinium.transferFrom(msg.sender, address(this), _amount));
+        require(Scrinium(scriniumAddress).transferFrom(msg.sender, address(this), _amount));
 
         balance[msg.sender] = balance[msg.sender].add(_amount);
 
@@ -64,44 +63,57 @@ contract Balances is Owned {
         address _investor,
         int256 _amount
     ) external onlyPlatform {
-        if (_amount != 0) {
-            Scrinium _scrinium = Scrinium(scriniumAddress);
-            // LiquidityProvider _lp = LiquidityProvider(liquidityProviderAddress);
-
-            // TODO: Update balances according to LiquidityProvider contract
-            //
-            // 1. amount > 0:
-            //    - Subtract amount from LiquidityProvider
-            //    - Add amount to Balances
-            //    - Add amount to investor
-            //
-            // 2. amount < 0:
-            //    - Subtract amount from investor
-            //    - Subtract amount from Balances
-            //    - Add amount to LiquidityProver
-            uint256 amount;
-
-            if (_amount > 0) {
-                amount = uint256(_amount);
-                // ? FIXME: balance[liquidityProviderAddress] = balance[liquidityProviderAddress].sub(amount);
-                require(_scrinium.transferFrom(liquidityProviderAddress, address(this), amount));
-                balance[_investor] = balance[_investor].add(amount);
-            } else {
-                amount = uint256(-1 * _amount);
-                require(_scrinium.transfer(liquidityProviderAddress, amount));
-                balance[_investor] = balance[_investor].sub(amount);
-                // ? FIXME: balance[liquidityProviderAddress] = balance[liquidityProviderAddress].add(amount);
-            }
+        if (_amount == 0) {
+            return;
         }
 
-        emit BalanceUpdated(_investor, _amount);
+        Scrinium _scrinium = Scrinium(scriniumAddress);
+
+        uint256 amount;
+
+        // 1. amount > 0:
+        //    - Subtract amount from LiquidityProvider
+        //    - Add amount to Balances
+        //    - Add amount to investor
+        //
+        if (_amount > 0) {
+            amount = uint256(_amount);
+            // ? FIXME: balance[liquidityProviderAddress] = balance[liquidityProviderAddress].sub(amount);
+            require(_scrinium.transferFrom(liquidityProviderAddress, address(this), amount));
+            balance[_investor] = balance[_investor].add(amount);
+        // 2. amount < 0:
+        //    - Subtract amount from investor
+        //    - Subtract amount from Balances
+        //    - Add amount to LiquidityProver
+        } else {
+            amount = uint256(-1 * _amount);
+            require(_scrinium.transfer(liquidityProviderAddress, amount));
+            balance[_investor] = balance[_investor].sub(amount);
+            // ? FIXME: balance[liquidityProviderAddress] = balance[liquidityProviderAddress].add(amount);
+        }
+
+        emit BalanceUpdated("trade", _investor, _amount);
+    }
+
+    function updateBalanceCommission(
+        address _investor,
+        address _commissionsAddress,
+        uint _amount
+    ) external onlyPlatform returns (bool) {
+        require(balance[_investor] >= _amount);
+
+        require(Scrinium(scriniumAddress).transfer(_commissionsAddress, _amount));
+        balance[_investor] = balance[_investor].sub(_amount);
+
+        emit BalanceUpdated("commission", _investor, int256(_amount));
+
+        return true;
     }
 
     function withdrawal(uint _amount) external {
         require(balance[msg.sender] >= _amount);
 
-        Scrinium _scrinium = Scrinium(scriniumAddress);
-        require(_scrinium.transfer(msg.sender, _amount));
+        require(Scrinium(scriniumAddress).transfer(msg.sender, _amount));
 
 
         balance[msg.sender] = balance[msg.sender].sub(_amount);
