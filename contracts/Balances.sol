@@ -17,6 +17,7 @@ contract Balances is Owned {
     address public liquidityProviderAddress;
     address public platformAddress;
 
+    // ? FIXME: should the balance be only positive
     mapping (address => uint256) balance;
 
     modifier onlyPlatform {

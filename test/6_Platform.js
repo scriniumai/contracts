@@ -32,7 +32,7 @@ contract('Platform', function (accounts) {
   let instruments
   let balances
   let subscriptions
-  let liquidityProdiver
+  let liquidityProvider
   let platform
 
   let liquidityProviderInitialBalance = 0
@@ -42,10 +42,11 @@ contract('Platform', function (accounts) {
     instruments       = await Instruments.deployed()
     balances          = await Balances.deployed()
     subscriptions     = await Subscriptions.deployed()
-    liquidityProdiver = await LiquidityProvider.deployed()
+    liquidityProvider = await LiquidityProvider.deployed()
 
+    await scrinium.mintToken(liquidityProvider.address, 6000000 * 10 ** 8)
 
-    liquidityProviderInitialBalance = await scrinium.balanceOf.call(liquidityProdiver.address)
+    liquidityProviderInitialBalance = await scrinium.balanceOf.call(liquidityProvider.address)
   })
 
   beforeEach(async () => {
@@ -53,11 +54,11 @@ contract('Platform', function (accounts) {
       balances.address,
       instruments.address,
       subscriptions.address,
-      liquidityProdiver.address,
+      liquidityProvider.address,
     )
 
     await balances.setPlatformAddress.sendTransaction(platform.address, { from: ALICE })
-    await liquidityProdiver.setPlatformAddress.sendTransaction(platform.address, { from: ALICE })
+    await liquidityProvider.setPlatformAddress.sendTransaction(platform.address, { from: ALICE })
   })
 
   afterEach(async () => {
@@ -114,7 +115,7 @@ contract('Platform', function (accounts) {
       }
 
       try {
-        const txHash = await liquidityProdiver.openTrade.sendTransaction(
+        const txHash = await liquidityProvider.openTrade.sendTransaction(
           TRADE._tradeId,
           TRADE._investor,
           TRADE._masterTradeId,
@@ -136,7 +137,7 @@ contract('Platform', function (accounts) {
         )
         const receipt = await web3.eth.getTransactionReceipt(txHash)
 
-        debug('liquidityProdiver.openTrade gasUsed %d', receipt.gasUsed)
+        debug('liquidityProvider.openTrade gasUsed %d', receipt.gasUsed)
 
       } catch (error) {
         console.error('openTrade', error)
@@ -144,7 +145,7 @@ contract('Platform', function (accounts) {
       }
 
       const [
-        liquidityProdiverAddress,
+        liquidityProviderAddress,
         investor,
         masterTraderId,
 
@@ -158,7 +159,7 @@ contract('Platform', function (accounts) {
         status
       ] = await platform.trades.call(tradeId)
 
-      assert.equal(liquidityProdiverAddress, liquidityProdiver.address)
+      assert.equal(liquidityProviderAddress, liquidityProvider.address)
       assert.equal(investor, TRADE._investor)
       assert.equal(masterTraderId, TRADE._masterTradeId)
       assert.equal(instrumentId, TRADE._instrumentId)
@@ -197,7 +198,7 @@ contract('Platform', function (accounts) {
       /************************************************************************/
 
       try {
-        const txHash = await liquidityProdiver.closeTrade.sendTransaction(
+        const txHash = await liquidityProvider.closeTrade.sendTransaction(
           TRADE._tradeId,
           TRADE._closeTime,
           TRADE._closePriceInstrument,
@@ -211,7 +212,7 @@ contract('Platform', function (accounts) {
         )
         const receipt = await web3.eth.getTransactionReceipt(txHash)
 
-        debug('liquidityProdiver.closeTrade gasUsed %d', receipt.gasUsed)
+        debug('liquidityProvider.closeTrade gasUsed %d', receipt.gasUsed)
 
       } catch (error) {
         console.error('closeTrade', error)
@@ -250,10 +251,10 @@ contract('Platform', function (accounts) {
       const balanceScrinium = await scrinium.balanceOf(TRADE._investor)
       assert.equal(balanceScrinium.toNumber(), balancePlatform.toNumber())
 
-      const balanceCommissions = await scrinium.balanceOf(await liquidityProdiver.commissionsAddress.call())
+      const balanceCommissions = await scrinium.balanceOf(await liquidityProvider.commissionsAddress.call())
       assert.equal(balanceCommissions.toNumber(), COMMISSION_TOTAL * (tradeIdx + 1))
 
-      const liquidityProviderBalance = await scrinium.balanceOf.call(liquidityProdiver.address)
+      const liquidityProviderBalance = await scrinium.balanceOf.call(liquidityProvider.address)
       const expectedLiquidityProdiverBalance = liquidityProviderInitialBalance.add(profits.mul(-1))
       assert.equal(liquidityProviderBalance.toNumber(), expectedLiquidityProdiverBalance.toNumber())
     })

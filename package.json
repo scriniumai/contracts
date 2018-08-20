@@ -20,6 +20,7 @@
     "soljitsu": "^0.1.3",
     "truffle": "^4.1.11",
     "truffle-wallet-provider": "^0.0.5",
+    "validatorjs": "^3.14.2",
     "yamljs": "^0.3.0"
   }
 }

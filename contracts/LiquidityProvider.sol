@@ -146,14 +146,14 @@ contract LiquidityProvider is Owned {
 
         commissions[_tradeId] = commissions[_tradeId].add(_commission);
 
+        require(takeCommission(_investor, _tradeId));
+
         require(_platform.closeTrade(
             _tradeId,
             _closeTime,
             _closePriceInstrument,
             _closePriceSCRBase
         ));
-
-        require(takeCommission(_investor, _tradeId));
     }
 
     function takeCommission (

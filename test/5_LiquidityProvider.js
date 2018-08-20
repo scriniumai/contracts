@@ -13,19 +13,21 @@ contract('LiquidityProvider', function (accounts) {
   const ADDR_ZERO = '0x0000000000000000000000000000000000000000'
   const ADDR_ONE = '0x1111111111111111111111111111111111111111'
 
+  const INITIAL_BALANCE = 6000000 * 10 ** 8
+
   // 2 ** 256 - 1
   const TRANSFER_ALLOWANCE = web3.toBigNumber('115792089237316195423570985008687907853269984665640564039457584007913129639935')
 
   let scrinium
   let balances
   let liquidityProvider
-  let platform
 
   before(async () => {
     scrinium          = await Scrinium.deployed()
     balances          = await Balances.deployed()
-    platform          = await Platform.deployed()
     liquidityProvider = await LiquidityProvider.deployed()
+
+    await scrinium.mintToken(liquidityProvider.address, INITIAL_BALANCE)
   })
 
   it('platform address setting should works correctly', async () => {
