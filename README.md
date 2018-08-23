@@ -53,6 +53,14 @@ module.exports = {
 
 By default transactions are signing by the first unlocked account of the node. For specifiyng a different account, you must add the `from: <unlocked_address>` directive.
 
+### Deploy
+
+By default, it comes with deployment configuration for *develop* and *development* networks — ***./config/deploy/develop.js*** and ***./config/deploy/development.js***.
+
+| Property                                       | Required | Type       | Description
+| ---------------------------------------------- | :------: | :--------: | -----------
+| commissionsAddress                             | &middot; | `String`   | Address for *LiquidityProvider* commissions
+
 ## Development
 
 You may run Remix IDE by executing of `yarn remix` command. It will run on http://localhost:8080. To mount local directory with contracts you should click on the chain icon in the IDE and accept prompt.
@@ -73,7 +81,7 @@ truffle(develop)> test
 
 Before starting the deployment of smart contracts, you must have running Ethereum node (*Geth*, for example, or *Ganache*) with enabled JSON-RPC option.
 
-The network configuration file ***./config/networks/&lt;network_name&gt;.js*** should exist and contain information about the connection to this node (*or the default configuration for development network can be used*).
+The network configuration ***./config/networks/&lt;network_name&gt;.js*** and deploy configuration ***./config/deploy/&lt;network_name&gt;.js*** should exist.
 
 Base account (field `from` in the network configuration) should be unlocked.
 
@@ -141,45 +149,3 @@ yarn migrate
 * `yarn remix` &mdash; starting the Remix IDE on http://localhost:8080 with ability to mount local directory with contracts
 
 * `yarn test  [-- --network <network_name> <test_file_name>]` &mdash; testing in the specified network
-
------------------------------------
-
-## Allowed methods
-
-```
-Scrinium
-    function mintToken(address target, uint256 mintedAmount) onlyOwner returns (bool)
-    function balanceOf(address _owner) constant returns (uint256)
-    function transfer(address _to, uint256 _value) returns (bool)
-
-Subscriptions
-   function subscribe(uint[] _traderIds) external
-   function unsubscribe(uint[] _traderIdsForUnsubscribe) external
-   function getTraders() external view returns (uint[])
-   function getInvestors(uint _traderId) external view returns (address[])
-
-Platform
-    function openTrade (
-            uint _tradeId,
-            address _investor,
-            uint _masterTraderId,
-            uint _instrumentId,
-            uint _marginPercent,
-            uint _leverage,
-            uint _cmd,
-            uint _openTime,
-            uint _openPriceInstrument,
-            uint _openPriceSCRBase
-        ) external
-        Allowed only for liquidProviders
-
-    function closeTrade (
-        uint _tradeId,
-        uint _closeTime,
-        uint _closePriceInstrument,
-        uint _closePriceSCRBase
-    ) external
-        Allowed only for liquidProviders
-
-    function getTradeIds() public view returns (uint[])
-```

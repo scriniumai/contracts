@@ -17,6 +17,7 @@ contract Platform is Owned {
     uint constant STATUS_PENDING = 1;
     uint constant STATUS_OPEN = 2;
     uint constant STATUS_CLOSED = 3;
+    uint constant STATUS_CLOSED_FORCED = 4;
 
     uint constant CMD_BUY = 0;
     uint constant CMD_SELL = 1;
@@ -66,6 +67,19 @@ contract Platform is Owned {
         _;
     }
 
+    modifier onlyOwnerOrLiquidityProvider {
+        require(
+            msg.sender == owner ||
+            msg.sender == liquidityProviderAddress
+        );
+        _;
+    }
+
+    modifier onlyForOpenTrade (uint _tradeId) {
+        require(trades[_tradeId].status == STATUS_OPEN);
+        _;
+    }
+
     modifier notZeroAddr (address _address) {
         require(_address.isContract());
         _;
@@ -92,6 +106,17 @@ contract Platform is Owned {
         uint _openPriceSCRBase
     );
     event TradeClosed(
+        uint indexed _tradeId,
+        address indexed _investor,
+        uint indexed _masterTraderId,
+
+        uint _closeTime,
+        uint _closePriceInstrument,
+        uint _closePriceSCRBase,
+
+        int _profitSCR
+    );
+    event TradeClosedForced(
         uint indexed _tradeId,
         address indexed _investor,
         uint indexed _masterTraderId,
@@ -268,33 +293,23 @@ contract Platform is Owned {
         uint _closeTime,
         uint _closePriceInstrument,
         uint _closePriceSCRBase
-    ) external onlyLiquidityProvider returns (bool) {
+    ) external onlyLiquidityProvider onlyForOpenTrade(_tradeId) returns (bool) {
         Trade memory _trade = trades[_tradeId];
-        TradeQuotes memory _tradeQuotes = tradeQuotes[_tradeId];
 
-        require(_trade.status == STATUS_OPEN);
-
-        int _profitSCR = (int(_closePriceInstrument) - int(_tradeQuotes.openPriceInstrument))
-            * int(_trade.marginSCR)
-            * int(_trade.leverage)
-            / int(PRICE_MULTIPLIER);
-
-        if (_trade.cmd == CMD_SELL) {
-            _profitSCR *= -1;
-        }
-
-        if (_closePriceSCRBase != _tradeQuotes.openPriceSCRBaseCurrency) {
-            _profitSCR = _profitSCR
-                * int(_tradeQuotes.openPriceSCRBaseCurrency)
-                / int(_closePriceSCRBase);
-        }
+        int _profitSCR = _calculateProfitSCR(
+            _tradeId,
+            _closePriceInstrument
+        );
 
         _closeTrade(
             _tradeId,
             _closeTime,
             _closePriceInstrument,
             _closePriceSCRBase,
-            _profitSCR
+
+            _profitSCR,
+
+            false
         );
 
         Balances(balancesAddress).updateBalance(
@@ -315,6 +330,43 @@ contract Platform is Owned {
         );
 
         return true;
+    }
+
+    function closeTradeForce (
+        uint _tradeId,
+        uint _closeTime,
+        uint _closePriceInstrument,
+        uint _closePriceSCRBase
+    ) external onlyOwnerOrLiquidityProvider onlyForOpenTrade(_tradeId) returns (bool) {
+        Trade memory _trade = trades[_tradeId];
+
+        int _profitSCR = _calculateProfitSCR(
+            _tradeId,
+            _closePriceInstrument
+        );
+
+        _closeTrade(
+            _tradeId,
+            _closeTime,
+            _closePriceInstrument,
+            _closePriceSCRBase,
+
+            _profitSCR,
+
+            true
+        );
+
+        emit TradeClosedForced(
+            _tradeId,
+            _trade.investor,
+            _trade.masterTraderId,
+
+            _closeTime,
+            _closePriceInstrument,
+            _closePriceSCRBase,
+
+            _profitSCR
+        );
     }
 
     function takeCommission (
@@ -363,18 +415,41 @@ contract Platform is Owned {
         tradeIds.push(_tradeId);
     }
 
+    function _calculateProfitSCR (
+        uint _tradeId,
+        uint _closePriceInstrument
+    ) private view returns (int _profitSCR) {
+        Trade memory _trade = trades[_tradeId];
+        TradeQuotes memory _tradeQuotes = tradeQuotes[_tradeId];
+
+        _profitSCR = (int(_closePriceInstrument) - int(_tradeQuotes.openPriceInstrument))
+            * int(_trade.marginSCR)
+            * int(_trade.leverage)
+            / int(PRICE_MULTIPLIER);
+
+        if (_trade.cmd == CMD_SELL) {
+            _profitSCR *= -1;
+        }
+
+        return _profitSCR;
+    }
+
     function _closeTrade(
         uint _tradeId,
         uint _closeTime,
         uint _closePriceInstrument,
         uint _closePriceSCRBase,
 
-        int _profitSCR
+        int _profitSCR,
+
+        bool isForced
     ) private {
-        trades[_tradeId].status = STATUS_CLOSED;
+        trades[_tradeId].status = isForced ? STATUS_CLOSED_FORCED : STATUS_CLOSED;
+
         tradeQuotes[_tradeId].closeTime = _closeTime;
         tradeQuotes[_tradeId].closePriceInstrument = _closePriceInstrument;
         tradeQuotes[_tradeId].closePriceSCRBaseCurrency = _closePriceSCRBase;
+
         trades[_tradeId].profitSCR = _profitSCR;
     }
 }

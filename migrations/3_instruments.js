@@ -12,7 +12,6 @@ module.exports = global.omitMigration(__filename, (deployer, network, accounts) 
           id,
           name,
           type,
-          { from: accounts[0] }
         )
       )
 

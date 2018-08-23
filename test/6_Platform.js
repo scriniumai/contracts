@@ -15,6 +15,7 @@ const COMMISSION_TOTAL = COMMISSION_OPEN + COMMISSION_CLOSE
 
 const STATUS_OPENED = 2
 const STATUS_CLOSED = 3
+const STATUS_CLOSED_FORCE = 4
 
 const INSTRUMENT = Object.freeze({
   ID     : 2,
@@ -81,11 +82,13 @@ contract('Platform', function (accounts) {
     {tradeId: 9,  masterTradeId: 10, cmd: CMD_BUY,  pips: 0,     balanceBefore: BALANCE_BEFORE, expectedProfit: 0 * 10 ** 8     },
     {tradeId: 11, masterTradeId: 12, cmd: CMD_SELL, pips: 10,    balanceBefore: BALANCE_BEFORE, expectedProfit: -0.14 * 10 ** 8 },
     {tradeId: 13, masterTradeId: 14, cmd: CMD_SELL, pips: -100,  balanceBefore: BALANCE_BEFORE, expectedProfit: 1.4 * 10 ** 8   },
+
+    {tradeId: 15, masterTradeId: 16, cmd: CMD_SELL, pips: -100,  balanceBefore: BALANCE_BEFORE, expectedProfit: 1.4 * 10 ** 8, useForceClosing: true},
   ]
 
   let profits = web3.toBigNumber(0)
 
-  openTradeAssertions.forEach(({ tradeId, masterTradeId, cmd, pips, balanceBefore, expectedProfit }, tradeIdx) => {
+  openTradeAssertions.forEach(({ tradeId, masterTradeId, cmd, pips, balanceBefore, expectedProfit, useForceClosing }, tradeIdx) => {
     it(`trade processing should works correctly for tradeId:${tradeId}`, async () => {
       await scrinium.mintToken.sendTransaction(BOB, balanceBefore, { from: ALICE })
       await scrinium.approve.sendTransaction(Balances.address, balanceBefore, { from: BOB })
@@ -142,6 +145,41 @@ contract('Platform', function (accounts) {
       } catch (error) {
         console.error('openTrade', error)
         assert.fail()
+      }
+
+      if (useForceClosing) {
+        const txHash = await platform.closeTradeForce.sendTransaction(
+          TRADE._tradeId,
+          TRADE._closeTime,
+          TRADE._closePriceInstrument,
+          TRADE._closePriceSCRBase,
+
+          {
+            from: ALICE
+          }
+        )
+        const receipt = await web3.eth.getTransactionReceipt(txHash)
+
+        debug('platform.closeTradeForce gasUsed %d', receipt.gasUsed)
+
+        const [
+          ,
+          ,
+          ,
+
+          ,
+          ,
+          ,
+          ,
+
+          ,
+          ,
+          status
+        ] = await platform.trades.call(tradeId)
+
+        assert.equal(status, STATUS_CLOSED_FORCE)
+
+        return
       }
 
       const [

@@ -15,7 +15,11 @@ module.exports = global.omitMigration(__filename, (deployer, network, accounts) 
     config.commissionsAddress,
   ).then(async (liquidityProviderInstance) => {
 
-    // ? FIXME: need to transfer initial balance to LiquidityProvider
+    // ? FIXME: need to transfer initial balance to LiquidityProvider when deploy to MAINNET
+    if (! [1, 4447].includes(deployer.network_id)) {
+      const scriniumInstance = await Scrinium.deployed()
+      await scriniumInstance.mintToken(liquidityProviderInstance.address, 6000000 * 10 ** 8)
+    }
 
     const balancesInstance = await Balances.deployed()
     await balancesInstance.setLiquidityProviderAddress(liquidityProviderInstance.address)
