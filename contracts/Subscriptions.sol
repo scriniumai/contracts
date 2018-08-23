@@ -1,11 +1,13 @@
 pragma solidity ^0.4.23;
 
+import "./shared/AddressTools.sol";
 import "./shared/Owned.sol";
 
-import "./DemoBalances.sol";
+import "./Balances.sol";
 
 
 contract Subscriptions is Owned {
+    using AddressTools for address;
 
     address public balancesAddress;
 
@@ -14,24 +16,38 @@ contract Subscriptions is Owned {
     mapping (address => uint[]) investorTraderIds;
     mapping (uint => address[]) traderIdInvestors;
 
+    modifier notZeroAddr (address _address) {
+        require(_address.isContract());
+        _;
+    }
+
+    event BalancesAddressSetted(address indexed _owner, address _balancesAddress);
     event Subscribed(address indexed _investor, uint[] _traderIds);
     event Unsubscribed(address indexed _investor, uint[] _traderIds);
     event SubscriptionsLimitSetted(address indexed _owner, uint subscriptionsLimit);
 
     constructor(address _balancesAddress) public {
+        require(_balancesAddress.isContract());
+
         balancesAddress = _balancesAddress;
+
+        emit BalancesAddressSetted(msg.sender, _balancesAddress);
     }
 
-    // Allowed only for demo purposes!
-    function demoSubscribeAndDeposit(uint[] _traderIds, uint _amount) external {
-        privateSubscribe(_traderIds, msg.sender);
+    function setBalancesAddress(address _balancesAddress) external onlyOwner notZeroAddr(_balancesAddress) {
+        balancesAddress = _balancesAddress;
+        emit BalancesAddressSetted(msg.sender, _balancesAddress);
+    }
 
-        DemoBalances _balances = DemoBalances(balancesAddress);
-        _balances.demoDeposit(_amount, msg.sender);
+    function setSubscriptionsLimit(uint _subscriptionsLimit) external onlyOwner {
+        subscriptionsLimit = _subscriptionsLimit;
+        emit SubscriptionsLimitSetted(msg.sender, _subscriptionsLimit);
     }
 
     function subscribe(uint[] _traderIds) external {
-        privateSubscribe(_traderIds, msg.sender);
+        Balances _balances = Balances(balancesAddress);
+        require(_balances.balanceOf(msg.sender) > 0);
+        _subscribe(_traderIds, msg.sender);
     }
 
     function unsubscribe(uint[] _traderIds) external {
@@ -90,12 +106,7 @@ contract Subscriptions is Owned {
         return investorTraderIds[_investor];
     }
 
-    function setSubscriptionsLimit(uint _subscriptionsLimit) onlyOwner external {
-        subscriptionsLimit = _subscriptionsLimit;
-        emit SubscriptionsLimitSetted(msg.sender, _subscriptionsLimit);
-    }
-
-    function privateSubscribe(uint[] _traderIds, address _investor) internal {
+    function _subscribe(uint[] _traderIds, address _investor) internal {
         require(investorTraderIds[_investor].length + _traderIds.length <= subscriptionsLimit);
 
         bool _isSubscriptionExists;

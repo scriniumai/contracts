@@ -1,0 +1,5 @@
+*
+!.gitignore
+!index.js
+!develop.js
+!development.js

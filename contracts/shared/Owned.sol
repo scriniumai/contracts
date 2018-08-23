@@ -17,6 +17,14 @@ contract Owned {
         _;
     }
 
+    modifier onlyOwnerOrThis() {
+        require(
+            msg.sender == owner ||
+            msg.sender == address(this)
+        );
+        _;
+    }
+
     modifier onlyPotentialOwner() {
         require(msg.sender == potentialOwner);
         _;

@@ -2,8 +2,8 @@ const Subscriptions = artifacts.require("Subscriptions")
 
 const Balances = artifacts.require("Balances")
 
-module.exports = global.omitMigration(__filename, (deployer, network) => {
-  return deployer.deploy(
+module.exports = function(deployer, network) {
+  deployer.deploy(
     Subscriptions,
     Balances.address,
   ).then(() => {
@@ -19,5 +19,5 @@ module.exports = global.omitMigration(__filename, (deployer, network) => {
     }
 
     return Promise.resolve()
-  })
-})
+  });
+};

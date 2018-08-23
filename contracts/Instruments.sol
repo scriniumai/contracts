@@ -6,8 +6,8 @@ import "./shared/Owned.sol";
 contract Instruments is Owned {
 
     uint constant public TYPE_CURRENCIES = 1;
-    uint constant public TYPE_CRYPTO = 2;
-    uint constant public TYPE_COMMODITIES = 3;
+    uint constant public TYPE_COMMODITIES = 2;
+    uint constant public TYPE_CRYPTO = 3;
     uint constant public TYPE_INDECES = 4;
 
     struct Asset {
@@ -38,4 +38,6 @@ contract Instruments is Owned {
             instruments[_id].assetType == TYPE_INDECES
         );
     }
+
+    // TODO: add oraclaized instrument quotes discovering according to liquidity provider
 }

@@ -5,7 +5,7 @@ const Scrinium = artifacts.require("Scrinium")
 module.exports = global.omitMigration(__filename, (deployer, network) => {
   return deployer.deploy(
     Balances,
-    Scrinium.address
+    Scrinium.address,
   ).then(() => {
 
     global.dataForWriting = {
@@ -14,8 +14,8 @@ module.exports = global.omitMigration(__filename, (deployer, network) => {
       balances: {
         comment: __filename,
         abi: Balances.abi,
-        address: Balances.address
-      }
+        address: Balances.address,
+      },
     }
 
     return Promise.resolve()
