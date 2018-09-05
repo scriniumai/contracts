@@ -92,7 +92,7 @@ contract('Platform', function (accounts) {
     it(`trade processing should works correctly for tradeId:${tradeId}`, async () => {
       await scrinium.mintToken.sendTransaction(BOB, balanceBefore, { from: ALICE })
       await scrinium.approve.sendTransaction(Balances.address, balanceBefore, { from: BOB })
-      await balances.deposit.sendTransaction(balanceBefore, { from: BOB })
+      await balances.deposit.sendTransaction(Date.now(), balanceBefore, { from: BOB })
 
       const now = Date.now()
 
@@ -285,7 +285,7 @@ contract('Platform', function (accounts) {
       assert.equal(balanceAfter.toNumber(), expectedBalanceWithoutCommission.toNumber())
 
       const balancePlatform = await balances.balanceOf(TRADE._investor)
-      await balances.withdrawal.sendTransaction(balancePlatform, { from: TRADE._investor })
+      await balances.withdrawal.sendTransaction(Date.now(), balancePlatform, { from: TRADE._investor })
       const balanceScrinium = await scrinium.balanceOf(TRADE._investor)
       assert.equal(balanceScrinium.toNumber(), balancePlatform.toNumber())
 

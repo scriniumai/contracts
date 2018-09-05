@@ -33,8 +33,8 @@ contract Balances is Owned {
     event PlatformAddressSetted(address indexed _owner, address indexed _platformAddress);
     event LiquidityProviderAddressSetted(address indexed _owner, address indexed _liquidityProviderAddress);
 
-    event BalanceDeposited(address indexed _investor, uint _amount);
-    event BalanceWithdrawed(address indexed _investor, uint _amount);
+    event BalanceDeposited(uint _externalId, address indexed _investor, uint _amount);
+    event BalanceWithdrawed(uint _externalId, address indexed _investor, uint _amount);
     event BalanceUpdated(bytes32 indexed _updateType, address indexed _investor, int _amount);
 
     constructor(address _scriniumAddress) public {
@@ -52,12 +52,12 @@ contract Balances is Owned {
         emit LiquidityProviderAddressSetted(msg.sender, _liquidityProviderAddress);
     }
 
-    function deposit(uint _amount) external {
+    function deposit(uint _externalId, uint _amount) external {
         require(Scrinium(scriniumAddress).transferFrom(msg.sender, address(this), _amount));
 
         balance[msg.sender] = balance[msg.sender].add(_amount);
 
-        emit BalanceDeposited(msg.sender, _amount);
+        emit BalanceDeposited(_externalId, msg.sender, _amount);
     }
 
     function updateBalance(
@@ -111,7 +111,7 @@ contract Balances is Owned {
         return true;
     }
 
-    function withdrawal(uint _amount) external {
+    function withdrawal(uint _externalId, uint _amount) external {
         require(balance[msg.sender] >= _amount);
 
         require(Scrinium(scriniumAddress).transfer(msg.sender, _amount));
@@ -119,7 +119,7 @@ contract Balances is Owned {
 
         balance[msg.sender] = balance[msg.sender].sub(_amount);
 
-        emit BalanceWithdrawed(msg.sender, _amount);
+        emit BalanceWithdrawed(_externalId, msg.sender, _amount);
     }
 
     function balanceOf(address _investor) public view returns(uint256) {

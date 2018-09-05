@@ -29,7 +29,7 @@ contract('Balances', function(accounts) {
     await scrinium.approve.sendTransaction(Balances.address, 100, {from: ALICE})
 
     // 2. Alice deposits 100 SRC to contract
-    await balances.deposit.sendTransaction(100, {from: ALICE})
+    await balances.deposit.sendTransaction(Date.now(), 100, {from: ALICE})
 
     // Assertions:
     const balanceOfAliceOnPlatform = await balances.balanceOf(ALICE)
@@ -41,16 +41,16 @@ contract('Balances', function(accounts) {
     assert.equal(balanceOfContractOnScrinium, 100, "contract Balances should receive 100 SCR from ALICE")
 
     // tearDown - withdrawal all deposited SCR
-    await balances.withdrawal.sendTransaction(100, {from: ALICE})
+    await balances.withdrawal.sendTransaction(Date.now(), 100, {from: ALICE})
   })
 
   it("withdrawal should works correctly: 30SCR to ALICE", async () => {
     // 1. Alice approve and deposit 100 SCR to Balances
     await scrinium.approve.sendTransaction(Balances.address, 100, {from: ALICE})
-    await balances.deposit.sendTransaction(100, {from: ALICE})
+    await balances.deposit.sendTransaction(Date.now(), 100, {from: ALICE})
 
     // 2. Alice withdrawal 30 SCR
-    await balances.withdrawal.sendTransaction(30, {from: ALICE})
+    await balances.withdrawal.sendTransaction(Date.now(), 30, {from: ALICE})
 
     // Assertions:
     const balanceOfAliceOnPlatform = await balances.balanceOf(ALICE)
@@ -63,16 +63,16 @@ contract('Balances', function(accounts) {
     assert.equal(balanceOfContractOnScrinium, 100-30, "contract Balances should keep 70SCR on ALICE's address")
 
     // tearDown - withdrawal all deposited SCR
-    await balances.withdrawal.sendTransaction(70, {from: ALICE})
+    await balances.withdrawal.sendTransaction(Date.now(), 70, {from: ALICE})
   })
 
   it("withdrawal not works for amount greater than balance", async () => {
     await scrinium.approve.sendTransaction(Balances.address, 100, {from: ALICE})
-    await balances.deposit.sendTransaction(100, {from: ALICE})
+    await balances.deposit.sendTransaction(Date.now(), 100, {from: ALICE})
 
     // Alice trying to withdrawal 101 * -10^8 SRC
     try {
-      await balances.withdrawal.sendTransaction(101, {from: ALICE})
+      await balances.withdrawal.sendTransaction(Date.now(), 101, {from: ALICE})
       assert.fail('Withdrawal should not pass')
     } catch (err) {}
 
@@ -80,7 +80,7 @@ contract('Balances', function(accounts) {
     assert.equal(balanceAfter, 100, "Alice's balance should be equal 70 SCR")
 
     // tearDown
-    await balances.withdrawal.sendTransaction(100, {from: ALICE})
+    await balances.withdrawal.sendTransaction(Date.now(), 100, {from: ALICE})
   })
 
   it("setPlatform should change allowed platform address", async () => {

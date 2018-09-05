@@ -24,7 +24,7 @@ contract('Subscriptions', function(accounts) {
     for (const investor of [ALICE, BOB]) {
       await scrinium.mintToken.sendTransaction(investor, BALANCE_BEFORE, { from: ALICE })
       await scrinium.approve.sendTransaction(balances.address, BALANCE_BEFORE, { from: investor })
-      await balances.deposit.sendTransaction(BALANCE_BEFORE, { from: investor })
+      await balances.deposit.sendTransaction(Date.now(), BALANCE_BEFORE, { from: investor })
     }
   })
 
