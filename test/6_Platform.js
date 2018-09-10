@@ -175,7 +175,7 @@ contract('Platform', function (accounts) {
           ,
           ,
           status
-        ] = await platform.trades.call(tradeId)
+        ] = await platform.trades.call(TRADE._tradeId)
 
         assert.equal(status, STATUS_CLOSED_FORCE)
 
@@ -195,7 +195,7 @@ contract('Platform', function (accounts) {
         marginSCR,
         profitSCR,
         status
-      ] = await platform.trades.call(tradeId)
+      ] = await platform.trades.call(TRADE._tradeId)
 
       assert.equal(liquidityProviderAddress, liquidityProvider.address)
       assert.equal(investor, TRADE._investor)
@@ -213,7 +213,7 @@ contract('Platform', function (accounts) {
       const [
         openTime, openPriceInstrument, openPriceSCRBaseCurrency,
         closeTime, closePriceInstrument, closePriceSCRBaseCurrency,
-      ] = await platform.tradeQuotes.call(tradeId)
+      ] = await platform.tradeQuotes.call(TRADE._tradeId)
 
       assert.equal(openTime.toNumber(), TRADE._openTime)
       assert.equal(openPriceInstrument.toNumber(), TRADE._openPriceInstrument)
@@ -223,14 +223,21 @@ contract('Platform', function (accounts) {
       assert.equal(closePriceInstrument.toNumber(), 0)
       assert.equal(closePriceSCRBaseCurrency.toNumber(), 0)
 
-      assert.deepEqual(
-        (await platform.getTradesIds()).map((item) => Number(item.toNumber())),
-        [tradeId]
+      assert.isTrue(
+        (await platform.getTradesIds())
+          .map(item => item.toNumber())
+          .includes(TRADE._tradeId),
       )
 
       assert.equal(
         (await balances.balanceOf(TRADE._investor)).toNumber(),
         balanceBefore
+      )
+
+      assert.isTrue(
+        (await platform.getInvestorTrades(TRADE._investor))
+          .map(item => item.toNumber())
+          .includes(TRADE._tradeId),
       )
 
       /************************************************************************/
