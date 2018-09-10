@@ -27,6 +27,7 @@ contract Platform is Owned {
 
     mapping (uint => Trade) public trades;
     mapping (uint => TradeQuotes) public tradeQuotes;
+    mapping(address => uint[]) public investorTrades;
 
     struct Trade {
         address liquidityProviderAddress;
@@ -230,6 +231,10 @@ contract Platform is Owned {
         );
     }
 
+    function getInvestorTrades(address _investor) external view returns (uint[]) {
+        return investorTrades[_investor];
+    }
+
     function openTrade (
         uint _tradeId,
         address _investor,
@@ -413,6 +418,7 @@ contract Platform is Owned {
         tradeQuotes[_tradeId].openPriceSCRBaseCurrency = _openPriceSCRBase;
 
         tradeIds.push(_tradeId);
+        investorTrades[_investor].push(_tradeId);
     }
 
     function _calculateProfitSCR (
