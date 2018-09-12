@@ -13,6 +13,8 @@ contract Subscriptions is Owned {
 
     uint public subscriptionsLimit = 50;
 
+    mapping (address => bool) public investorsWithPortfolios;
+
     mapping (address => uint[]) investorTraderIds;
     mapping (uint => address[]) traderIdInvestors;
 
@@ -127,6 +129,8 @@ contract Subscriptions is Owned {
             investorTraderIds[_investor].push(_traderIds[i]);
             traderIdInvestors[_traderIds[i]].push(_investor);
         }
+
+        investorsWithPortfolios[_investor] = true;
 
         emit Subscribed(_investor, _traderIds);
     }
