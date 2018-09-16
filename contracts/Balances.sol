@@ -2,6 +2,7 @@ pragma solidity ^0.4.23;
 
 
 import "./shared/AddressTools.sol";
+import "./shared/ECDSA.sol";
 import "./shared/SafeMath.sol";
 import "./shared/Owned.sol";
 
@@ -11,6 +12,7 @@ import "./LiquidityProvider.sol";
 
 contract Balances is Owned {
     using AddressTools for address;
+    using ECDSA for bytes32;
     using SafeMath for uint256;
 
     address public scriniumAddress;
@@ -19,6 +21,8 @@ contract Balances is Owned {
 
     // ? FIXME: should the balance be only positive
     mapping (address => uint256) balance;
+    mapping (uint256 => bool) depositExternalIds;
+    mapping (uint256 => bool) withdrawalExternalIds;
 
     modifier onlyPlatform {
         require(msg.sender == platformAddress);
@@ -55,6 +59,7 @@ contract Balances is Owned {
     function deposit(uint _externalId, uint _amount) external {
         require(Scrinium(scriniumAddress).transferFrom(msg.sender, address(this), _amount));
 
+        depositExternalIds[_externalId] = true;
         balance[msg.sender] = balance[msg.sender].add(_amount);
 
         emit BalanceDeposited(_externalId, msg.sender, _amount);
@@ -111,15 +116,28 @@ contract Balances is Owned {
         return true;
     }
 
-    function withdrawal(uint _externalId, uint _amount) external {
-        require(balance[msg.sender] >= _amount);
+    function withdrawal(uint _externalId, uint _amount, bytes _msgSig) external {
+        address _investor = msg.sender;
 
-        require(Scrinium(scriniumAddress).transfer(msg.sender, _amount));
+        require(balance[_investor] >= _amount);
 
+        require(! withdrawalExternalIds[_externalId]);
 
-        balance[msg.sender] = balance[msg.sender].sub(_amount);
+        bytes32 _msgHash = keccak256(abi.encodePacked(
+          _investor,
+          _externalId,
+          _amount,
+          this
+        )).toEthSignedMessageHash();
 
-        emit BalanceWithdrawed(_externalId, msg.sender, _amount);
+        require(_msgHash.recover(_msgSig) == owner);
+
+        require(Scrinium(scriniumAddress).transfer(_investor, _amount));
+
+        withdrawalExternalIds[_externalId] = true;
+        balance[_investor] = balance[_investor].sub(_amount);
+
+        emit BalanceWithdrawed(_externalId, _investor, _amount);
     }
 
     function balanceOf(address _investor) public view returns(uint256) {
