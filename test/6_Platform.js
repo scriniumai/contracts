@@ -1,5 +1,7 @@
 const debug = require('debug')('test:Platform')
 
+const { soliditySha3 } = require('web3-utils')
+
 const Scrinium          = artifacts.require("Scrinium")
 const Balances          = artifacts.require("Balances")
 const Instruments       = artifacts.require("Instruments")
@@ -292,7 +294,20 @@ contract('Platform', function (accounts) {
       assert.equal(balanceAfter.toNumber(), expectedBalanceWithoutCommission.toNumber())
 
       const balancePlatform = await balances.balanceOf(TRADE._investor)
-      await balances.withdrawal.sendTransaction(Date.now(), balancePlatform, { from: TRADE._investor })
+      const withdrawalExternalId = Date.now()
+      const _msgSig = web3.eth.sign(ALICE, soliditySha3(
+        TRADE._investor,
+        withdrawalExternalId,
+        balancePlatform,
+        Balances.address,
+      ))
+      await balances.withdrawal.sendTransaction(
+        withdrawalExternalId,
+        balancePlatform,
+        _msgSig,
+        { from: TRADE._investor }
+      )
+      
       const balanceScrinium = await scrinium.balanceOf(TRADE._investor)
       assert.equal(balanceScrinium.toNumber(), balancePlatform.toNumber())
 
