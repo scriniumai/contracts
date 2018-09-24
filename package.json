@@ -21,6 +21,7 @@
     "truffle": "^4.1.14",
     "truffle-wallet-provider": "^0.0.5",
     "validatorjs": "^3.14.2",
+    "web3-utils": "^1.0.0-beta.36",
     "yamljs": "^0.3.0"
   }
 }
