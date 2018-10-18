@@ -98,7 +98,7 @@ contract Balances is Owned {
             // ? TODO: balance[liquidityProviderAddress] = balance[liquidityProviderAddress].add(amount);
         }
 
-        emit BalanceUpdated("trade", _investor, _amount);
+        emit BalanceUpdated("profit", _investor, _amount);
     }
 
     function updateBalanceCommission(
@@ -111,7 +111,7 @@ contract Balances is Owned {
         require(Scrinium(scriniumAddress).transfer(_commissionsAddress, _amount));
         balance[_investor] = balance[_investor].sub(_amount);
 
-        emit BalanceUpdated("commission", _investor, int256(_amount));
+        emit BalanceUpdated("commission", _investor, int256(-_amount));
 
         return true;
     }

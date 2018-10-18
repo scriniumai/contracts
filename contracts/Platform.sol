@@ -147,7 +147,7 @@ contract Platform is Owned {
 
         emit BalancesAddressSetted(msg.sender, _balancesAddress);
         emit InstrumentsAddressSetted(msg.sender, _instrumentsAddress);
-        emit InstrumentsAddressSetted(msg.sender, _instrumentsAddress);
+        emit SubscriptionsAddressSetted(msg.sender, _subscriptionsAddress);
         emit LiquidityProviderAddressSetted(msg.sender, _liquidityProviderAddress);
     }
 
@@ -255,6 +255,8 @@ contract Platform is Owned {
 
         uint _balance = Balances(balancesAddress).balanceOf(_investor);
         require(_balance > 0);
+
+        // TODO: Calc _marginSCR according to instrument/asset type
 
         uint _marginSCR = _balance.mul(_marginPercent).div(MARGIN_PERCENT_MULTIPLIER);
 
