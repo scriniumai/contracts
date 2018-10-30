@@ -117,6 +117,8 @@ contract('Platform', function (accounts) {
         _closeTime: now + 60 * 10 ** 3,
         _closePriceInstrument: parseInt(1.3 * 10 ** 6) + pips,
         _closePriceSCRBase: parseInt(5000000 / 1.4) + 1,
+
+        _marginRegulator: 10 ** 18,
       }
 
       try {
@@ -152,6 +154,8 @@ contract('Platform', function (accounts) {
       if (useForceClosing) {
         const txHash = await platform.closeTradeForce.sendTransaction(
           TRADE._tradeId,
+          TRADE._marginRegulator,
+
           TRADE._closeTime,
           TRADE._closePriceInstrument,
           TRADE._closePriceSCRBase,
@@ -176,10 +180,12 @@ contract('Platform', function (accounts) {
 
           ,
           ,
+          ,
+
           status
         ] = await platform.trades.call(TRADE._tradeId)
 
-        assert.equal(status, STATUS_CLOSED_FORCE)
+        assert.equal(status.toNumber(), STATUS_CLOSED_FORCE)
 
         return
       }
@@ -195,9 +201,11 @@ contract('Platform', function (accounts) {
         existingCmd,
 
         marginSCR,
+        marginRegulator,
         profitSCR,
+
         status
-      ] = await platform.trades.call(TRADE._tradeId)
+      ] = await platform.getTrade.call(TRADE._tradeId)
 
       assert.equal(liquidityProviderAddress, liquidityProvider.address)
       assert.equal(investor, TRADE._investor)
@@ -208,9 +216,10 @@ contract('Platform', function (accounts) {
       assert.equal(existingCmd, TRADE._cmd)
 
       assert.equal(marginSCR.toNumber(), 28 * 10 ** 8)
+      assert.equal(marginRegulator.toNumber(), 0)
       assert.equal(profitSCR.toNumber(), 0)
 
-      assert.equal(status, STATUS_OPENED)
+      assert.equal(status.toNumber(), STATUS_OPENED)
 
       const [
         openTime, openPriceInstrument, openPriceSCRBaseCurrency,
@@ -247,6 +256,8 @@ contract('Platform', function (accounts) {
       try {
         const txHash = await liquidityProvider.closeTrade.sendTransaction(
           TRADE._tradeId,
+          TRADE._marginRegulator,
+
           TRADE._closeTime,
           TRADE._closePriceInstrument,
           TRADE._closePriceSCRBase,
@@ -277,9 +288,11 @@ contract('Platform', function (accounts) {
         ,
 
         ,
+        ,
         _profitSCR,
+
         _status
-      ] = await platform.trades.call(tradeId)
+      ] = await platform.getTrade.call(tradeId)
 
       profits = profits.add(_profitSCR)
 
@@ -307,7 +320,7 @@ contract('Platform', function (accounts) {
         _msgSig,
         { from: TRADE._investor }
       )
-      
+
       const balanceScrinium = await scrinium.balanceOf(TRADE._investor)
       assert.equal(balanceScrinium.toNumber(), balancePlatform.toNumber())
 

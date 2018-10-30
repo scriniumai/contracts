@@ -1,7 +1,13 @@
+const Assets = artifacts.require("shared/Assets")
 const Instruments = artifacts.require("Instruments")
 
 module.exports = global.omitMigration(__filename, (deployer, network, accounts) => {
-    deployer.deploy(
+  deployer.deploy(
+    Assets
+  ).then(() => {
+    deployer.link(Assets, Instruments)
+
+    return deployer.deploy(
       Instruments
     ).then((instruments) => {
 
@@ -30,4 +36,5 @@ module.exports = global.omitMigration(__filename, (deployer, network, accounts) 
 
       return Promise.resolve()
     })
+  })
 })

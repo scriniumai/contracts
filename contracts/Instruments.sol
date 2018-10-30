@@ -1,27 +1,17 @@
 pragma solidity ^0.4.23;
 
+import "./shared/Assets.sol";
 import "./shared/Owned.sol";
 
 
 contract Instruments is Owned {
-
-    uint constant public TYPE_CURRENCIES = 1;
-    uint constant public TYPE_COMMODITIES = 2;
-    uint constant public TYPE_CRYPTO = 3;
-    uint constant public TYPE_INDECES = 4;
-
-    struct Asset {
-        string name;
-        uint assetType;
-    }
-
-    event InstrumentAdded(address indexed _owner, uint indexed _id, string _name, uint _type);
+    event InstrumentAdded(address indexed _owner, uint indexed _id, bytes32 _name, uint _type);
     event InstrumentRemoved(address indexed _owner, uint indexed _id);
 
-    mapping (uint => Asset) public instruments;
+    mapping (uint => Assets.Asset) public instruments;
 
-    function add(uint _id, string _name, uint _type) external onlyOwner {
-        instruments[_id] = Asset(_name, _type);
+    function add(uint _id, bytes32 _name, uint _type) external onlyOwner {
+        instruments[_id] = Assets.Asset(_name, _type);
         emit InstrumentAdded(msg.sender, _id, _name, _type);
     }
 
@@ -30,12 +20,16 @@ contract Instruments is Owned {
         emit InstrumentRemoved(msg.sender, _id);
     }
 
+    function getInstrument (uint _id) external view returns (bytes32, uint) {
+        return (instruments[_id].name, instruments[_id].assetType);
+    }
+
     function isCorrect(uint _id) public view returns (bool) {
         return (
-            instruments[_id].assetType == TYPE_CURRENCIES ||
-            instruments[_id].assetType == TYPE_CRYPTO ||
-            instruments[_id].assetType == TYPE_COMMODITIES ||
-            instruments[_id].assetType == TYPE_INDECES
+            instruments[_id].assetType == Assets.TYPE_CURRENCIES() ||
+            instruments[_id].assetType == Assets.TYPE_CRYPTO() ||
+            instruments[_id].assetType == Assets.TYPE_COMMODITIES() ||
+            instruments[_id].assetType == Assets.TYPE_INDECES()
         );
     }
 

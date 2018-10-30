@@ -130,6 +130,8 @@ contract LiquidityProvider is Owned {
 
     function closeTrade (
         uint _tradeId,
+        uint _marginRegulator,
+
         uint _closeTime,
         uint _closePriceInstrument,
         uint _closePriceSCRBase,
@@ -142,7 +144,7 @@ contract LiquidityProvider is Owned {
         Platform _platform = Platform(platformAddress);
 
         address _investor;
-        (, _investor,,,,,,,,) = _platform.getTrade(_tradeId);
+        (, _investor,,,,,,,,,) = _platform.getTrade(_tradeId);
 
         commissions[_tradeId] = commissions[_tradeId].add(_commission);
 
@@ -150,6 +152,8 @@ contract LiquidityProvider is Owned {
 
         require(_platform.closeTrade(
             _tradeId,
+            _marginRegulator,
+
             _closeTime,
             _closePriceInstrument,
             _closePriceSCRBase
@@ -162,6 +166,7 @@ contract LiquidityProvider is Owned {
     ) private returns (bool) {
         require(Platform(platformAddress).takeCommission(
             _investor,
+            _tradeId,
             commissionsAddress,
             commissions[_tradeId]
         ));
