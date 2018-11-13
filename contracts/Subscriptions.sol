@@ -14,6 +14,7 @@ contract Subscriptions is Owned {
     uint public subscriptionsLimit = 50;
 
     mapping (address => bool) public investorsWithPortfolios;
+    mapping (address => uint) public investorLastPortfolioDate;
 
     mapping (address => uint[]) investorTraderIds;
     mapping (uint => address[]) traderIdInvestors;
@@ -48,7 +49,9 @@ contract Subscriptions is Owned {
 
     function subscribe(uint[] _traderIds) external {
         Balances _balances = Balances(balancesAddress);
+
         require(_balances.balanceOf(msg.sender) > 0);
+
         _subscribe(_traderIds, msg.sender);
     }
 
@@ -131,6 +134,7 @@ contract Subscriptions is Owned {
         }
 
         investorsWithPortfolios[_investor] = true;
+        investorLastPortfolioDate[_investor] = now;
 
         emit Subscribed(_investor, _traderIds);
     }
