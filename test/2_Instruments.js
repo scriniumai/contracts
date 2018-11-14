@@ -14,9 +14,10 @@ contract('Instruments', function(accounts) {
   it("instruments.add should works correctly", async () => {
     await instruments.add.sendTransaction(1, 'EURUSD', 3, { from: ALICE })
 
-    const eurusd = await instruments.instruments.call(1)
-    assert.equal(eurusd[0], 'EURUSD')
-    assert.equal(eurusd[1], 3)
+    const instrument = await instruments.instruments.call(1)
+
+    assert.equal(web3.toUtf8(instrument[0]), 'EURUSD')
+    assert.equal(instrument[1], 3)
   })
 
   it("instruments.isCorrect should works correctly", async () => {

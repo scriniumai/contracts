@@ -37,9 +37,15 @@ contract Balances is Owned {
     event PlatformAddressSetted(address indexed _owner, address indexed _platformAddress);
     event LiquidityProviderAddressSetted(address indexed _owner, address indexed _liquidityProviderAddress);
 
-    event BalanceDeposited(uint _externalId, address indexed _investor, uint _amount);
-    event BalanceWithdrawed(uint _externalId, address indexed _investor, uint _amount);
-    event BalanceUpdated(bytes32 indexed _updateType, address indexed _investor, int _amount);
+    event BalanceDeposited(uint indexed _externalId, address indexed _investor, uint _amount);
+    event BalanceWithdrawed(uint indexed _externalId, address indexed _investor, uint _amount);
+    event BalanceUpdated(
+        bytes32 indexed _updateType,
+        uint indexed _tradeId,
+        address indexed _investor,
+
+        int _amount
+    );
 
     constructor(address _scriniumAddress) public {
         require(_scriniumAddress.isContract());
@@ -67,6 +73,7 @@ contract Balances is Owned {
 
     function updateBalance(
         address _investor,
+        uint _tradeId,
         int256 _amount
     ) external onlyPlatform {
         if (_amount == 0) {
@@ -98,11 +105,12 @@ contract Balances is Owned {
             // ? TODO: balance[liquidityProviderAddress] = balance[liquidityProviderAddress].add(amount);
         }
 
-        emit BalanceUpdated("trade", _investor, _amount);
+        emit BalanceUpdated("profit", _tradeId, _investor, _amount);
     }
 
     function updateBalanceCommission(
         address _investor,
+        uint _tradeId,
         address _commissionsAddress,
         uint _amount
     ) external onlyPlatform returns (bool) {
@@ -111,7 +119,7 @@ contract Balances is Owned {
         require(Scrinium(scriniumAddress).transfer(_commissionsAddress, _amount));
         balance[_investor] = balance[_investor].sub(_amount);
 
-        emit BalanceUpdated("commission", _investor, int256(_amount));
+        emit BalanceUpdated("commission", _tradeId, _investor, int256(-_amount));
 
         return true;
     }

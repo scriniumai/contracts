@@ -1,1128 +1,1392 @@
 [{
   "id": "1",
-  "name": "USDCHF",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "GBPUSD",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": 1
 },
 {
   "id": "2",
   "name": "EURUSD",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": 1
 },
 {
   "id": "3",
-  "name": "GBPUSD.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "AUDUSD",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": 1
 },
 {
   "id": "4",
-  "name": "EURUSD.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "GBPJPY",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
 },
 {
   "id": "5",
-  "name": "AUDUSD",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "USDCHF",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
+},
+{
+  "id": "6",
+  "name": "EURJPY",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
 },
 {
   "id": "7",
   "name": "USDJPY",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
 },
 {
   "id": "8",
-  "name": "NZDUSD",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "EURCHF.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
 },
 {
   "id": "9",
-  "name": "EURJPY",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
+  "name": "EURUSD.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": 1
 },
 {
   "id": "10",
-  "name": "EURCHF",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "NZDUSD",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": 1
 },
 {
   "id": "11",
-  "name": "EURGBP",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "EURCHF",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
 },
 {
   "id": "12",
-  "name": "USDCAD",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "USDCAD.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CAD",
+  "type": 1
 },
 {
   "id": "13",
-  "name": "USDCHF.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "GBPUSD.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": 1
+},
+{
+  "id": "14",
+  "name": "EURJPY.ecn",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
 },
 {
   "id": "15",
-  "name": "GBPUSD",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "XAUUSD.ecn",
+  "digits": 2,
+  "pips_position": 1,
+  "quote_currency": "USD",
+  "type": 2
 },
 {
   "id": "16",
   "name": "AUDUSD.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": 1
 },
 {
   "id": "17",
-  "name": "USDJPY.ecn",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
+  "name": "USDCAD",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CAD",
+  "type": 1
 },
 {
   "id": "18",
-  "name": "EURJPY.ecn",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
+  "name": "XAUUSD",
+  "digits": 2,
+  "pips_position": 1,
+  "quote_currency": "USD",
+  "type": 2
 },
 {
   "id": "19",
-  "name": "USDCAD.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "USDCHF.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
 },
 {
   "id": "20",
-  "name": "AUDCAD.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "GBPCHF",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
 },
 {
   "id": "21",
-  "name": "GBPJPY",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
+  "name": "XAGUSD",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "USD",
+  "type": 2
 },
 {
   "id": "22",
-  "name": "GBPCHF",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "EURGBP",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "GBP",
+  "type": 1
 },
 {
   "id": "23",
-  "name": "EURNZD",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "EURCAD.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CAD",
+  "type": 1
 },
 {
   "id": "24",
-  "name": "NZDUSD.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "GBPCAD.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CAD",
+  "type": 1
 },
 {
   "id": "25",
-  "name": "AUDNZD.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "AUDJPY.ecn",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
 },
 {
   "id": "26",
-  "name": "AUDCHF.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "USDJPY.ecn",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
 },
 {
   "id": "27",
-  "name": "EURAUD.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
+  "name": "AUDCAD.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CAD",
+  "type": 1
 },
 {
   "id": "28",
-  "name": "EURCAD.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "30",
-  "name": "GBPJPY.ecn",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "31",
-  "name": "GBPCHF.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "32",
-  "name": "GBPCAD.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "33",
   "name": "EURGBP.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "34",
-  "name": "AUDJPY.ecn",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "35",
-  "name": "CADJPY.ecn",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "36",
-  "name": "EURCHF.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "37",
-  "name": "GBPNZD.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "38",
-  "name": "NZDCHF.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "39",
-  "name": "GBPAUD.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "40",
-  "name": "CHFJPY.ecn",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "41",
-  "name": "NZDJPY.ecn",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "42",
-  "name": "NZDCAD.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "43",
-  "name": "CADCHF.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "45",
-  "name": "EURNZD.ecn",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "46",
-  "name": "AUDNZD",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "47",
-  "name": "AUDCAD",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "48",
-  "name": "AUDCHF",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "49",
-  "name": "EURAUD",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "50",
-  "name": "EURCAD",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "51",
-  "name": "GBPAUD",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "52",
-  "name": "GBPCAD",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "53",
-  "name": "GBPNZD",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "54",
-  "name": "NZDCAD",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "55",
-  "name": "NZDCHF",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "56",
-  "name": "EURUSD.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "57",
-  "name": "USDJPY.pro",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "58",
-  "name": "USDCAD.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "59",
-  "name": "NZDUSD.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "60",
-  "name": "GBPUSD.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "61",
-  "name": "USDCHF.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "62",
-  "name": "AUDUSD.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "63",
-  "name": "AUDNZD.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "64",
-  "name": "AUDCAD.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "65",
-  "name": "AUDCHF.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "66",
-  "name": "AUDJPY.pro",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "67",
-  "name": "CHFJPY.pro",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "68",
-  "name": "EURGBP.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "69",
-  "name": "EURAUD.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "70",
-  "name": "EURCHF.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "71",
-  "name": "EURJPY.pro",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "72",
-  "name": "EURNZD.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "73",
-  "name": "EURCAD.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "74",
-  "name": "GBPCHF.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "75",
-  "name": "GBPAUD.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "76",
-  "name": "GBPCAD.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "77",
-  "name": "GBPJPY.pro",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "78",
-  "name": "CADCHF.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "79",
-  "name": "CADJPY.pro",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "80",
-  "name": "NZDJPY.pro",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "81",
-  "name": "GBPNZD.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "82",
-  "name": "NZDCAD.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "83",
-  "name": "NZDCHF.pro",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "86",
-  "name": "XPDUSD.pro",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "1"
-},
-{
-  "id": "87",
-  "name": "XPTUSD.pro",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "1"
-},
-{
-  "id": "88",
-  "name": "XCPUSD.pro",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "89",
-  "name": "XBRUSD.pro",
-  "pips_position": "2",
-  "digits": "1",
-  "type": "1"
-},
-{
-  "id": "90",
-  "name": "XTIUSD.pro",
-  "pips_position": "2",
-  "digits": "1",
-  "type": "1"
-},
-{
-  "id": "91",
-  "name": "XNGUSD.pro",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "96",
-  "name": "HSI50.pro",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "1"
-},
-{
-  "id": "97",
-  "name": "ITA40.pro",
-  "pips_position": "0",
-  "digits": "-1",
-  "type": "1"
-},
-{
-  "id": "101",
-  "name": "JPN225.pro",
-  "pips_position": "0",
-  "digits": "0",
-  "type": "1"
-},
-{
-  "id": "105",
-  "name": "EURHKD",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "106",
-  "name": "EURHUF",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "107",
-  "name": "EURNOK",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "108",
-  "name": "EURPLN",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "109",
-  "name": "EURSEK",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "110",
-  "name": "EURTRY",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "111",
-  "name": "USDSZK",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "112",
-  "name": "USDDKK",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "113",
-  "name": "USDHUF",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "114",
-  "name": "USDMXN",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "115",
-  "name": "USDNOK",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "116",
-  "name": "USDPLN",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "117",
-  "name": "USDSEK",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "118",
-  "name": "USDSGD",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "119",
-  "name": "USDTRY",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "120",
-  "name": "USDZAR",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "121",
-  "name": "USDHKD",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "122",
-  "name": "USDCNH",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "123",
-  "name": "SGDJPY",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "124",
-  "name": "AUDJPY",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "125",
-  "name": "CADJPY",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "126",
-  "name": "CHFJPY",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "127",
-  "name": "CADCHF",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "128",
-  "name": "NZDJPY",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "133",
-  "name": "XRPUSD",
-  "pips_position": "4",
-  "digits": "3",
-  "type": "1"
-},
-{
-  "id": "134",
-  "name": "DSHUSD",
-  "pips_position": "2",
-  "digits": "1",
-  "type": "1"
-},
-{
-  "id": "136",
-  "name": "Litecoin",
-  "pips_position": "2",
-  "digits": "1",
-  "type": "1"
-},
-{
-  "id": "146",
-  "name": "JPN225",
-  "pips_position": "0",
-  "digits": "-1",
-  "type": "1"
-},
-{
-  "id": "150",
-  "name": "EURUSD.fix",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "151",
-  "name": "GBPUSD.fix",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "152",
-  "name": "USDJPY.fix",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "153",
-  "name": "AUDUSD.fix",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "154",
-  "name": "USDCAD.fix",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "155",
-  "name": "USDCHF.fix",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "156",
-  "name": "NZDUSD.fix",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "157",
-  "name": "EURGBP.fix",
-  "pips_position": "5",
-  "digits": "4",
-  "type": "1"
-},
-{
-  "id": "158",
-  "name": "EURJPY.fix",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "159",
-  "name": "GBPJPY.fix",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "1"
-},
-{
-  "id": "6",
-  "name": "XAUUSD",
-  "pips_position": "2",
-  "digits": "1",
-  "type": "2"
-},
-{
-  "id": "14",
-  "name": "XAUUSD.ecn",
-  "pips_position": "2",
-  "digits": "1",
-  "type": "2"
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "GBP",
+  "type": 1
 },
 {
   "id": "29",
+  "name": "GBPAUD.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "AUD",
+  "type": 1
+},
+{
+  "id": "30",
+  "name": "CADJPY.ecn",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "31",
+  "name": "GBPJPY.ecn",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "32",
+  "name": "NZDJPY.ecn",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "33",
+  "name": "AUDCHF.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
+},
+{
+  "id": "34",
+  "name": "GBPCHF.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
+},
+{
+  "id": "35",
+  "name": "NZDUSD.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": 1
+},
+{
+  "id": "36",
+  "name": "EURAUD.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "AUD",
+  "type": 1
+},
+{
+  "id": "37",
+  "name": "AUDNZD.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "NZD",
+  "type": 1
+},
+{
+  "id": "38",
+  "name": "GBPNZD.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "NZD",
+  "type": 1
+},
+{
+  "id": "39",
+  "name": "CHFJPY.ecn",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "40",
+  "name": "NZDCHF.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
+},
+{
+  "id": "41",
   "name": "XAGUSD.ecn",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "2"
+  "digits": 2,
+  "pips_position": 1,
+  "quote_currency": "USD",
+  "type": 2
+},
+{
+  "id": "42",
+  "name": "CADCHF.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
+},
+{
+  "id": "43",
+  "name": "NZDCAD.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CAD",
+  "type": 1
 },
 {
   "id": "44",
-  "name": "XAGUSD",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "2"
+  "name": "EURNZD.ecn",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "NZD",
+  "type": 1
+},
+{
+  "id": "45",
+  "name": "NZDJPY",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "46",
+  "name": "FCHI",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "I",
+  "type": "-1"
+},
+{
+  "id": "47",
+  "name": "EURNZD",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "NZD",
+  "type": 1
+},
+{
+  "id": "48",
+  "name": "AUDNZD",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "NZD",
+  "type": 1
+},
+{
+  "id": "49",
+  "name": "AUDCAD",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CAD",
+  "type": 1
+},
+{
+  "id": "50",
+  "name": "AUDCHF",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
+},
+{
+  "id": "51",
+  "name": "EURAUD",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "AUD",
+  "type": 1
+},
+{
+  "id": "52",
+  "name": "EURCAD",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CAD",
+  "type": 1
+},
+{
+  "id": "53",
+  "name": "GBPAUD",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "AUD",
+  "type": 1
+},
+{
+  "id": "54",
+  "name": "GBPCAD",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CAD",
+  "type": 1
+},
+{
+  "id": "55",
+  "name": "GBPNZD",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "NZD",
+  "type": 1
+},
+{
+  "id": "56",
+  "name": "NZDCAD",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CAD",
+  "type": 1
+},
+{
+  "id": "57",
+  "name": "NZDCHF",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
+},
+{
+  "id": "58",
+  "name": "EURUSD.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": 1
+},
+{
+  "id": "59",
+  "name": "USDJPY.pro",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "60",
+  "name": "USDCAD.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CAD",
+  "type": 1
+},
+{
+  "id": "61",
+  "name": "NZDUSD.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": 1
+},
+{
+  "id": "62",
+  "name": "GBPUSD.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": 1
+},
+{
+  "id": "63",
+  "name": "USDCHF.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
+},
+{
+  "id": "64",
+  "name": "AUDUSD.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": 1
+},
+{
+  "id": "65",
+  "name": "AUDNZD.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "NZD",
+  "type": 1
+},
+{
+  "id": "66",
+  "name": "AUDCAD.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CAD",
+  "type": 1
+},
+{
+  "id": "67",
+  "name": "AUDCHF.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
+},
+{
+  "id": "68",
+  "name": "AUDJPY.pro",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "69",
+  "name": "CHFJPY.pro",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "70",
+  "name": "EURGBP.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "GBP",
+  "type": 1
+},
+{
+  "id": "71",
+  "name": "EURAUD.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "AUD",
+  "type": 1
+},
+{
+  "id": "72",
+  "name": "EURCHF.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
+},
+{
+  "id": "73",
+  "name": "EURJPY.pro",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "74",
+  "name": "EURNZD.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "NZD",
+  "type": 1
+},
+{
+  "id": "75",
+  "name": "EURCAD.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CAD",
+  "type": 1
+},
+{
+  "id": "76",
+  "name": "GBPCHF.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
+},
+{
+  "id": "77",
+  "name": "GBPAUD.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "AUD",
+  "type": 1
+},
+{
+  "id": "78",
+  "name": "GBPCAD.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CAD",
+  "type": 1
+},
+{
+  "id": "79",
+  "name": "GBPJPY.pro",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "80",
+  "name": "CADCHF.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
+},
+{
+  "id": "81",
+  "name": "CADJPY.pro",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "82",
+  "name": "NZDJPY.pro",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "83",
+  "name": "GBPNZD.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "NZD",
+  "type": 1
 },
 {
   "id": "84",
-  "name": "XAGUSD.pro",
-  "pips_position": "2",
-  "digits": "1",
-  "type": "2"
+  "name": "NZDCAD.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CAD",
+  "type": 1
 },
 {
   "id": "85",
+  "name": "NZDCHF.pro",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
+},
+{
+  "id": "86",
+  "name": "XAGUSD.pro",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "USD",
+  "type": 2
+},
+{
+  "id": "87",
   "name": "XAUUSD.pro",
-  "pips_position": "2",
-  "digits": "1",
-  "type": "2"
+  "digits": 2,
+  "pips_position": 1,
+  "quote_currency": "USD",
+  "type": 2
 },
 {
-  "id": "160",
-  "name": "XAGUSD.fix",
-  "pips_position": "3",
-  "digits": "2",
-  "type": "2"
+  "id": "88",
+  "name": "XPDUSD.pro",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "USD",
+  "type": 1
 },
 {
-  "id": "161",
-  "name": "XAUUSD.fix",
-  "pips_position": "2",
-  "digits": "1",
-  "type": "2"
+  "id": "89",
+  "name": "XPTUSD.pro",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "USD",
+  "type": 1
 },
 {
-  "id": "129",
-  "name": "BTCUSD",
-  "pips_position": "2",
-  "digits": "-1",
-  "type": "3"
+  "id": "90",
+  "name": "XCPUSD.pro",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "USD",
+  "type": 1
 },
 {
-  "id": "130",
-  "name": "LTCUSD",
-  "pips_position": "2",
-  "digits": "1",
-  "type": "3"
-},
-{
-  "id": "131",
-  "name": "ETHUSD",
-  "pips_position": "2",
-  "digits": "0",
-  "type": "3"
-},
-{
-  "id": "132",
-  "name": "ETCUSD",
-  "pips_position": "2",
-  "digits": "1",
-  "type": "3"
-},
-{
-  "id": "135",
-  "name": "Bitcoin",
-  "pips_position": "2",
-  "digits": "1",
-  "type": "3"
-},
-{
-  "id": "137",
-  "name": "Ethereum",
-  "pips_position": "2",
-  "digits": "1",
-  "type": "3"
-},
-{
-  "id": "138",
-  "name": "BitcoinCash",
-  "pips_position": "2",
-  "digits": "1",
-  "type": "3"
-},
-{
-  "id": "139",
-  "name": "Ripple",
-  "pips_position": "4",
-  "digits": "3",
-  "type": "3"
+  "id": "91",
+  "name": "XBRUSD.pro",
+  "digits": 2,
+  "pips_position": 1,
+  "quote_currency": "USD",
+  "type": 1
 },
 {
   "id": "92",
-  "name": "AUS200.pro",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "4"
+  "name": "XTIUSD.pro",
+  "digits": 2,
+  "pips_position": 1,
+  "quote_currency": "USD",
+  "type": 1
 },
 {
   "id": "93",
-  "name": "UK100.pro",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "4"
+  "name": "XNGUSD.pro",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "USD",
+  "type": 1
 },
 {
   "id": "94",
-  "name": "FRA40.pro",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "4"
+  "name": "AUS200.pro",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "AUD",
+  "type": 4
 },
 {
   "id": "95",
+  "name": "UK100.pro",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "GBP",
+  "type": 4
+},
+{
+  "id": "96",
+  "name": "FRA40.pro",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "EUR",
+  "type": 4
+},
+{
+  "id": "97",
   "name": "GER30.pro",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "4"
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "EUR",
+  "type": 4
 },
 {
   "id": "98",
-  "name": "ESP35.pro",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "4"
+  "name": "HSI50.pro",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "50.",
+  "type": 1
 },
 {
   "id": "99",
-  "name": "SUI20.pro",
-  "pips_position": "0",
-  "digits": "-1",
-  "type": "4"
+  "name": "ITA40.pro",
+  "digits": 0,
+  "pips_position": "-1",
+  "quote_currency": "40.",
+  "type": 1
 },
 {
   "id": "100",
-  "name": "EUSTX50.pro",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "4"
+  "name": "ESP35.pro",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "EUR",
+  "type": 4
+},
+{
+  "id": "101",
+  "name": "SUI20.pro",
+  "digits": 0,
+  "pips_position": "-1",
+  "quote_currency": "20.",
+  "type": 4
 },
 {
   "id": "102",
-  "name": "NAS100.pro",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "4"
+  "name": "EUSTX50.pro",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "EUR",
+  "type": 4
 },
 {
   "id": "103",
-  "name": "SPX500.pro",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "4"
+  "name": "JPN225.pro",
+  "digits": 0,
+  "pips_position": "-1",
+  "quote_currency": "JPY",
+  "type": 1
 },
 {
   "id": "104",
+  "name": "NAS100.pro",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "USD",
+  "type": 4
+},
+{
+  "id": "105",
+  "name": "SPX500.pro",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "USD",
+  "type": 4
+},
+{
+  "id": "106",
   "name": "US30.pro",
-  "pips_position": "0",
-  "digits": "-1",
-  "type": "4"
+  "digits": 0,
+  "pips_position": "-1",
+  "quote_currency": "USD",
+  "type": 4
+},
+{
+  "id": "107",
+  "name": "EURHKD",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "HKD",
+  "type": 1
+},
+{
+  "id": "108",
+  "name": "EURHUF",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "HUF",
+  "type": 1
+},
+{
+  "id": "109",
+  "name": "EURNOK",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "NOK",
+  "type": 1
+},
+{
+  "id": "110",
+  "name": "EURPLN",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "PLN",
+  "type": 1
+},
+{
+  "id": "111",
+  "name": "EURSEK",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "SEK",
+  "type": 1
+},
+{
+  "id": "112",
+  "name": "EURTRY",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "TRY",
+  "type": 1
+},
+{
+  "id": "113",
+  "name": "USDSZK",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "SZK",
+  "type": 1
+},
+{
+  "id": "114",
+  "name": "USDDKK",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "DKK",
+  "type": 1
+},
+{
+  "id": "115",
+  "name": "USDHUF",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "HUF",
+  "type": 1
+},
+{
+  "id": "116",
+  "name": "USDMXN",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "MXN",
+  "type": 1
+},
+{
+  "id": "117",
+  "name": "USDNOK",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "NOK",
+  "type": 1
+},
+{
+  "id": "118",
+  "name": "USDPLN",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "PLN",
+  "type": 1
+},
+{
+  "id": "119",
+  "name": "USDSEK",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "SEK",
+  "type": 1
+},
+{
+  "id": "120",
+  "name": "USDSGD",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "SGD",
+  "type": 1
+},
+{
+  "id": "121",
+  "name": "USDTRY",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "TRY",
+  "type": 1
+},
+{
+  "id": "122",
+  "name": "USDZAR",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "ZAR",
+  "type": 1
+},
+{
+  "id": "123",
+  "name": "USDHKD",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "HKD",
+  "type": 1
+},
+{
+  "id": "124",
+  "name": "USDCNH",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CNH",
+  "type": 1
+},
+{
+  "id": "125",
+  "name": "SGDJPY",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "126",
+  "name": "AUDJPY",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "127",
+  "name": "CADJPY",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "128",
+  "name": "CHFJPY",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "129",
+  "name": "CADCHF",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
+},
+{
+  "id": "130",
+  "name": "USDCZK",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "CZK",
+  "type": "-1"
+},
+{
+  "id": "131",
+  "name": "USDXVN",
+  "digits": 2,
+  "pips_position": 1,
+  "quote_currency": "XVN",
+  "type": "-1"
+},
+{
+  "id": "132",
+  "name": "AUS200",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "AUD",
+  "type": 4
+},
+{
+  "id": "133",
+  "name": "UK100",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "00",
+  "type": 4
+},
+{
+  "id": "134",
+  "name": "FRA40",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "40",
+  "type": 4
+},
+{
+  "id": "135",
+  "name": "GER30",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "EUR",
+  "type": 4
+},
+{
+  "id": "136",
+  "name": "ESP35",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "35",
+  "type": 4
+},
+{
+  "id": "137",
+  "name": "EUSTX50",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "TX5",
+  "type": 4
+},
+{
+  "id": "138",
+  "name": "JPN225",
+  "digits": 0,
+  "pips_position": "-1",
+  "quote_currency": "225",
+  "type": 1
+},
+{
+  "id": "139",
+  "name": "NAS100",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "USD",
+  "type": 4
 },
 {
   "id": "140",
-  "name": "AUS200",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "4"
+  "name": "US30",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "USD",
+  "type": 4
 },
 {
   "id": "141",
-  "name": "UK100",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "4"
+  "name": "SPX500",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "500",
+  "type": 4
 },
 {
   "id": "142",
-  "name": "FRA40",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "4"
+  "name": "XPDUSD",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "USD",
+  "type": "-1"
 },
 {
   "id": "143",
-  "name": "GER30",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "4"
+  "name": "XPTUSD",
+  "digits": 1,
+  "pips_position": 0,
+  "quote_currency": "USD",
+  "type": "-1"
 },
 {
   "id": "144",
-  "name": "ESP35",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "4"
+  "name": "XBRUSD",
+  "digits": 2,
+  "pips_position": 1,
+  "quote_currency": "USD",
+  "type": "-1"
 },
 {
   "id": "145",
-  "name": "EUSTX50",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "4"
+  "name": "XTIUSD",
+  "digits": 2,
+  "pips_position": 1,
+  "quote_currency": "USD",
+  "type": "-1"
+},
+{
+  "id": "146",
+  "name": "EURUSD.mt5",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": "-1"
 },
 {
   "id": "147",
-  "name": "NAS100",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "4"
+  "name": "GBPUSD.mt5",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": "-1"
 },
 {
   "id": "148",
-  "name": "US30",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "4"
+  "name": "USDJPY.mt5",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": "-1"
 },
 {
   "id": "149",
-  "name": "SPX500",
-  "pips_position": "1",
-  "digits": "0",
-  "type": "4"
-}
-]
+  "name": "AUDUSD.mt5",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": "-1"
+},
+{
+  "id": "150",
+  "name": "USDCAD.mt5",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CAD",
+  "type": "-1"
+},
+{
+  "id": "151",
+  "name": "GBPJPY.mt5",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": "-1"
+},
+{
+  "id": "152",
+  "name": "EURAUD.mt5",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "AUD",
+  "type": "-1"
+},
+{
+  "id": "153",
+  "name": "EURJPY.mt5",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": "-1"
+},
+{
+  "id": "154",
+  "name": "EURGBP.mt5",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "GBP",
+  "type": "-1"
+},
+{
+  "id": "155",
+  "name": "NZDUSD.mt5",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": "-1"
+},
+{
+  "id": "156",
+  "name": "USDCHF.mt5",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": "-1"
+},
+{
+  "id": "157",
+  "name": "BTCUSD",
+  "digits": 2,
+  "pips_position": "-1",
+  "quote_currency": "USD",
+  "type": 3
+},
+{
+  "id": "158",
+  "name": "LTCUSD",
+  "digits": 2,
+  "pips_position": 1,
+  "quote_currency": "USD",
+  "type": 3
+},
+{
+  "id": "159",
+  "name": "ETHUSD",
+  "digits": 2,
+  "pips_position": 0,
+  "quote_currency": "USD",
+  "type": 3
+},
+{
+  "id": "160",
+  "name": "ETCUSD",
+  "digits": 2,
+  "pips_position": 1,
+  "quote_currency": "USD",
+  "type": 3
+},
+{
+  "id": "161",
+  "name": "XRPUSD",
+  "digits": 4,
+  "pips_position": 3,
+  "quote_currency": "USD",
+  "type": 1
+},
+{
+  "id": "162",
+  "name": "DSHUSD",
+  "digits": 2,
+  "pips_position": 1,
+  "quote_currency": "USD",
+  "type": 1
+},
+{
+  "id": "163",
+  "name": "EURUSD.fix",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": 1
+},
+{
+  "id": "164",
+  "name": "GBPUSD.fix",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": 1
+},
+{
+  "id": "165",
+  "name": "USDJPY.fix",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "166",
+  "name": "USDCHF.fix",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CHF",
+  "type": 1
+},
+{
+  "id": "167",
+  "name": "AUDUSD.fix",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": 1
+},
+{
+  "id": "168",
+  "name": "NZDUSD.fix",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "USD",
+  "type": 1
+},
+{
+  "id": "169",
+  "name": "USDCAD.fix",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "CAD",
+  "type": 1
+},
+{
+  "id": "170",
+  "name": "EURGBP.fix",
+  "digits": 5,
+  "pips_position": 4,
+  "quote_currency": "GBP",
+  "type": 1
+},
+{
+  "id": "171",
+  "name": "EURJPY.fix",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "172",
+  "name": "GBPJPY.fix",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "JPY",
+  "type": 1
+},
+{
+  "id": "173",
+  "name": "XAGUSD.fix",
+  "digits": 3,
+  "pips_position": 2,
+  "quote_currency": "USD",
+  "type": 2
+},
+{
+  "id": "174",
+  "name": "XAUUSD.fix",
+  "digits": 2,
+  "pips_position": 1,
+  "quote_currency": "USD",
+  "type": 2
+}]

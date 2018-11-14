@@ -42,8 +42,10 @@ contract('Subscriptions', function(accounts) {
     await subscriptions.subscribe.sendTransaction([3,4], { from: ALICE })
 
     let traders = await subscriptions.getTraders(ALICE)
-    traders = traders.map((trader) => Number(trader.toNumber())) // cast to int[]
+    traders = traders.map((trader) => trader.toNumber()) // cast to int[]
     assert.deepEqual(traders, [1,2,3,4])
+    assert.deepEqual(await subscriptions.investorsWithPortfolios.call(ALICE), true)
+    assert.isBelow((await subscriptions.investorLastPortfolioDate.call(ALICE)).toNumber(), Date.now() / 1000)
   })
 
   it("subscribe should works correctly for duplicates", async () => {
@@ -51,7 +53,7 @@ contract('Subscriptions', function(accounts) {
     await subscriptions.subscribe.sendTransaction([2,3], { from: ALICE })
 
     let traders = await subscriptions.getTraders(ALICE)
-    traders = traders.map((trader) => Number(trader.toNumber())) // cast to int[]
+    traders = traders.map((trader) => trader.toNumber()) // cast to int[]
     assert.deepEqual(traders, [1,2,3])
   })
 
@@ -73,7 +75,7 @@ contract('Subscriptions', function(accounts) {
     await subscriptions.subscribe.sendTransaction([6], { from: ALICE })
 
     let traders = await subscriptions.getTraders(BOB)
-    traders = traders.map((trader) => Number(trader.toNumber())).sort() // cast to int[]
+    traders = traders.map((trader) => trader.toNumber()).sort() // cast to int[]
     assert.deepEqual(traders, [1,3,5])
 
     assert.deepEqual(await subscriptions.getInvestors(1), [BOB])

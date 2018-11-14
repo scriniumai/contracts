@@ -22,8 +22,9 @@ contract Platform is Owned {
     uint constant CMD_BUY = 0;
     uint constant CMD_SELL = 1;
 
-    uint constant PRICE_MULTIPLIER = 1000000; // 10**6
+    uint constant PRICE_MULTIPLIER = 10 ** 6;
     uint constant MARGIN_PERCENT_MULTIPLIER = 100;
+    uint constant MARGIN_REGULATOR_MULTIPLIER = 10 ** 18;
 
     mapping (uint => Trade) public trades;
     mapping (uint => TradeQuotes) public tradeQuotes;
@@ -40,6 +41,7 @@ contract Platform is Owned {
         uint cmd;
 
         uint marginSCR;
+        uint marginRegulator;
         int profitSCR;
 
         uint status;
@@ -115,6 +117,7 @@ contract Platform is Owned {
         uint _closePriceInstrument,
         uint _closePriceSCRBase,
 
+        uint _marginRegulator,
         int _profitSCR
     );
     event TradeClosedForced(
@@ -126,6 +129,7 @@ contract Platform is Owned {
         uint _closePriceInstrument,
         uint _closePriceSCRBase,
 
+        uint _marginRegulator,
         int _profitSCR
     );
 
@@ -147,7 +151,7 @@ contract Platform is Owned {
 
         emit BalancesAddressSetted(msg.sender, _balancesAddress);
         emit InstrumentsAddressSetted(msg.sender, _instrumentsAddress);
-        emit InstrumentsAddressSetted(msg.sender, _instrumentsAddress);
+        emit SubscriptionsAddressSetted(msg.sender, _subscriptionsAddress);
         emit LiquidityProviderAddressSetted(msg.sender, _liquidityProviderAddress);
     }
 
@@ -208,6 +212,7 @@ contract Platform is Owned {
         uint _cmd,
 
         uint _marginSCR,
+        uint _marginRegulator,
         int _profitSCR,
 
         uint _status
@@ -225,6 +230,7 @@ contract Platform is Owned {
             _trade.cmd,
 
             _trade.marginSCR,
+            _trade.marginRegulator,
             _trade.profitSCR,
 
             _trade.status
@@ -255,6 +261,8 @@ contract Platform is Owned {
 
         uint _balance = Balances(balancesAddress).balanceOf(_investor);
         require(_balance > 0);
+
+        // TODO: Calc _marginSCR according to instrument/asset type
 
         uint _marginSCR = _balance.mul(_marginPercent).div(MARGIN_PERCENT_MULTIPLIER);
 
@@ -295,6 +303,8 @@ contract Platform is Owned {
 
     function closeTrade (
         uint _tradeId,
+        uint _marginRegulator,
+
         uint _closeTime,
         uint _closePriceInstrument,
         uint _closePriceSCRBase
@@ -303,11 +313,14 @@ contract Platform is Owned {
 
         int _profitSCR = _calculateProfitSCR(
             _tradeId,
-            _closePriceInstrument
+            _closePriceInstrument,
+            _marginRegulator
         );
 
         _closeTrade(
             _tradeId,
+            _marginRegulator,
+
             _closeTime,
             _closePriceInstrument,
             _closePriceSCRBase,
@@ -319,6 +332,7 @@ contract Platform is Owned {
 
         Balances(balancesAddress).updateBalance(
             _trade.investor,
+            _tradeId,
             _profitSCR
         );
 
@@ -331,6 +345,7 @@ contract Platform is Owned {
             _closePriceInstrument,
             _closePriceSCRBase,
 
+            _marginRegulator,
             _profitSCR
         );
 
@@ -339,6 +354,8 @@ contract Platform is Owned {
 
     function closeTradeForce (
         uint _tradeId,
+        uint _marginRegulator,
+
         uint _closeTime,
         uint _closePriceInstrument,
         uint _closePriceSCRBase
@@ -347,11 +364,14 @@ contract Platform is Owned {
 
         int _profitSCR = _calculateProfitSCR(
             _tradeId,
-            _closePriceInstrument
+            _closePriceInstrument,
+            _marginRegulator
         );
 
         _closeTrade(
             _tradeId,
+            _marginRegulator,
+
             _closeTime,
             _closePriceInstrument,
             _closePriceSCRBase,
@@ -370,17 +390,20 @@ contract Platform is Owned {
             _closePriceInstrument,
             _closePriceSCRBase,
 
+            _marginRegulator,
             _profitSCR
         );
     }
 
     function takeCommission (
         address _investor,
+        uint _tradeId,
         address _commissionsAddress,
         uint _commission
     ) external onlyLiquidityProvider returns (bool) {
         require(Balances(balancesAddress).updateBalanceCommission(
             _investor,
+            _tradeId,
             _commissionsAddress,
             _commission
         ));
@@ -423,7 +446,8 @@ contract Platform is Owned {
 
     function _calculateProfitSCR (
         uint _tradeId,
-        uint _closePriceInstrument
+        uint _closePriceInstrument,
+        uint _marginRegulator
     ) private view returns (int _profitSCR) {
         Trade memory _trade = trades[_tradeId];
         TradeQuotes memory _tradeQuotes = tradeQuotes[_tradeId];
@@ -431,6 +455,8 @@ contract Platform is Owned {
         _profitSCR = (int(_closePriceInstrument) - int(_tradeQuotes.openPriceInstrument))
             * int(_trade.marginSCR)
             * int(_trade.leverage)
+            * int(_marginRegulator)
+            / int(MARGIN_REGULATOR_MULTIPLIER)
             / int(PRICE_MULTIPLIER);
 
         if (_trade.cmd == CMD_SELL) {
@@ -442,6 +468,8 @@ contract Platform is Owned {
 
     function _closeTrade(
         uint _tradeId,
+        uint _marginRegulator,
+
         uint _closeTime,
         uint _closePriceInstrument,
         uint _closePriceSCRBase,
@@ -456,6 +484,8 @@ contract Platform is Owned {
         tradeQuotes[_tradeId].closePriceInstrument = _closePriceInstrument;
         tradeQuotes[_tradeId].closePriceSCRBaseCurrency = _closePriceSCRBase;
 
+
+        trades[_tradeId].marginRegulator = _marginRegulator;
         trades[_tradeId].profitSCR = _profitSCR;
     }
 }
