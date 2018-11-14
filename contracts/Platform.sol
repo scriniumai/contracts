@@ -452,6 +452,8 @@ contract Platform is Owned {
         Trade memory _trade = trades[_tradeId];
         TradeQuotes memory _tradeQuotes = tradeQuotes[_tradeId];
 
+        uint _balance = Balances(balancesAddress).balanceOf(_trade.investor);
+
         _profitSCR = (int(_closePriceInstrument) - int(_tradeQuotes.openPriceInstrument))
             * int(_trade.marginSCR)
             * int(_trade.leverage)
@@ -461,6 +463,11 @@ contract Platform is Owned {
 
         if (_trade.cmd == CMD_SELL) {
             _profitSCR *= -1;
+        }
+
+        // FIXME: Replace it with better balance nullification algorithm
+        if (_profitSCR < 0 && uint(-1 * _profitSCR) > _balance) {
+            _profitSCR = -1 * int(_balance);
         }
 
         return _profitSCR;
@@ -478,14 +485,13 @@ contract Platform is Owned {
 
         bool isForced
     ) private {
-        trades[_tradeId].status = isForced ? STATUS_CLOSED_FORCED : STATUS_CLOSED;
+        trades[_tradeId].marginRegulator = _marginRegulator;
+        trades[_tradeId].profitSCR = _profitSCR;
 
         tradeQuotes[_tradeId].closeTime = _closeTime;
         tradeQuotes[_tradeId].closePriceInstrument = _closePriceInstrument;
         tradeQuotes[_tradeId].closePriceSCRBaseCurrency = _closePriceSCRBase;
 
-
-        trades[_tradeId].marginRegulator = _marginRegulator;
-        trades[_tradeId].profitSCR = _profitSCR;
+        trades[_tradeId].status = isForced ? STATUS_CLOSED_FORCED : STATUS_CLOSED;
     }
 }
