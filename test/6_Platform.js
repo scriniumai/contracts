@@ -85,7 +85,10 @@ contract('Platform', function (accounts) {
     {tradeId: 11, masterTradeId: 12, cmd: CMD_SELL, pips: 10,    balanceBefore: BALANCE_BEFORE, expectedProfit: -0.14 * 10 ** 8 },
     {tradeId: 13, masterTradeId: 14, cmd: CMD_SELL, pips: -100,  balanceBefore: BALANCE_BEFORE, expectedProfit: 1.4 * 10 ** 8   },
 
-    {tradeId: 15, masterTradeId: 16, cmd: CMD_SELL, pips: -100,  balanceBefore: BALANCE_BEFORE, expectedProfit: 1.4 * 10 ** 8, useForceClosing: true},
+    // Force closing
+    {tradeId: 15, masterTradeId: 16, cmd: CMD_SELL, pips: -100,  balanceBefore: BALANCE_BEFORE, expectedProfit: 1.4 * 10 ** 8, useForceClosing: true },
+
+    // TODO: Add testing for balance nullification case
   ]
 
   let profits = web3.toBigNumber(0)

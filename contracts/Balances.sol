@@ -114,12 +114,17 @@ contract Balances is Owned {
         address _commissionsAddress,
         uint _amount
     ) external onlyPlatform returns (bool) {
-        require(balance[_investor] >= _amount);
+        uint _amountToTransfer = _amount;
 
-        require(Scrinium(scriniumAddress).transfer(_commissionsAddress, _amount));
-        balance[_investor] = balance[_investor].sub(_amount);
+        // FIXME: Replace it with better balance nullification algorithm
+        if (balance[_investor] < _amountToTransfer) {
+            _amountToTransfer = balance[_investor];
+        }
 
-        emit BalanceUpdated("commission", _tradeId, _investor, int256(-_amount));
+        require(Scrinium(scriniumAddress).transfer(_commissionsAddress, _amountToTransfer));
+        balance[_investor] = balance[_investor].sub(_amountToTransfer);
+
+        emit BalanceUpdated("commission", _tradeId, _investor, int256(-_amountToTransfer));
 
         return true;
     }
@@ -127,6 +132,7 @@ contract Balances is Owned {
     function withdrawal(uint _externalId, uint _amount, bytes _msgSig) external {
         address _investor = msg.sender;
 
+        // FIXME: Withdrawal amount must be lower than the free margin
         require(balance[_investor] >= _amount);
 
         require(! withdrawalExternalIds[_externalId]);
