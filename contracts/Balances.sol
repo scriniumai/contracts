@@ -98,7 +98,7 @@ contract Balances is Owned {
         //    - Subtract amount from investor
         //    - Subtract amount from Balances
         //    - Add amount to LiquidityProver
-        } else {
+        } else if (_amount < 0) {
             amount = uint256(-1 * _amount);
             require(_scrinium.transfer(liquidityProviderAddress, amount));
             balance[_investor] = balance[_investor].sub(amount);
@@ -121,8 +121,10 @@ contract Balances is Owned {
             _amountToTransfer = balance[_investor];
         }
 
-        require(Scrinium(scriniumAddress).transfer(_commissionsAddress, _amountToTransfer));
-        balance[_investor] = balance[_investor].sub(_amountToTransfer);
+        if (_amountToTransfer > 0) {
+            require(Scrinium(scriniumAddress).transfer(_commissionsAddress, _amountToTransfer));
+            balance[_investor] = balance[_investor].sub(_amountToTransfer);
+        }
 
         emit BalanceUpdated("commission", _tradeId, _investor, int256(-_amountToTransfer));
 
