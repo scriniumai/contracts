@@ -255,14 +255,12 @@ contract Platform is Owned {
         uint _openPriceInstrument,
         uint _openPriceSCRBase
     ) external onlyLiquidityProvider returns (bool) {
-        require(_marginPercent > 0 && _marginPercent < 100);
-
         require(Instruments(instrumentsAddress).isCorrect(_instrumentId));
+        
+        require(_marginPercent > 0 && _marginPercent < 100);
 
         uint _balance = Balances(balancesAddress).balanceOf(_investor);
         require(_balance > 0);
-
-        // TODO: Calc _marginSCR according to instrument/asset type
 
         uint _marginSCR = _balance.mul(_marginPercent).div(MARGIN_PERCENT_MULTIPLIER);
 
@@ -281,8 +279,6 @@ contract Platform is Owned {
             _openPriceInstrument,
             _openPriceSCRBase
         );
-
-        // TODO: Lock margin for withdrawal or reusing in other trades
 
         emit TradeOpened(
             _tradeId,
