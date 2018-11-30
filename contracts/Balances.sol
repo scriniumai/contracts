@@ -76,33 +76,31 @@ contract Balances is Owned {
         uint _tradeId,
         int256 _amount
     ) external onlyPlatform {
-        if (_amount == 0) {
-            return;
-        }
+        if (_amount != 0) {
+            Scrinium _scrinium = Scrinium(scriniumAddress);
 
-        Scrinium _scrinium = Scrinium(scriniumAddress);
+            uint256 amount;
 
-        uint256 amount;
-
-        // 1. amount > 0:
-        //    - Subtract amount from LiquidityProvider
-        //    - Add amount to Balances
-        //    - Add amount to investor
-        //
-        if (_amount > 0) {
-            amount = uint256(_amount);
-            // ? TODO: balance[liquidityProviderAddress] = balance[liquidityProviderAddress].sub(amount);
-            require(_scrinium.transferFrom(liquidityProviderAddress, address(this), amount));
-            balance[_investor] = balance[_investor].add(amount);
-        // 2. amount < 0:
-        //    - Subtract amount from investor
-        //    - Subtract amount from Balances
-        //    - Add amount to LiquidityProver
-        } else if (_amount < 0) {
-            amount = uint256(-1 * _amount);
-            require(_scrinium.transfer(liquidityProviderAddress, amount));
-            balance[_investor] = balance[_investor].sub(amount);
-            // ? TODO: balance[liquidityProviderAddress] = balance[liquidityProviderAddress].add(amount);
+            // 1. amount > 0:
+            //    - Subtract amount from LiquidityProvider
+            //    - Add amount to Balances
+            //    - Add amount to investor
+            //
+            if (_amount > 0) {
+                amount = uint256(_amount);
+                // ? TODO: balance[liquidityProviderAddress] = balance[liquidityProviderAddress].sub(amount);
+                require(_scrinium.transferFrom(liquidityProviderAddress, address(this), amount));
+                balance[_investor] = balance[_investor].add(amount);
+            // 2. amount < 0:
+            //    - Subtract amount from investor
+            //    - Subtract amount from Balances
+            //    - Add amount to LiquidityProver
+            } else if (_amount < 0) {
+                amount = uint256(-1 * _amount);
+                require(_scrinium.transfer(liquidityProviderAddress, amount));
+                balance[_investor] = balance[_investor].sub(amount);
+                // ? TODO: balance[liquidityProviderAddress] = balance[liquidityProviderAddress].add(amount);
+            }
         }
 
         emit BalanceUpdated("profit", _tradeId, _investor, _amount);
@@ -134,7 +132,6 @@ contract Balances is Owned {
     function withdrawal(uint _externalId, uint _amount, bytes _msgSig) external {
         address _investor = msg.sender;
 
-        // FIXME: Withdrawal amount must be lower than the free margin
         require(balance[_investor] >= _amount);
 
         require(! withdrawalExternalIds[_externalId]);

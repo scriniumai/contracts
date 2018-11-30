@@ -8,6 +8,11 @@ library Assets {
         uint assetType;
     }
 
+    struct AssetReversed {
+        uint id;
+        uint assetType;
+    }
+
     function TYPE_CURRENCIES () public pure returns (uint) {
         return 1;
     }

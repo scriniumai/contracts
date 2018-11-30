@@ -32,7 +32,7 @@ contract('Subscriptions', function(accounts) {
     await subscriptions.unsubscribe(TRADERS_IDS_RANGE, { from: ALICE })
     await subscriptions.unsubscribe(TRADERS_IDS_RANGE, { from: BOB })
     await subscriptions.setSubscriptionsLimit.sendTransaction(
-      await subscriptions.subscriptionsLimit.call(),
+      await subscriptions.SUBSCRIPTIONS_LIMIT.call(),
       { from: ALICE },
     )
   })
@@ -46,15 +46,6 @@ contract('Subscriptions', function(accounts) {
     assert.deepEqual(traders, [1,2,3,4])
     assert.deepEqual(await subscriptions.investorsWithPortfolios.call(ALICE), true)
     assert.isBelow((await subscriptions.investorLastPortfolioDate.call(ALICE)).toNumber(), Date.now() / 1000)
-  })
-
-  it("subscribe should works correctly for duplicates", async () => {
-    await subscriptions.subscribe.sendTransaction([1,2], { from: ALICE })
-    await subscriptions.subscribe.sendTransaction([2,3], { from: ALICE })
-
-    let traders = await subscriptions.getTraders(ALICE)
-    traders = traders.map((trader) => trader.toNumber()) // cast to int[]
-    assert.deepEqual(traders, [1,2,3])
   })
 
   it("getInvestors should works correctly", async () => {
@@ -89,10 +80,10 @@ contract('Subscriptions', function(accounts) {
 
   it("setSubscriptionsLimit should works correctly", async () => {
     await subscriptions.setSubscriptionsLimit.sendTransaction(33, { from: ALICE })
-    assert.equal(await subscriptions.subscriptionsLimit.call(), 33)
+    assert.equal(await subscriptions.SUBSCRIPTIONS_LIMIT.call(), 33)
 
     await subscriptions.setSubscriptionsLimit.sendTransaction(99, { from: ALICE })
-    assert.equal(await subscriptions.subscriptionsLimit.call(), 99)
+    assert.equal(await subscriptions.SUBSCRIPTIONS_LIMIT.call(), 99)
   })
 
 
@@ -109,39 +100,6 @@ contract('Subscriptions', function(accounts) {
       (await subscriptions.getTraders(BOB)).length,
       0
     )
-  })
-
-
-  it("subscriptionsLimit - cannot subscribe over limit when already has subscriptions", async () => {
-    await subscriptions.setSubscriptionsLimit.sendTransaction(3, { from: ALICE })
-
-    await subscriptions.subscribe.sendTransaction([1,2,3], { from: BOB })
-
-    assert.equal(
-      (await subscriptions.getTraders(BOB)).length,
-      3
-    )
-
-    try {
-      await subscriptions.subscribe.sendTransaction([4], { from: BOB }) // subscribe over limit
-      assert.fail('Investor cannot subscribe over limit')
-    } catch (error) {}
-
-    // check that operation has been reverted
-    assert.equal(
-      (await subscriptions.getTraders(BOB)).length,
-      3
-    )
-  })
-
-  it("getCountOfInvestorsByTraderId should works correctly", async () => {
-    await subscriptions.subscribe.sendTransaction([1,2], { from: ALICE })
-    await subscriptions.subscribe.sendTransaction([2,3], { from: BOB })
-
-    assert.equal(await subscriptions.getCountOfInvestorsByTraderId(1), 1)
-    assert.equal(await subscriptions.getCountOfInvestorsByTraderId(2), 2)
-    assert.equal(await subscriptions.getCountOfInvestorsByTraderId(3), 1)
-    assert.equal(await subscriptions.getCountOfInvestorsByTraderId(4), 0)
   })
 
 })
