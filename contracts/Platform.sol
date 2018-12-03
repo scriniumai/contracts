@@ -64,6 +64,7 @@ contract Platform is Owned {
 
     struct TradeMetas {
         uint actualIndex;
+        uint overallIndex;
         uint blockNumber;
     }
 
@@ -461,13 +462,13 @@ contract Platform is Owned {
         tradeQuotes[_tradeId].openPriceInstrument = _openPriceInstrument;
         tradeQuotes[_tradeId].openPriceSCRBaseCurrency = _openPriceSCRBase;
 
-        uint _investorLastPortfolioBlock = _getInvestorLastPortfolioBlock(_investor);
-
         tradeIds.push(_tradeId);
-        investorTrades[_investor].push(_tradeId);
-        investorActualTrades[_investor][_investorLastPortfolioBlock].push(_tradeId);
 
-        tradeMetas[_tradeId].actualIndex = investorActualTrades[_investor][_investorLastPortfolioBlock].length - 1;
+        investorTrades[_investor].push(_tradeId);
+        investorActualTrades[_investor][_getInvestorLastPortfolioBlock(_investor)].push(_tradeId);
+
+        tradeMetas[_tradeId].actualIndex = investorActualTrades[_investor][_getInvestorLastPortfolioBlock(_investor)].length - 1;
+        tradeMetas[_tradeId].overallIndex = investorTrades[_investor].length - 1;
         tradeMetas[_tradeId].blockNumber = block.number;
     }
 
@@ -492,7 +493,7 @@ contract Platform is Owned {
             _profitSCR *= -1;
         }
 
-        // FIXME: Replace it with better balance nullification algorithm
+        // FIXME: Replace it with better balance zerofication algorithm
         if (_profitSCR < 0 && uint(-1 * _profitSCR) > _balance) {
             _profitSCR = -1 * int(_balance);
         }
@@ -512,16 +513,14 @@ contract Platform is Owned {
 
         bool isForced
     ) private onlyForOpenTrade(_tradeId) {
-        trades[_tradeId].marginRegulator = _marginRegulator;
-        trades[_tradeId].profitSCR = _profitSCR;
-
         tradeQuotes[_tradeId].closeTime = _closeTime;
         tradeQuotes[_tradeId].closePriceInstrument = _closePriceInstrument;
         tradeQuotes[_tradeId].closePriceSCRBaseCurrency = _closePriceSCRBase;
 
-        trades[_tradeId].status = isForced ? STATUS_CLOSED_FORCED : STATUS_CLOSED;
 
-        // TODO: Remove trade from investorActualTrades
+        trades[_tradeId].marginRegulator = _marginRegulator;
+        trades[_tradeId].profitSCR = _profitSCR;
+        trades[_tradeId].status = isForced ? STATUS_CLOSED_FORCED : STATUS_CLOSED;
     }
 
     function _getInvestorLastPortfolioBlock (address _investor) private view returns (uint) {

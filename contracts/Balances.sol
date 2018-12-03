@@ -19,7 +19,6 @@ contract Balances is Owned {
     address public liquidityProviderAddress;
     address public platformAddress;
 
-    // ? FIXME: should the balance be only positive
     mapping (address => uint256) balance;
     mapping (uint256 => bool) depositExternalIds;
     mapping (uint256 => bool) withdrawalExternalIds;
@@ -114,7 +113,7 @@ contract Balances is Owned {
     ) external onlyPlatform returns (bool) {
         uint _amountToTransfer = _amount;
 
-        // FIXME: Replace it with better balance nullification algorithm
+        // FIXME: Replace it with better balance zerofication algorithm
         if (balance[_investor] < _amountToTransfer) {
             _amountToTransfer = balance[_investor];
         }

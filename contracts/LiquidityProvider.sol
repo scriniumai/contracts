@@ -13,7 +13,6 @@ contract LiquidityProvider is Owned {
     using AddressTools for address;
     using SafeMath for uint256;
 
-    address public subscriptionsAddress;
     address public scriniumAddress;
     address public balancesAddress;
     address public platformAddress;
@@ -155,7 +154,7 @@ contract LiquidityProvider is Owned {
     }
 
     /**
-    * It accepts only investorActualTrades
+    * It accepts only investorActualTrades with STATUS_OPEN
      */
     function closeAllTrades (
         uint[] _tradesIds,
@@ -163,7 +162,7 @@ contract LiquidityProvider is Owned {
 
         uint _closeTime,
         uint[] _closePriceInstruments,
-        uint _closePriceSCRBase,
+        uint[] _closePriceSCRBases,
 
         uint[] _commissions
     ) external onlyOwner returns (bool) {
@@ -173,7 +172,7 @@ contract LiquidityProvider is Owned {
                 _marginRegulators[i],
                 _closeTime,
                 _closePriceInstruments[i],
-                _closePriceSCRBase,
+                _closePriceSCRBases[i],
                 _commissions[i]
             );
         }

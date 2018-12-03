@@ -20,6 +20,7 @@ contract Subscriptions is Owned {
     mapping(uint => mapping(address => uint[])) private tradersIdsByBlocksAndInvestors;
     mapping(uint => mapping(uint => address[])) private investorsByBlocksAndTradersIds;
     mapping(uint => mapping(address => bool)) private traderIdActualInvestors;
+
     mapping (uint => address[]) private traderIdInvestors;
 
     modifier notZeroAddr (address _address) {
@@ -96,7 +97,9 @@ contract Subscriptions is Owned {
         for (uint i = 0; i < _tradersIds.length; i++) {
             uint _traderId = _tradersIds[i];
 
-            traderIdInvestors[_traderId].push(_investor);
+            if (! this.isInvestorActualForTraderId(_traderId, _investor)) {
+                traderIdInvestors[_traderId].push(_investor);
+            }
 
             tradersIdsByBlocksAndInvestors[block.number][_investor].push(_traderId);
             investorsByBlocksAndTradersIds[block.number][_traderId].push(_investor);
@@ -111,8 +114,7 @@ contract Subscriptions is Owned {
 
     function _unsubscribe (uint[] _tradersIds, address _investor) private {
         uint _investorLastPortfolioBlock = investorLastPortfolioBlock[_investor];
-
-        // TODO: Close all opened trades for _investor and unsubscribed _tradersIds
+        uint[] storage _investorTradersIds = tradersIdsByBlocksAndInvestors[_investorLastPortfolioBlock][_investor];
 
         for (uint i = 0; i < _tradersIds.length; i++) {
 
@@ -120,24 +122,24 @@ contract Subscriptions is Owned {
 
             traderIdActualInvestors[_traderId][_investor] = false;
 
-            for (uint k = 0; k < tradersIdsByBlocksAndInvestors[_investorLastPortfolioBlock][_investor].length; k++) {
-                if (tradersIdsByBlocksAndInvestors[_investorLastPortfolioBlock][_investor][k] == _traderId) {
+            for (uint k = 0; k < _investorTradersIds.length; k++) {
+                if (_investorTradersIds[k] == _traderId) {
 
-                    if (tradersIdsByBlocksAndInvestors[_investorLastPortfolioBlock][_investor].length == 1) {
-                        tradersIdsByBlocksAndInvestors[_investorLastPortfolioBlock][_investor].length = 0;
+                    if (_investorTradersIds.length == 1) {
+                        _investorTradersIds.length = 0;
                         break;
                     }
 
-                    uint lastTraderId = tradersIdsByBlocksAndInvestors[_investorLastPortfolioBlock][_investor].length - 1;
+                    uint lastTraderId = _investorTradersIds.length - 1;
 
-                    tradersIdsByBlocksAndInvestors[_investorLastPortfolioBlock][_investor][k] = tradersIdsByBlocksAndInvestors[_investorLastPortfolioBlock][_investor][lastTraderId];
-                    tradersIdsByBlocksAndInvestors[_investorLastPortfolioBlock][_investor].length--;
+                    _investorTradersIds[k] = _investorTradersIds[lastTraderId];
+                    _investorTradersIds.length--;
                     break;
                 }
             }
         }
 
-        if (tradersIdsByBlocksAndInvestors[_investorLastPortfolioBlock][_investor].length == 0) {
+        if (_investorTradersIds.length == 0) {
             investorsWithPortfolios[_investor] = false;
             investorLastPortfolioDate[_investor] = 2 ** 256 - 1;
             investorLastPortfolioBlock[_investor] = 0;
