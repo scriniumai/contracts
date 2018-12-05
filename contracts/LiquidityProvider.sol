@@ -110,7 +110,7 @@ contract LiquidityProvider is Owned {
 
         uint _commission
     ) external onlyOwner {
-        // TODO: Make a more strict checking of the balance
+        // TODO: Make a more strict checking of the balance (add Event)
         require(Scrinium(scriniumAddress).balanceOf(address(this)) > 0);
 
         Platform _platform = Platform(platformAddress);
@@ -153,10 +153,7 @@ contract LiquidityProvider is Owned {
         );
     }
 
-    /**
-    * It accepts only investorActualTrades with STATUS_OPEN
-     */
-    function closeAllTrades (
+    function closeTrades (
         uint[] _tradesIds,
         uint[] _marginRegulators,
 
@@ -166,6 +163,14 @@ contract LiquidityProvider is Owned {
 
         uint[] _commissions
     ) external onlyOwner returns (bool) {
+        require(
+            _tradesIds.length == _marginRegulators.length &&
+            _tradesIds.length == _closePriceInstruments.length &&
+            _tradesIds.length == _closePriceSCRBases.length &&
+            _tradesIds.length == _commissions.length &&
+            _closeTime > 0
+        );
+
         for (uint i = 0; i < _tradesIds.length; i++) {
             _closeTrade(
                 _tradesIds[i],
@@ -210,7 +215,7 @@ contract LiquidityProvider is Owned {
 
         uint _commission
     ) private returns (bool) {
-        // TODO: Make a more strict checking of the balance of LiquidityProvider
+        // TODO: Make a more strict checking of the balance (add Event)
         require(Scrinium(scriniumAddress).balanceOf(address(this)) > 0);
 
         Platform _platform = Platform(platformAddress);

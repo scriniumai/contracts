@@ -44,6 +44,4 @@ contract Instruments is Owned {
             instruments[_id].assetType == Assets.TYPE_INDECES()
         );
     }
-
-    // TODO: add oraclaized instrument quotes discovering according to liquidity provider
 }

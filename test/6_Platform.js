@@ -90,8 +90,7 @@ contract('Platform', function (accounts) {
     // Force closing
     {tradeId: 15, masterTradeId: 16, cmd: CMD_SELL, pips: -100,  balanceBefore: BALANCE_BEFORE, expectedProfit: 1.4 * 10 ** 8, useForceClosing: true },
 
-    // TODO: Add tests for `liquidityProvider.closeAllTrades()`
-    // TODO: Add tests for balance nullification case
+    // TODO: Add tests for balance zerofication case
   ]
 
   let profits = web3.toBigNumber(0)
@@ -337,7 +336,7 @@ contract('Platform', function (accounts) {
     })
   })
 
-  it('`.closeAllTrades()` should works correctly', async () => {
+  it('`.closeTrades()` should works correctly', async () => {
     const now = Date.now()
 
     await scrinium.mintToken.sendTransaction(EVE, BALANCE_BEFORE, { from: ALICE })
@@ -419,7 +418,7 @@ contract('Platform', function (accounts) {
       )
     }
 
-    const actualTradesIds = (await platform.getInvestorActualTradesIds(EVE)).map(tradeId => tradeId.toNumber())
+    const actualTradesIds = (await platform.getInvestorActualTrades(EVE)).map(tradeId => tradeId.toNumber())
     assert.deepEqual(actualTradesIds, tradesAssertions.map(({ _tradeId }) => _tradeId))
 
     const txParams = actualTradesIds.reduce((params, tradeId) => {
@@ -446,7 +445,7 @@ contract('Platform', function (accounts) {
       _commissions: [],
     })
 
-    const txHash = await liquidityProvider.closeAllTrades.sendTransaction(
+    const txHash = await liquidityProvider.closeTrades.sendTransaction(
       txParams._tradesIds,
       txParams._marginRegulators,
 
@@ -462,7 +461,7 @@ contract('Platform', function (accounts) {
     )
     const receipt = await web3.eth.getTransactionReceipt(txHash)
 
-    debug('liquidityProvider.closeAllTrades() gasUsed %d', receipt.gasUsed)
+    debug('liquidityProvider.closeTrades() gasUsed %d', receipt.gasUsed)
 
     const balancePlatform = (await balances.balanceOf(EVE)).toNumber()
     assert.equal(balancePlatform, BALANCE_BEFORE - COMMISSION_TOTAL * tradesAssertions.length)

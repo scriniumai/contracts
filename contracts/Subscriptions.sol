@@ -18,8 +18,10 @@ contract Subscriptions is Owned {
     mapping (address => uint) public investorLastPortfolioBlock;
 
     mapping(uint => mapping(address => uint[])) private tradersIdsByBlocksAndInvestors;
-    mapping(uint => mapping(uint => address[])) private investorsByBlocksAndTradersIds;
+    // mapping(uint => mapping(uint => address[])) private investorsByBlocksAndTradersIds;
+
     mapping(uint => mapping(address => bool)) private traderIdActualInvestors;
+    mapping(address => mapping(uint => bool)) private investorHasAlreadyBeenSubscribed;
 
     mapping (uint => address[]) private traderIdInvestors;
 
@@ -29,8 +31,8 @@ contract Subscriptions is Owned {
     }
 
     event BalancesAddressSetted(address indexed _owner, address _balancesAddress);
-    event Subscribed(address indexed _investor, uint[] _tradersIds);
-    event Unsubscribed(address indexed _investor, uint[] _tradersIds);
+    event Subscribed(address indexed _investor, uint indexed _portfolioBlock, uint[] _tradersIds);
+    event Unsubscribed(address indexed _investor, uint indexed _portfolioBlock, uint[] _tradersIds);
     event SubscriptionsLimitSetted(address indexed _owner, uint _subscriptionLimit);
 
     constructor (address _balancesAddress) public {
@@ -60,14 +62,10 @@ contract Subscriptions is Owned {
         _unsubscribe(_subscriptions, msg.sender);
 
         _subscribe(_tradersIds, msg.sender);
-
-        emit Subscribed(msg.sender, _tradersIds);
     }
 
     function unsubscribe (uint[] _tradersIds) external {
         _unsubscribe(_tradersIds, msg.sender);
-
-        emit Unsubscribed(msg.sender, _tradersIds);
     }
 
     function getInvestorLastPortfolioBlock (address _investor) external view returns (uint) {
@@ -97,19 +95,22 @@ contract Subscriptions is Owned {
         for (uint i = 0; i < _tradersIds.length; i++) {
             uint _traderId = _tradersIds[i];
 
-            if (! this.isInvestorActualForTraderId(_traderId, _investor)) {
+            if (! investorHasAlreadyBeenSubscribed[_investor][_traderId]) {
                 traderIdInvestors[_traderId].push(_investor);
             }
 
             tradersIdsByBlocksAndInvestors[block.number][_investor].push(_traderId);
-            investorsByBlocksAndTradersIds[block.number][_traderId].push(_investor);
+            // investorsByBlocksAndTradersIds[block.number][_traderId].push(_investor);
 
             traderIdActualInvestors[_traderId][_investor] = true;
+            investorHasAlreadyBeenSubscribed[_investor][_traderId] = true;
         }
 
         investorsWithPortfolios[_investor] = true;
         investorLastPortfolioDate[_investor] = block.timestamp;
         investorLastPortfolioBlock[_investor] = block.number;
+
+        emit Subscribed(_investor, block.number, _tradersIds);
     }
 
     function _unsubscribe (uint[] _tradersIds, address _investor) private {
@@ -144,5 +145,7 @@ contract Subscriptions is Owned {
             investorLastPortfolioDate[_investor] = 2 ** 256 - 1;
             investorLastPortfolioBlock[_investor] = 0;
         }
+
+        emit Unsubscribed(_investor, _investorLastPortfolioBlock, _tradersIds);
     }
 }

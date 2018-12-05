@@ -31,7 +31,7 @@ contract Platform is Owned {
     mapping(uint => TradeMetas) public tradeMetas;
 
     mapping(address => uint[]) public investorTrades;
-    mapping(address => mapping(uint => uint[])) public investorActualTrades;
+    mapping(address => mapping(uint => uint[])) public investorTradesAtPortfolioBlock;
 
     struct Trade {
         address liquidityProviderAddress;
@@ -48,8 +48,6 @@ contract Platform is Owned {
         int profitSCR;
 
         uint status;
-
-        uint index;
     }
 
     struct TradeQuotes {
@@ -194,8 +192,12 @@ contract Platform is Owned {
         return investorTrades[_investor];
     }
 
-    function getInvestorActualTradesIds (address _investor) public view returns (uint[]) {
-        return investorActualTrades[_investor][_getInvestorLastPortfolioBlock(_investor)];
+    function getInvestorActualTrades (address _investor) public view returns (uint[]) {
+        return this.getInvestorTradesAtPortfolioBlock(_investor, _getInvestorLastPortfolioBlock(_investor));
+    }
+
+    function getInvestorTradesAtPortfolioBlock (address _investor, uint _portfolioBlock) public view returns (uint[]) {
+        return investorTradesAtPortfolioBlock[_investor][_portfolioBlock];
     }
 
     function getTrade (uint _tradeId) external view returns (
@@ -463,11 +465,13 @@ contract Platform is Owned {
         tradeQuotes[_tradeId].openPriceSCRBaseCurrency = _openPriceSCRBase;
 
         tradeIds.push(_tradeId);
-
         investorTrades[_investor].push(_tradeId);
-        investorActualTrades[_investor][_getInvestorLastPortfolioBlock(_investor)].push(_tradeId);
 
-        tradeMetas[_tradeId].actualIndex = investorActualTrades[_investor][_getInvestorLastPortfolioBlock(_investor)].length - 1;
+        uint _investorLastPortfolioBlock = _getInvestorLastPortfolioBlock(_investor);
+
+        investorTradesAtPortfolioBlock[_investor][_investorLastPortfolioBlock].push(_tradeId);
+
+        tradeMetas[_tradeId].actualIndex = investorTradesAtPortfolioBlock[_investor][_investorLastPortfolioBlock].length - 1;
         tradeMetas[_tradeId].overallIndex = investorTrades[_investor].length - 1;
         tradeMetas[_tradeId].blockNumber = block.number;
     }

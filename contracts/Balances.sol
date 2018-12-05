@@ -87,7 +87,6 @@ contract Balances is Owned {
             //
             if (_amount > 0) {
                 amount = uint256(_amount);
-                // ? TODO: balance[liquidityProviderAddress] = balance[liquidityProviderAddress].sub(amount);
                 require(_scrinium.transferFrom(liquidityProviderAddress, address(this), amount));
                 balance[_investor] = balance[_investor].add(amount);
             // 2. amount < 0:
@@ -98,7 +97,6 @@ contract Balances is Owned {
                 amount = uint256(-1 * _amount);
                 require(_scrinium.transfer(liquidityProviderAddress, amount));
                 balance[_investor] = balance[_investor].sub(amount);
-                // ? TODO: balance[liquidityProviderAddress] = balance[liquidityProviderAddress].add(amount);
             }
         }
 
