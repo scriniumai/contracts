@@ -4,10 +4,10 @@ import "./shared/AddressTools.sol";
 import "./shared/SafeMath.sol";
 import "./shared/Owned.sol";
 
-import "./Subscriptions.sol";
-import "./Balances.sol";
-import "./Instruments.sol";
 import "./LiquidityProvider.sol";
+import "./Subscriptions.sol";
+import "./Instruments.sol";
+import "./Balances.sol";
 
 
 contract Platform is Owned {
@@ -26,9 +26,12 @@ contract Platform is Owned {
     uint constant MARGIN_PERCENT_MULTIPLIER = 100;
     uint constant MARGIN_REGULATOR_MULTIPLIER = 10 ** 18;
 
-    mapping (uint => Trade) public trades;
-    mapping (uint => TradeQuotes) public tradeQuotes;
+    mapping(uint => Trade) public trades;
+    mapping(uint => TradeQuotes) public tradeQuotes;
+    mapping(uint => TradeMetas) public tradeMetas;
+
     mapping(address => uint[]) public investorTrades;
+    mapping(address => mapping(uint => uint[])) public investorTradesAtPortfolioBlock;
 
     struct Trade {
         address liquidityProviderAddress;
@@ -48,16 +51,22 @@ contract Platform is Owned {
     }
 
     struct TradeQuotes {
-        uint256 openTime;
-        uint256 openPriceInstrument;
-        uint256 openPriceSCRBaseCurrency;
+        uint openTime;
+        uint openPriceInstrument;
+        uint openPriceSCRBaseCurrency;
 
-        uint256 closeTime;
-        uint256 closePriceInstrument;
-        uint256 closePriceSCRBaseCurrency;
+        uint closeTime;
+        uint closePriceInstrument;
+        uint closePriceSCRBaseCurrency;
     }
 
-    uint[] tradeIds;
+    struct TradeMetas {
+        uint actualIndex;
+        uint overallIndex;
+        uint blockNumber;
+    }
+
+    uint[] private tradeIds;
 
     address public balancesAddress;
     address public instrumentsAddress;
@@ -133,7 +142,7 @@ contract Platform is Owned {
         int _profitSCR
     );
 
-    constructor(
+    constructor (
         address _balancesAddress,
         address _instrumentsAddress,
         address _subscriptionsAddress,
@@ -155,53 +164,43 @@ contract Platform is Owned {
         emit LiquidityProviderAddressSetted(msg.sender, _liquidityProviderAddress);
     }
 
-    function setBalancesAddress(address _balancesAddress) external onlyOwner notZeroAddr(_balancesAddress) {
+    function setBalancesAddress (address _balancesAddress) external onlyOwner notZeroAddr(_balancesAddress) {
         balancesAddress = _balancesAddress;
         emit BalancesAddressSetted(msg.sender, _balancesAddress);
     }
 
-    function setInstrumentsAddress(address _instrumentsAddress) external onlyOwner notZeroAddr(_instrumentsAddress) {
+    function setInstrumentsAddress (address _instrumentsAddress) external onlyOwner notZeroAddr(_instrumentsAddress) {
         instrumentsAddress = _instrumentsAddress;
         emit InstrumentsAddressSetted(msg.sender, _instrumentsAddress);
     }
 
-    function setSubscriptionsAddress(address _subscriptionsAddress) external onlyOwner notZeroAddr(_subscriptionsAddress) {
+    function setSubscriptionsAddress (address _subscriptionsAddress) external onlyOwner notZeroAddr(_subscriptionsAddress) {
         subscriptionsAddress = _subscriptionsAddress;
         emit SubscriptionsAddressSetted(msg.sender, _subscriptionsAddress);
     }
 
-    function setLiquidityProviderAddress(address _liquidityProviderAddress) external onlyOwner notZeroAddr(_liquidityProviderAddress) {
+    function setLiquidityProviderAddress (address _liquidityProviderAddress) external onlyOwner notZeroAddr(_liquidityProviderAddress) {
         liquidityProviderAddress = _liquidityProviderAddress;
         emit LiquidityProviderAddressSetted(msg.sender, _liquidityProviderAddress);
     }
 
-    function getTradesIds() public view returns (uint[]) {
+    function getTradesIds () public view returns (uint[]) {
         return tradeIds;
     }
 
-    function getTradeQuote(uint _tradeId) external view returns (
-        uint256 _openTime,
-        uint256 _openPriceInstrument,
-        uint256 _openPriceSCRBaseCurrency,
-
-        uint256 _closeTime,
-        uint256 _closePriceInstrument,
-        uint256 _closePriceSCRBaseCurrency
-    ) {
-        TradeQuotes memory _tradeQuotes = tradeQuotes[_tradeId];
-
-        return (
-            _tradeQuotes.openTime,
-            _tradeQuotes.openPriceInstrument,
-            _tradeQuotes.openPriceSCRBaseCurrency,
-
-            _tradeQuotes.closeTime,
-            _tradeQuotes.closePriceInstrument,
-            _tradeQuotes.closePriceSCRBaseCurrency
-        );
+    function getInvestorTrades (address _investor) external view returns (uint[]) {
+        return investorTrades[_investor];
     }
 
-    function getTrade(uint _tradeId) external view returns (
+    function getInvestorActualTrades (address _investor) public view returns (uint[]) {
+        return this.getInvestorTradesAtPortfolioBlock(_investor, _getInvestorLastPortfolioBlock(_investor));
+    }
+
+    function getInvestorTradesAtPortfolioBlock (address _investor, uint _portfolioBlock) public view returns (uint[]) {
+        return investorTradesAtPortfolioBlock[_investor][_portfolioBlock];
+    }
+
+    function getTrade (uint _tradeId) external view returns (
         address _liquidityProviderAddress,
         address _investor,
         uint _masterTraderId,
@@ -237,8 +236,38 @@ contract Platform is Owned {
         );
     }
 
-    function getInvestorTrades(address _investor) external view returns (uint[]) {
-        return investorTrades[_investor];
+    function getTradeQuote (uint _tradeId) external view returns (
+        uint _openTime,
+        uint _openPriceInstrument,
+        uint _openPriceSCRBaseCurrency,
+
+        uint _closeTime,
+        uint _closePriceInstrument,
+        uint _closePriceSCRBaseCurrency
+    ) {
+        TradeQuotes memory _tradeQuotes = tradeQuotes[_tradeId];
+
+        return (
+            _tradeQuotes.openTime,
+            _tradeQuotes.openPriceInstrument,
+            _tradeQuotes.openPriceSCRBaseCurrency,
+
+            _tradeQuotes.closeTime,
+            _tradeQuotes.closePriceInstrument,
+            _tradeQuotes.closePriceSCRBaseCurrency
+        );
+    }
+
+    function getTradeMeta (uint _tradeId) external view returns (
+        uint _index,
+        uint _blockNumber
+    ) {
+        TradeMetas memory _tradeMetas = tradeMetas[_tradeId];
+
+        return (
+            _tradeMetas.actualIndex,
+            _tradeMetas.blockNumber
+        );
     }
 
     function openTrade (
@@ -256,7 +285,7 @@ contract Platform is Owned {
         uint _openPriceSCRBase
     ) external onlyLiquidityProvider returns (bool) {
         require(Instruments(instrumentsAddress).isCorrect(_instrumentId));
-        
+
         require(_marginPercent > 0 && _marginPercent < 100);
 
         uint _balance = Balances(balancesAddress).balanceOf(_investor);
@@ -304,7 +333,7 @@ contract Platform is Owned {
         uint _closeTime,
         uint _closePriceInstrument,
         uint _closePriceSCRBase
-    ) external onlyLiquidityProvider onlyForOpenTrade(_tradeId) returns (bool) {
+    ) external onlyLiquidityProvider returns (bool) {
         Trade memory _trade = trades[_tradeId];
 
         int _profitSCR = _calculateProfitSCR(
@@ -355,7 +384,7 @@ contract Platform is Owned {
         uint _closeTime,
         uint _closePriceInstrument,
         uint _closePriceSCRBase
-    ) external onlyOwnerOrLiquidityProvider onlyForOpenTrade(_tradeId) returns (bool) {
+    ) external onlyOwnerOrLiquidityProvider returns (bool) {
         Trade memory _trade = trades[_tradeId];
 
         int _profitSCR = _calculateProfitSCR(
@@ -406,7 +435,7 @@ contract Platform is Owned {
         return true;
     }
 
-    function _openTrade(
+    function _openTrade (
         uint _tradeId,
         address _investor,
         uint _masterTraderId,
@@ -429,7 +458,6 @@ contract Platform is Owned {
         trades[_tradeId].marginSCR = _marginSCR;
         trades[_tradeId].leverage = _leverage;
         trades[_tradeId].cmd = _cmd;
-
         trades[_tradeId].status = STATUS_OPEN;
 
         tradeQuotes[_tradeId].openTime = _openTime;
@@ -438,6 +466,14 @@ contract Platform is Owned {
 
         tradeIds.push(_tradeId);
         investorTrades[_investor].push(_tradeId);
+
+        uint _investorLastPortfolioBlock = _getInvestorLastPortfolioBlock(_investor);
+
+        investorTradesAtPortfolioBlock[_investor][_investorLastPortfolioBlock].push(_tradeId);
+
+        tradeMetas[_tradeId].actualIndex = investorTradesAtPortfolioBlock[_investor][_investorLastPortfolioBlock].length - 1;
+        tradeMetas[_tradeId].overallIndex = investorTrades[_investor].length - 1;
+        tradeMetas[_tradeId].blockNumber = block.number;
     }
 
     function _calculateProfitSCR (
@@ -461,7 +497,7 @@ contract Platform is Owned {
             _profitSCR *= -1;
         }
 
-        // FIXME: Replace it with better balance nullification algorithm
+        // FIXME: Replace it with better balance zerofication algorithm
         if (_profitSCR < 0 && uint(-1 * _profitSCR) > _balance) {
             _profitSCR = -1 * int(_balance);
         }
@@ -469,7 +505,7 @@ contract Platform is Owned {
         return _profitSCR;
     }
 
-    function _closeTrade(
+    function _closeTrade (
         uint _tradeId,
         uint _marginRegulator,
 
@@ -480,14 +516,18 @@ contract Platform is Owned {
         int _profitSCR,
 
         bool isForced
-    ) private {
-        trades[_tradeId].marginRegulator = _marginRegulator;
-        trades[_tradeId].profitSCR = _profitSCR;
-
+    ) private onlyForOpenTrade(_tradeId) {
         tradeQuotes[_tradeId].closeTime = _closeTime;
         tradeQuotes[_tradeId].closePriceInstrument = _closePriceInstrument;
         tradeQuotes[_tradeId].closePriceSCRBaseCurrency = _closePriceSCRBase;
 
+
+        trades[_tradeId].marginRegulator = _marginRegulator;
+        trades[_tradeId].profitSCR = _profitSCR;
         trades[_tradeId].status = isForced ? STATUS_CLOSED_FORCED : STATUS_CLOSED;
+    }
+
+    function _getInvestorLastPortfolioBlock (address _investor) private view returns (uint) {
+        return Subscriptions(subscriptionsAddress).getInvestorLastPortfolioBlock(_investor);
     }
 }

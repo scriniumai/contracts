@@ -1,8 +1,8 @@
 const debug = require('debug')('test:Subscriptions')
 
-const Scrinium = artifacts.require("Scrinium")
-const Subscriptions = artifacts.require("Subscriptions")
-const Balances = artifacts.require("Balances")
+const Scrinium = artifacts.require('Scrinium')
+const Subscriptions = artifacts.require('Subscriptions')
+const Balances = artifacts.require('Balances')
 
 const { range } = require('lodash')
 
@@ -11,7 +11,7 @@ contract('Subscriptions', function(accounts) {
   const BOB = accounts[1]
 
   const BALANCE_BEFORE = 1000 * 10 ** 8
-  const TRADERS_IDS_RANGE = range(0, 10)
+  const TRADERS_IDS = range(1, 10)
 
   let subscriptions
   let balances
@@ -29,119 +29,124 @@ contract('Subscriptions', function(accounts) {
   })
 
   afterEach(async () => {
-    await subscriptions.unsubscribe(TRADERS_IDS_RANGE, { from: ALICE })
-    await subscriptions.unsubscribe(TRADERS_IDS_RANGE, { from: BOB })
+    await subscriptions.unsubscribe(TRADERS_IDS, { from: ALICE })
+    await subscriptions.unsubscribe(TRADERS_IDS, { from: BOB })
+
     await subscriptions.setSubscriptionsLimit.sendTransaction(
-      await subscriptions.subscriptionsLimit.call(),
+      await subscriptions.SUBSCRIPTIONS_LIMIT.call(),
       { from: ALICE },
     )
   })
 
-  it("subscribe should works correctly", async () => {
-    await subscriptions.subscribe.sendTransaction([1,2], { from: ALICE })
-    await subscriptions.subscribe.sendTransaction([3,4], { from: ALICE })
+  const getInvestors = async (_traderId = 0, _investors = []) => {
+    const possibleInvestors = await subscriptions.getInvestors(_traderId)
 
-    let traders = await subscriptions.getTraders(ALICE)
-    traders = traders.map((trader) => trader.toNumber()) // cast to int[]
-    assert.deepEqual(traders, [1,2,3,4])
-    assert.deepEqual(await subscriptions.investorsWithPortfolios.call(ALICE), true)
-    assert.isBelow((await subscriptions.investorLastPortfolioDate.call(ALICE)).toNumber(), Date.now() / 1000)
+    const actualInvestors = []
+
+    for (const account of _investors) {
+      if (
+        possibleInvestors.includes(account) &&
+        await subscriptions.isInvestorActualForTraderId(_traderId, account)
+      ) {
+        actualInvestors.push(account)
+      }
+    }
+
+    return actualInvestors
+  }
+
+  it('`.subscribe()`, `.getInvestors`, `.isInvestorActualForTraderId()` should works correctly', async () => {
+    const txHash = await subscriptions.subscribe.sendTransaction(TRADERS_IDS, { from: ALICE })
+    const receipt = await web3.eth.getTransactionReceipt(txHash)
+
+    debug('`subscriptions.subscribe()` on empty storage gasUsed %d', receipt.gasUsed)
+
+    const isWithPortfolio = await subscriptions.investorsWithPortfolios.call(ALICE)
+    assert.isTrue(isWithPortfolio)
+
+    const lastPortfolioBlock = (await subscriptions.getInvestorLastPortfolioBlock(ALICE)).toNumber()
+    assert.equal(lastPortfolioBlock, web3.eth.blockNumber)
+
+    const lastPortfolioDate = (await subscriptions.getInvestorLastPortfolioDate(ALICE)).toNumber()
+    assert.isBelow(lastPortfolioDate, Date.now() / 1000)
+
+    const traders = (await subscriptions.getTraders(ALICE)).map(trader => trader.toNumber())
+    assert.deepEqual(traders, TRADERS_IDS)
+
+    await subscriptions.subscribe.sendTransaction(TRADERS_IDS, { from: BOB })
+
+    for (const traderId of TRADERS_IDS) {
+      assert.deepEqual(await getInvestors(traderId, [ALICE, BOB]), [ALICE, BOB])
+    }
   })
 
-  it("subscribe should works correctly for duplicates", async () => {
-    await subscriptions.subscribe.sendTransaction([1,2], { from: ALICE })
-    await subscriptions.subscribe.sendTransaction([2,3], { from: ALICE })
-
-    let traders = await subscriptions.getTraders(ALICE)
-    traders = traders.map((trader) => trader.toNumber()) // cast to int[]
-    assert.deepEqual(traders, [1,2,3])
-  })
-
-  it("getInvestors should works correctly", async () => {
-    await subscriptions.subscribe.sendTransaction([1,2,3,4], { from: ALICE })
-    await subscriptions.subscribe.sendTransaction([1,5], { from: BOB })
-
-    assert.deepEqual(await subscriptions.getInvestors(1), [ALICE,BOB])
-    assert.deepEqual(await subscriptions.getInvestors(2), [ALICE])
-    assert.deepEqual(await subscriptions.getInvestors(5), [BOB])
-  })
-
-  it("unsubscribe should works correctly", async () => {
+  it('`.unsubscribe()` should works correctly', async () => {
     await subscriptions.subscribe.sendTransaction([1,2,3,4,5], { from: ALICE })
+
+    var txHash = await subscriptions.unsubscribe.sendTransaction([1,3], { from: ALICE })
+    var receipt = await web3.eth.getTransactionReceipt(txHash)
+
+    debug('`subscriptions.unsubscribe()` gasUsed %d', receipt.gasUsed)
+
+    var  tradersALICE = (await subscriptions.getTraders(ALICE)).map(trader => trader.toNumber())
+    assert.deepEqual(tradersALICE, [5, 2, 4])
+
+    var txHash = await subscriptions.subscribe.sendTransaction([6, 7], { from: ALICE })
+    var receipt = await web3.eth.getTransactionReceipt(txHash)
+
+    debug('`subscriptions.subscribe()` on non-empty storage gasUsed %d', receipt.gasUsed)
+
+    var  tradersALICE = (await subscriptions.getTraders(ALICE)).map(trader => trader.toNumber())
+    assert.deepEqual(tradersALICE, [6, 7])
+
     await subscriptions.subscribe.sendTransaction([1,2,3,4,5], { from: BOB })
-    await subscriptions.unsubscribe.sendTransaction([1,3], { from: ALICE })
     await subscriptions.unsubscribe.sendTransaction([2,4], { from: BOB })
-    await subscriptions.unsubscribe.sendTransaction([2,4,5], { from: ALICE })
-    await subscriptions.subscribe.sendTransaction([6], { from: ALICE })
 
-    let traders = await subscriptions.getTraders(BOB)
-    traders = traders.map((trader) => trader.toNumber()).sort() // cast to int[]
-    assert.deepEqual(traders, [1,3,5])
+    var  tradersBOB = (await subscriptions.getTraders(BOB)).map(trader => trader.toNumber())
+    assert.deepEqual(tradersBOB, [1, 5, 3])
 
-    assert.deepEqual(await subscriptions.getInvestors(1), [BOB])
-    assert.deepEqual(await subscriptions.getInvestors(2), [])
-    assert.deepEqual(await subscriptions.getInvestors(3), [BOB])
-    assert.deepEqual(await subscriptions.getInvestors(4), [])
-    assert.deepEqual(await subscriptions.getInvestors(5), [BOB])
-    assert.deepEqual(await subscriptions.getInvestors(6), [ALICE])
-    assert.deepEqual(await subscriptions.getInvestors(7), [])
+    await subscriptions.subscribe.sendTransaction([7], { from: BOB })
+
+    var  tradersBOB = (await subscriptions.getTraders(BOB)).map(trader => trader.toNumber())
+    assert.deepEqual(tradersBOB, [7])
+
+    assert.deepEqual(await getInvestors(1), [])
+    assert.deepEqual(await getInvestors(2), [])
+    assert.deepEqual(await getInvestors(3), [])
+    assert.deepEqual(await getInvestors(4), [])
+    assert.deepEqual(await getInvestors(5), [])
+    assert.deepEqual(await getInvestors(6, [ALICE]), [ALICE])
+    assert.deepEqual(await getInvestors(7, [ALICE, BOB]), [ALICE, BOB])
+
+    await subscriptions.unsubscribe.sendTransaction([7], { from: BOB })
+    assert.deepEqual(await getInvestors(7, [ALICE, BOB]), [ALICE])
+
+    const investorsWithPortfolios = await subscriptions.investorsWithPortfolios.call(BOB)
+    assert.isFalse(investorsWithPortfolios)
+
+    const investorLastPortfolioDate = (await subscriptions.getInvestorLastPortfolioDate(BOB)).toNumber()
+    assert.isAbove(investorLastPortfolioDate, Date.now() / 1000)
+
+    const investorLastPortfolioBlock = (await subscriptions.getInvestorLastPortfolioBlock(BOB)).toNumber()
+    assert.equal(investorLastPortfolioBlock, 0)
   })
 
-  it("setSubscriptionsLimit should works correctly", async () => {
-    await subscriptions.setSubscriptionsLimit.sendTransaction(33, { from: ALICE })
-    assert.equal(await subscriptions.subscriptionsLimit.call(), 33)
+  it('`.setSubscriptionsLimit()` should works correctly', async () => {
+    await subscriptions.setSubscriptionsLimit.sendTransaction(1, { from: ALICE })
+    assert.equal(await subscriptions.SUBSCRIPTIONS_LIMIT.call(), 1)
 
-    await subscriptions.setSubscriptionsLimit.sendTransaction(99, { from: ALICE })
-    assert.equal(await subscriptions.subscriptionsLimit.call(), 99)
-  })
+    await subscriptions.setSubscriptionsLimit.sendTransaction(2, { from: ALICE })
+    assert.equal(await subscriptions.SUBSCRIPTIONS_LIMIT.call(), 2)
 
-
-  it("subscriptionsLimit - cannot subscribe over limit", async () => {
-    await subscriptions.setSubscriptionsLimit.sendTransaction(3, { from: ALICE })
+    await subscriptions.setSubscriptionsLimit.sendTransaction(1, { from: ALICE })
 
     try {
-      await subscriptions.subscribe.sendTransaction([1,2,3,4], { from: BOB }) // subscribe over limit
-      assert.fail('Investor cannot subscribe over limit')
+      await subscriptions.subscribe.sendTransaction(TRADERS_IDS, { from: BOB })
+      assert.fail('Investor cannot subscribe over `SUBSCRIPTIONS_LIMIT`!')
     } catch (error) {}
 
-    // check that operation has been reverted
-    assert.equal(
-      (await subscriptions.getTraders(BOB)).length,
-      0
-    )
-  })
-
-
-  it("subscriptionsLimit - cannot subscribe over limit when already has subscriptions", async () => {
-    await subscriptions.setSubscriptionsLimit.sendTransaction(3, { from: ALICE })
-
-    await subscriptions.subscribe.sendTransaction([1,2,3], { from: BOB })
-
-    assert.equal(
-      (await subscriptions.getTraders(BOB)).length,
-      3
-    )
-
-    try {
-      await subscriptions.subscribe.sendTransaction([4], { from: BOB }) // subscribe over limit
-      assert.fail('Investor cannot subscribe over limit')
-    } catch (error) {}
-
-    // check that operation has been reverted
-    assert.equal(
-      (await subscriptions.getTraders(BOB)).length,
-      3
-    )
-  })
-
-  it("getCountOfInvestorsByTraderId should works correctly", async () => {
-    await subscriptions.subscribe.sendTransaction([1,2], { from: ALICE })
-    await subscriptions.subscribe.sendTransaction([2,3], { from: BOB })
-
-    assert.equal(await subscriptions.getCountOfInvestorsByTraderId(1), 1)
-    assert.equal(await subscriptions.getCountOfInvestorsByTraderId(2), 2)
-    assert.equal(await subscriptions.getCountOfInvestorsByTraderId(3), 1)
-    assert.equal(await subscriptions.getCountOfInvestorsByTraderId(4), 0)
+    const tradersBOB = await subscriptions.getTraders(BOB)
+    assert.deepEqual(tradersBOB, [])
   })
 
 })

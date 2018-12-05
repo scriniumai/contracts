@@ -12,7 +12,7 @@ const Platform          = artifacts.require("Platform")
 const BALANCE_BEFORE = 100 * 10 ** 8
 
 const COMMISSION_OPEN = 10 * 10 ** 8
-const COMMISSION_CLOSE = COMMISSION_OPEN * 150 / 100
+const COMMISSION_CLOSE = COMMISSION_OPEN * 1.1
 const COMMISSION_TOTAL = COMMISSION_OPEN + COMMISSION_CLOSE
 
 const STATUS_OPENED = 2
@@ -28,8 +28,10 @@ const INSTRUMENT = Object.freeze({
 contract('Platform', function (accounts) {
   // Owner
   const ALICE = accounts[0]
-  // Investor
+  // Investor 1
   const BOB = accounts[1]
+  // Investor 2
+  const EVE = accounts[2]
 
   let scrinium
   let instruments
@@ -76,7 +78,7 @@ contract('Platform', function (accounts) {
   const CMD_BUY = 0
   const CMD_SELL = 1
 
-  const openTradeAssertions = [
+  const tradesAssertions = [
     {tradeId: 1,  masterTradeId: 2,  cmd: CMD_BUY,  pips: 10,    balanceBefore: BALANCE_BEFORE, expectedProfit: 0.14 * 10 ** 8  },
     {tradeId: 3,  masterTradeId: 4,  cmd: CMD_BUY,  pips: -10,   balanceBefore: BALANCE_BEFORE, expectedProfit: -0.14 * 10 ** 8 },
     {tradeId: 5,  masterTradeId: 6,  cmd: CMD_BUY,  pips: -1000, balanceBefore: BALANCE_BEFORE, expectedProfit: -14 * 10 ** 8   },
@@ -88,12 +90,12 @@ contract('Platform', function (accounts) {
     // Force closing
     {tradeId: 15, masterTradeId: 16, cmd: CMD_SELL, pips: -100,  balanceBefore: BALANCE_BEFORE, expectedProfit: 1.4 * 10 ** 8, useForceClosing: true },
 
-    // TODO: Add testing for balance nullification case
+    // TODO: Add tests for balance zerofication case
   ]
 
   let profits = web3.toBigNumber(0)
 
-  openTradeAssertions.forEach(({ tradeId, masterTradeId, cmd, pips, balanceBefore, expectedProfit, useForceClosing }, tradeIdx) => {
+  tradesAssertions.forEach(({ tradeId, masterTradeId, cmd, pips, balanceBefore, expectedProfit, useForceClosing }, tradeIdx) => {
     it(`trade processing should works correctly for tradeId:${tradeId}`, async () => {
       await scrinium.mintToken.sendTransaction(BOB, balanceBefore, { from: ALICE })
       await scrinium.approve.sendTransaction(Balances.address, balanceBefore, { from: BOB })
@@ -104,7 +106,7 @@ contract('Platform', function (accounts) {
       const TRADE = {
         _tradeId: tradeId,
         _investor: BOB,
-        _masterTradeId: masterTradeId,
+        _masterTraderId: masterTradeId,
 
         _instrumentId: INSTRUMENT.ID,
         _marginPercent: 28,
@@ -113,13 +115,11 @@ contract('Platform', function (accounts) {
 
         _openTime: now,
         _openPriceInstrument: parseInt(1.3 * 10 ** 6),
-        _openPriceSCRBase: parseInt(5000000 / 1.4) + 1,
-
-        _commission: COMMISSION_OPEN,
+        _openPriceSCRBase: 0,
 
         _closeTime: now + 60 * 10 ** 3,
         _closePriceInstrument: parseInt(1.3 * 10 ** 6) + pips,
-        _closePriceSCRBase: parseInt(5000000 / 1.4) + 1,
+        _closePriceSCRBase: 0,
 
         _marginRegulator: 10 ** 18,
       }
@@ -128,7 +128,7 @@ contract('Platform', function (accounts) {
         const txHash = await liquidityProvider.openTrade.sendTransaction(
           TRADE._tradeId,
           TRADE._investor,
-          TRADE._masterTradeId,
+          TRADE._masterTraderId,
 
           TRADE._instrumentId,
           TRADE._marginPercent,
@@ -139,7 +139,7 @@ contract('Platform', function (accounts) {
           TRADE._openPriceInstrument,
           TRADE._openPriceSCRBase,
 
-          TRADE._commission,
+          COMMISSION_OPEN,
 
           {
             from: ALICE
@@ -147,7 +147,7 @@ contract('Platform', function (accounts) {
         )
         const receipt = await web3.eth.getTransactionReceipt(txHash)
 
-        debug('liquidityProvider.openTrade gasUsed %d', receipt.gasUsed)
+        debug('liquidityProvider.openTrade() gasUsed %d', receipt.gasUsed)
 
       } catch (error) {
         console.error('openTrade', error)
@@ -169,7 +169,7 @@ contract('Platform', function (accounts) {
         )
         const receipt = await web3.eth.getTransactionReceipt(txHash)
 
-        debug('platform.closeTradeForce gasUsed %d', receipt.gasUsed)
+        debug('platform.closeTradeForce() gasUsed %d', receipt.gasUsed)
 
         const [
           ,
@@ -212,7 +212,7 @@ contract('Platform', function (accounts) {
 
       assert.equal(liquidityProviderAddress, liquidityProvider.address)
       assert.equal(investor, TRADE._investor)
-      assert.equal(masterTraderId, TRADE._masterTradeId)
+      assert.equal(masterTraderId, TRADE._masterTraderId)
       assert.equal(instrumentId, TRADE._instrumentId)
       assert.equal(marginPercent.toNumber(), TRADE._marginPercent)
       assert.equal(leverage.toNumber(), TRADE._leverage)
@@ -273,7 +273,7 @@ contract('Platform', function (accounts) {
         )
         const receipt = await web3.eth.getTransactionReceipt(txHash)
 
-        debug('liquidityProvider.closeTrade gasUsed %d', receipt.gasUsed)
+        debug('liquidityProvider.closeTrade() gasUsed %d', receipt.gasUsed)
 
       } catch (error) {
         console.error('closeTrade', error)
@@ -334,5 +334,136 @@ contract('Platform', function (accounts) {
       const expectedLiquidityProdiverBalance = liquidityProviderInitialBalance.add(profits.mul(-1))
       assert.equal(liquidityProviderBalance.toNumber(), expectedLiquidityProdiverBalance.toNumber())
     })
+  })
+
+  it('`.closeTrades()` should works correctly', async () => {
+    const now = Date.now()
+
+    await scrinium.mintToken.sendTransaction(EVE, BALANCE_BEFORE, { from: ALICE })
+    await scrinium.approve.sendTransaction(Balances.address, BALANCE_BEFORE, { from: EVE })
+    await balances.deposit.sendTransaction(now, BALANCE_BEFORE, { from: EVE })
+
+    await subscriptions.subscribe.sendTransaction([98, 100], { from: EVE })
+
+    const tradesAssertionsCommon = {
+      _instrumentId: INSTRUMENT.ID,
+      _marginPercent: 28,
+      _leverage: 500,
+
+      _openTime: now,
+      _openPriceInstrument: parseInt(1.3 * 10 ** 6),
+      _openPriceSCRBase: 0,
+
+      _closeTime: now + 60 * 10 ** 3,
+      _closePriceInstrument: parseInt(1.3 * 10 ** 6) + 1000,
+      _closePriceSCRBase: 0,
+
+      _marginRegulator: 10 ** 18,
+    }
+    const tradesAssertions = [
+      {
+        ...tradesAssertionsCommon,
+
+        _tradeId: 99,
+        _investor: EVE,
+        _masterTraderId: 98,
+        _cmd: CMD_BUY,
+      },
+      {
+        ...tradesAssertionsCommon,
+
+        _tradeId: 101,
+        _investor: EVE,
+        _masterTraderId: 100,
+        _cmd: CMD_SELL,
+      },
+      {
+        ...tradesAssertionsCommon,
+
+        _tradeId: 103,
+        _investor: EVE,
+        _masterTraderId: 98,
+        _cmd: CMD_BUY,
+      },
+      {
+        ...tradesAssertionsCommon,
+
+        _tradeId: 105,
+        _investor: EVE,
+        _masterTraderId: 100,
+        _cmd: CMD_SELL,
+      },
+    ]
+
+    for (const trade of tradesAssertions) {
+      await liquidityProvider.openTrade.sendTransaction(
+        trade._tradeId,
+        trade._investor,
+        trade._masterTraderId,
+
+        trade._instrumentId,
+        trade._marginPercent,
+        trade._leverage,
+        trade._cmd,
+
+        trade._openTime,
+        trade._openPriceInstrument,
+        trade._openPriceSCRBase,
+
+        COMMISSION_OPEN,
+
+        {
+          from: ALICE
+        }
+      )
+    }
+
+    const actualTradesIds = (await platform.getInvestorActualTrades(EVE)).map(tradeId => tradeId.toNumber())
+    assert.deepEqual(actualTradesIds, tradesAssertions.map(({ _tradeId }) => _tradeId))
+
+    const txParams = actualTradesIds.reduce((params, tradeId) => {
+      const trade = tradesAssertions.find(({ _tradeId }) => _tradeId === tradeId)
+
+      return {
+        _tradesIds: [...params._tradesIds, tradeId],
+        _marginRegulators: [...params._marginRegulators, trade._marginRegulator],
+
+        _closeTime: tradesAssertionsCommon._closeTime,
+        _closePriceInstruments: [...params._closePriceInstruments, trade._closePriceInstrument],
+        _closePriceSCRBases: [...params._closePriceSCRBases, trade._openPriceSCRBase],
+
+        _commissions: [...params._commissions, COMMISSION_CLOSE],
+      }
+    }, {
+      _tradesIds: [],
+      _marginRegulators: [],
+
+      _closeTime: 0,
+      _closePriceInstruments: [],
+      _closePriceSCRBases: [],
+
+      _commissions: [],
+    })
+
+    const txHash = await liquidityProvider.closeTrades.sendTransaction(
+      txParams._tradesIds,
+      txParams._marginRegulators,
+
+      txParams._closeTime,
+      txParams._closePriceInstruments,
+      txParams._closePriceSCRBases,
+
+      txParams._commissions,
+
+      {
+        from: ALICE
+      }
+    )
+    const receipt = await web3.eth.getTransactionReceipt(txHash)
+
+    debug('liquidityProvider.closeTrades() gasUsed %d', receipt.gasUsed)
+
+    const balancePlatform = (await balances.balanceOf(EVE)).toNumber()
+    assert.equal(balancePlatform, BALANCE_BEFORE - COMMISSION_TOTAL * tradesAssertions.length)
   })
 })

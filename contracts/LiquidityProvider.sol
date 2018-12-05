@@ -39,7 +39,11 @@ contract LiquidityProvider is Owned {
         uint _amount
     );
 
-    constructor (address _scriniumAddress, address _balancesAddress, address _commissionsAddress) public {
+    constructor (
+        address _scriniumAddress,
+        address _balancesAddress,
+        address _commissionsAddress
+    ) public {
         require(_scriniumAddress.isContract());
         require(_balancesAddress.isContract());
         require(_commissionsAddress != address(0));
@@ -60,6 +64,7 @@ contract LiquidityProvider is Owned {
     }
 
     function setPlatformAddress(address _platformAddress) external onlyOwner notZeroAddr(_platformAddress) {
+        require(_platformAddress != address(0));
         platformAddress = _platformAddress;
         emit PlatformAddressSetted(msg.sender, _platformAddress);
     }
@@ -105,7 +110,7 @@ contract LiquidityProvider is Owned {
 
         uint _commission
     ) external onlyOwner {
-        // TODO: Make a more strict checking of the balance
+        // TODO: Make a more strict checking of the balance (add Event)
         require(Scrinium(scriniumAddress).balanceOf(address(this)) > 0);
 
         Platform _platform = Platform(platformAddress);
@@ -137,30 +142,50 @@ contract LiquidityProvider is Owned {
         uint _closePriceSCRBase,
 
         uint _commission
-    ) external onlyOwner {
-        // TODO: Make a more strict checking of the balance
-        require(Scrinium(scriniumAddress).balanceOf(address(this)) > 0);
-
-        Platform _platform = Platform(platformAddress);
-
-        address _investor;
-        (, _investor,,,,,,,,,) = _platform.getTrade(_tradeId);
-
-        commissions[_tradeId] = commissions[_tradeId].add(_commission);
-
-        require(takeCommission(_investor, _tradeId));
-
-        require(_platform.closeTrade(
+    ) external onlyOwner returns (bool) {
+        return _closeTrade(
             _tradeId,
             _marginRegulator,
-
             _closeTime,
             _closePriceInstrument,
-            _closePriceSCRBase
-        ));
+            _closePriceSCRBase,
+            _commission
+        );
     }
 
-    function takeCommission (
+    function closeTrades (
+        uint[] _tradesIds,
+        uint[] _marginRegulators,
+
+        uint _closeTime,
+        uint[] _closePriceInstruments,
+        uint[] _closePriceSCRBases,
+
+        uint[] _commissions
+    ) external onlyOwner returns (bool) {
+        require(
+            _tradesIds.length == _marginRegulators.length &&
+            _tradesIds.length == _closePriceInstruments.length &&
+            _tradesIds.length == _closePriceSCRBases.length &&
+            _tradesIds.length == _commissions.length &&
+            _closeTime > 0
+        );
+
+        for (uint i = 0; i < _tradesIds.length; i++) {
+            _closeTrade(
+                _tradesIds[i],
+                _marginRegulators[i],
+                _closeTime,
+                _closePriceInstruments[i],
+                _closePriceSCRBases[i],
+                _commissions[i]
+            );
+        }
+
+        return true;
+    }
+
+    function _takeCommission (
         address _investor,
         uint _tradeId
     ) private returns (bool) {
@@ -176,6 +201,40 @@ contract LiquidityProvider is Owned {
             _tradeId,
             commissions[_tradeId]
         );
+
+        return true;
+    }
+
+    function _closeTrade (
+        uint _tradeId,
+        uint _marginRegulator,
+
+        uint _closeTime,
+        uint _closePriceInstrument,
+        uint _closePriceSCRBase,
+
+        uint _commission
+    ) private returns (bool) {
+        // TODO: Make a more strict checking of the balance (add Event)
+        require(Scrinium(scriniumAddress).balanceOf(address(this)) > 0);
+
+        Platform _platform = Platform(platformAddress);
+
+        address _investor;
+        (, _investor,,,,,,,,,) = _platform.getTrade(_tradeId);
+
+        commissions[_tradeId] = commissions[_tradeId].add(_commission);
+
+        require(_takeCommission(_investor, _tradeId));
+
+        require(_platform.closeTrade(
+            _tradeId,
+            _marginRegulator,
+
+            _closeTime,
+            _closePriceInstrument,
+            _closePriceSCRBase
+        ));
 
         return true;
     }
