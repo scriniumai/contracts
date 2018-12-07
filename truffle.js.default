@@ -1,17 +1,27 @@
 const WalletProvider = require('truffle-wallet-provider')
 const Wallet = require('ethereumjs-wallet')
 
+const {
+  HOST,
+  PORT,
+  NETWORK_ID,
+  TRUFFLE_GAS,
+  TRUFFLE_GAS_PRICE,
+  INFURA_ACCESS_TOKEN,
+} = process.env
+
+const accounts = require('./data/ganache-cli-accounts.json')
+
 const development = {
-  host: '127.0.0.1',
-  port: 8545,
-  network_id: 5777,
-  gas: process.env.TRUFFLE_GAS || 3 * 10**6,
-  gasPrice: process.env.TRUFFLE_GAS_PRICE || 20 * 10**9
+  from       : accounts[0][1],
+  host       : HOST || '127.0.0.1',
+  port       : PORT || 8545,
+  gas        : TRUFFLE_GAS || 3 * 10**6,
+  gasPrice   : TRUFFLE_GAS_PRICE || 20 * 10**9,
+  network_id : NETWORK_ID || 5777,
 }
 
-const infuraAccessToken = process.env.INFURA_ACCESS_TOKEN
-
-const infuraNetworks = ! infuraAccessToken ?
+const infuraNetworks = ! INFURA_ACCESS_TOKEN ?
   {}:
     ['ropsten', 'rinkeby', 'kovan', 'mainnet'].reduce(
       (result, network) => {
@@ -28,7 +38,7 @@ const infuraNetworks = ! infuraAccessToken ?
           const wallet = Wallet.fromPrivateKey(privateKey)
           const provider = new WalletProvider(
             wallet,
-            `https://${network}.infura.io/${infuraAccessToken}`
+            `https://${network}.infura.io/${INFURA_ACCESS_TOKEN}`
           )
 
           result[network] = {
@@ -46,11 +56,6 @@ module.exports = {
   rpc: development,
   networks: {
     ...infuraNetworks,
-    staging: {
-      ...development,
-      port: 8546,
-      network_id: "*",
-    },
     development,
   },
   solc: {

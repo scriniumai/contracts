@@ -3,6 +3,8 @@
 
 build/
 node_modules/
+logs/
+config/mounted/
 
 **/preload-*.js
 

@@ -132,7 +132,9 @@ yarn migrate
 
 * `yarn ganache` &mdash; starting private blockchain (accounts are read from file ***./data/ganache-cli-accounts.json***)
 
-	* `PORT=<port_number>`
+	* `HOST=<hostname_arg>`
+	* `PORT=<port_arg>`
+	* `NETWORK_ID=<networkId_arg>`
 
 * `yarn lint` &mdash; linting contracts code via [Solium](https://www.getsolium.com/) linter
 
