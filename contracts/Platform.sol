@@ -286,7 +286,7 @@ contract Platform is Owned {
     ) external onlyLiquidityProvider returns (bool) {
         require(Instruments(instrumentsAddress).isCorrect(_instrumentId));
 
-        require(_marginPercent > 0 && _marginPercent < 100);
+        require(_marginPercent > 0);
 
         uint _balance = Balances(balancesAddress).balanceOf(_investor);
         require(_balance > 0);
