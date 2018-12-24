@@ -22,9 +22,9 @@ contract Platform is Owned {
     uint constant CMD_BUY = 0;
     uint constant CMD_SELL = 1;
 
-    uint constant PRICE_MULTIPLIER = 10 ** 6;
+    uint constant DEFAULT_MULTIPLIER = 10 ** 18;
     uint constant MARGIN_PERCENT_MULTIPLIER = 100;
-    uint constant MARGIN_REGULATOR_MULTIPLIER = 10 ** 18;
+    uint constant PRICE_MULTIPLIER = 10 ** 6;
 
     mapping(uint => Trade) public trades;
     mapping(uint => TradeQuotes) public tradeQuotes;
@@ -127,6 +127,7 @@ contract Platform is Owned {
         uint _closePriceSCRBase,
 
         uint _marginRegulator,
+        uint _conversionCoefficient,
         int _profitSCR
     );
     event TradeClosedForced(
@@ -139,6 +140,7 @@ contract Platform is Owned {
         uint _closePriceSCRBase,
 
         uint _marginRegulator,
+        uint _conversionCoefficient,
         int _profitSCR
     );
 
@@ -332,14 +334,17 @@ contract Platform is Owned {
 
         uint _closeTime,
         uint _closePriceInstrument,
-        uint _closePriceSCRBase
+        uint _closePriceSCRBase,
+
+        uint _conversionCoefficient
     ) external onlyLiquidityProvider returns (bool) {
         Trade memory _trade = trades[_tradeId];
 
         int _profitSCR = _calculateProfitSCR(
             _tradeId,
             _closePriceInstrument,
-            _marginRegulator
+            _marginRegulator,
+            _conversionCoefficient
         );
 
         _closeTrade(
@@ -371,6 +376,7 @@ contract Platform is Owned {
             _closePriceSCRBase,
 
             _marginRegulator,
+            _conversionCoefficient,
             _profitSCR
         );
 
@@ -383,14 +389,17 @@ contract Platform is Owned {
 
         uint _closeTime,
         uint _closePriceInstrument,
-        uint _closePriceSCRBase
+        uint _closePriceSCRBase,
+
+        uint _conversionCoefficient
     ) external onlyOwnerOrLiquidityProvider returns (bool) {
         Trade memory _trade = trades[_tradeId];
 
         int _profitSCR = _calculateProfitSCR(
             _tradeId,
             _closePriceInstrument,
-            _marginRegulator
+            _marginRegulator,
+            _conversionCoefficient
         );
 
         _closeTrade(
@@ -416,6 +425,7 @@ contract Platform is Owned {
             _closePriceSCRBase,
 
             _marginRegulator,
+            _conversionCoefficient,
             _profitSCR
         );
     }
@@ -479,7 +489,8 @@ contract Platform is Owned {
     function _calculateProfitSCR (
         uint _tradeId,
         uint _closePriceInstrument,
-        uint _marginRegulator
+        uint _marginRegulator,
+        uint _conversionCoefficient
     ) private view returns (int _profitSCR) {
         Trade memory _trade = trades[_tradeId];
         TradeQuotes memory _tradeQuotes = tradeQuotes[_tradeId];
@@ -489,9 +500,11 @@ contract Platform is Owned {
         _profitSCR = (int(_closePriceInstrument) - int(_tradeQuotes.openPriceInstrument))
             * int(_trade.marginSCR)
             * int(_trade.leverage)
+            / int(PRICE_MULTIPLIER)
             * int(_marginRegulator)
-            / int(MARGIN_REGULATOR_MULTIPLIER)
-            / int(PRICE_MULTIPLIER);
+            / int(DEFAULT_MULTIPLIER)
+            * int(_conversionCoefficient)
+            / int(DEFAULT_MULTIPLIER);
 
         if (_trade.cmd == CMD_SELL) {
             _profitSCR *= -1;

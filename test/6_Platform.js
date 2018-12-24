@@ -2,6 +2,8 @@ const debug = require('debug')('test:Platform')
 
 const { soliditySha3 } = require('web3-utils')
 
+const { toBigNumber } = web3
+
 const Scrinium          = artifacts.require("Scrinium")
 const Balances          = artifacts.require("Balances")
 const Instruments       = artifacts.require("Instruments")
@@ -9,9 +11,13 @@ const Subscriptions     = artifacts.require("Subscriptions")
 const LiquidityProvider = artifacts.require("LiquidityProvider")
 const Platform          = artifacts.require("Platform")
 
-const BALANCE_BEFORE = 100 * 10 ** 8
+const DEFAULT_MULTIPLIER = 10 ** 18
+const PRICE_MULTIPLIER = 10 ** 6
+const SCR_MULTIPLIER = 10 ** 8
 
-const COMMISSION_OPEN = 10 * 10 ** 8
+const BALANCE_BEFORE = 100 * SCR_MULTIPLIER
+
+const COMMISSION_OPEN = 10 * SCR_MULTIPLIER
 const COMMISSION_CLOSE = COMMISSION_OPEN * 1.1
 const COMMISSION_TOTAL = COMMISSION_OPEN + COMMISSION_CLOSE
 
@@ -24,6 +30,8 @@ const INSTRUMENT = Object.freeze({
   TYPE   : 1,
   SYMBOL : 'EURUSD',
 })
+
+const CONVERSION_COEFFICIENT = 0.75 * DEFAULT_MULTIPLIER
 
 contract('Platform', function (accounts) {
   // Owner
@@ -49,7 +57,7 @@ contract('Platform', function (accounts) {
     subscriptions     = await Subscriptions.deployed()
     liquidityProvider = await LiquidityProvider.deployed()
 
-    await scrinium.mintToken(liquidityProvider.address, 6000000 * 10 ** 8)
+    await scrinium.mintToken(liquidityProvider.address, 6000000 * SCR_MULTIPLIER)
 
     liquidityProviderInitialBalance = await scrinium.balanceOf.call(liquidityProvider.address)
   })
@@ -79,21 +87,22 @@ contract('Platform', function (accounts) {
   const CMD_SELL = 1
 
   const tradesAssertions = [
-    {tradeId: 1,  masterTradeId: 2,  cmd: CMD_BUY,  pips: 10,    balanceBefore: BALANCE_BEFORE, expectedProfit: 0.14 * 10 ** 8  },
-    {tradeId: 3,  masterTradeId: 4,  cmd: CMD_BUY,  pips: -10,   balanceBefore: BALANCE_BEFORE, expectedProfit: -0.14 * 10 ** 8 },
-    {tradeId: 5,  masterTradeId: 6,  cmd: CMD_BUY,  pips: -1000, balanceBefore: BALANCE_BEFORE, expectedProfit: -14 * 10 ** 8   },
-    {tradeId: 7,  masterTradeId: 8,  cmd: CMD_BUY,  pips: 1,     balanceBefore: BALANCE_BEFORE, expectedProfit: 0.014 * 10 ** 8 },
-    {tradeId: 9,  masterTradeId: 10, cmd: CMD_BUY,  pips: 0,     balanceBefore: BALANCE_BEFORE, expectedProfit: 0 * 10 ** 8     },
-    {tradeId: 11, masterTradeId: 12, cmd: CMD_SELL, pips: 10,    balanceBefore: BALANCE_BEFORE, expectedProfit: -0.14 * 10 ** 8 },
-    {tradeId: 13, masterTradeId: 14, cmd: CMD_SELL, pips: -100,  balanceBefore: BALANCE_BEFORE, expectedProfit: 1.4 * 10 ** 8   },
+    {tradeId: 1,  masterTradeId: 2,  cmd: CMD_BUY,  pips: 10,    balanceBefore: BALANCE_BEFORE, expectedProfit: 0.14  * SCR_MULTIPLIER * CONVERSION_COEFFICIENT },
+    {tradeId: 3,  masterTradeId: 4,  cmd: CMD_BUY,  pips: -10,   balanceBefore: BALANCE_BEFORE, expectedProfit: -0.14 * SCR_MULTIPLIER * CONVERSION_COEFFICIENT },
+    {tradeId: 5,  masterTradeId: 6,  cmd: CMD_BUY,  pips: -1000, balanceBefore: BALANCE_BEFORE, expectedProfit: -14   * SCR_MULTIPLIER * CONVERSION_COEFFICIENT },
+    {tradeId: 7,  masterTradeId: 8,  cmd: CMD_BUY,  pips: 1,     balanceBefore: BALANCE_BEFORE, expectedProfit: 0.014 * SCR_MULTIPLIER * CONVERSION_COEFFICIENT },
+    {tradeId: 9,  masterTradeId: 10, cmd: CMD_BUY,  pips: 0,     balanceBefore: BALANCE_BEFORE, expectedProfit: 0     * SCR_MULTIPLIER * CONVERSION_COEFFICIENT },
+    {tradeId: 11, masterTradeId: 12, cmd: CMD_SELL, pips: 10,    balanceBefore: BALANCE_BEFORE, expectedProfit: -0.14 * SCR_MULTIPLIER * CONVERSION_COEFFICIENT },
+
+    {tradeId: 13, masterTradeId: 14, cmd: CMD_SELL, pips: -100,  balanceBefore: BALANCE_BEFORE, expectedProfit: 1.4   * SCR_MULTIPLIER * CONVERSION_COEFFICIENT  },
 
     // Force closing
-    {tradeId: 15, masterTradeId: 16, cmd: CMD_SELL, pips: -100,  balanceBefore: BALANCE_BEFORE, expectedProfit: 1.4 * 10 ** 8, useForceClosing: true },
+    {tradeId: 15, masterTradeId: 16, cmd: CMD_SELL, pips: -100,  balanceBefore: BALANCE_BEFORE, expectedProfit: 1.4 * SCR_MULTIPLIER * CONVERSION_COEFFICIENT, useForceClosing: true },
 
     // TODO: Add tests for balance zerofication case
   ]
 
-  let profits = web3.toBigNumber(0)
+  let profits = toBigNumber(0)
 
   tradesAssertions.forEach(({ tradeId, masterTradeId, cmd, pips, balanceBefore, expectedProfit, useForceClosing }, tradeIdx) => {
     it(`trade processing should works correctly for tradeId:${tradeId}`, async () => {
@@ -114,14 +123,14 @@ contract('Platform', function (accounts) {
         _cmd: cmd,
 
         _openTime: now,
-        _openPriceInstrument: parseInt(1.3 * 10 ** 6),
+        _openPriceInstrument: 1.3 * PRICE_MULTIPLIER,
         _openPriceSCRBase: 0,
 
         _closeTime: now + 60 * 10 ** 3,
-        _closePriceInstrument: parseInt(1.3 * 10 ** 6) + pips,
+        _closePriceInstrument: (1.3 * PRICE_MULTIPLIER) + pips,
         _closePriceSCRBase: 0,
 
-        _marginRegulator: 10 ** 18,
+        _marginRegulator: DEFAULT_MULTIPLIER,
       }
 
       try {
@@ -162,6 +171,8 @@ contract('Platform', function (accounts) {
           TRADE._closeTime,
           TRADE._closePriceInstrument,
           TRADE._closePriceSCRBase,
+
+          CONVERSION_COEFFICIENT,
 
           {
             from: ALICE
@@ -218,7 +229,7 @@ contract('Platform', function (accounts) {
       assert.equal(leverage.toNumber(), TRADE._leverage)
       assert.equal(existingCmd, TRADE._cmd)
 
-      assert.equal(marginSCR.toNumber(), 28 * 10 ** 8)
+      assert.equal(marginSCR.toNumber(), 28 * SCR_MULTIPLIER)
       assert.equal(marginRegulator.toNumber(), 0)
       assert.equal(profitSCR.toNumber(), 0)
 
@@ -267,6 +278,8 @@ contract('Platform', function (accounts) {
 
           COMMISSION_CLOSE,
 
+          CONVERSION_COEFFICIENT,
+
           {
             from: ALICE
           }
@@ -297,15 +310,17 @@ contract('Platform', function (accounts) {
         _status
       ] = await platform.getTrade.call(tradeId)
 
-      profits = profits.add(_profitSCR)
+      const expectedProfitWithCoeff = toBigNumber(expectedProfit).div(DEFAULT_MULTIPLIER)
 
-      debug('TRADE._investor total profits %d', profits.div(10 ** 8).toNumber())
-
-      assert.equal(_profitSCR.toNumber(), parseInt(expectedProfit))
+      assert.equal(_profitSCR.toNumber(), expectedProfitWithCoeff.truncated())
       assert.equal(_status, STATUS_CLOSED, 'status should be closed')
 
+      profits = profits.add(_profitSCR)
+
+      debug('TRADE._investor total profits %d', profits.div(SCR_MULTIPLIER).toNumber())
+
       const balanceAfter = await balances.balanceOf(TRADE._investor)
-      const expectedBalance = web3.toBigNumber(parseInt(balanceBefore + expectedProfit))
+      const expectedBalance = toBigNumber(balanceBefore).add(expectedProfitWithCoeff)
       const expectedBalanceWithoutCommission = expectedBalance.sub(COMMISSION_TOTAL)
       assert.equal(balanceAfter.toNumber(), expectedBalanceWithoutCommission.toNumber())
 
@@ -351,14 +366,14 @@ contract('Platform', function (accounts) {
       _leverage: 500,
 
       _openTime: now,
-      _openPriceInstrument: parseInt(1.3 * 10 ** 6),
+      _openPriceInstrument: 1.3 * PRICE_MULTIPLIER,
       _openPriceSCRBase: 0,
 
       _closeTime: now + 60 * 10 ** 3,
-      _closePriceInstrument: parseInt(1.3 * 10 ** 6) + 1000,
+      _closePriceInstrument: (1.3 * PRICE_MULTIPLIER) + 1000,
       _closePriceSCRBase: 0,
 
-      _marginRegulator: 10 ** 18,
+      _marginRegulator: DEFAULT_MULTIPLIER,
     }
     const tradesAssertions = [
       {
@@ -433,6 +448,8 @@ contract('Platform', function (accounts) {
         _closePriceSCRBases: [...params._closePriceSCRBases, trade._openPriceSCRBase],
 
         _commissions: [...params._commissions, COMMISSION_CLOSE],
+
+        _conversionCoefficients: [ ...params._conversionCoefficients, CONVERSION_COEFFICIENT ]
       }
     }, {
       _tradesIds: [],
@@ -443,6 +460,8 @@ contract('Platform', function (accounts) {
       _closePriceSCRBases: [],
 
       _commissions: [],
+
+      _conversionCoefficients: []
     })
 
     const txHash = await liquidityProvider.closeTrades.sendTransaction(
@@ -454,6 +473,8 @@ contract('Platform', function (accounts) {
       txParams._closePriceSCRBases,
 
       txParams._commissions,
+
+      txParams._conversionCoefficients,
 
       {
         from: ALICE

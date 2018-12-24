@@ -141,7 +141,9 @@ contract LiquidityProvider is Owned {
         uint _closePriceInstrument,
         uint _closePriceSCRBase,
 
-        uint _commission
+        uint _commission,
+
+        uint _conversionCoefficient
     ) external onlyOwner returns (bool) {
         return _closeTrade(
             _tradeId,
@@ -149,7 +151,8 @@ contract LiquidityProvider is Owned {
             _closeTime,
             _closePriceInstrument,
             _closePriceSCRBase,
-            _commission
+            _commission,
+            _conversionCoefficient
         );
     }
 
@@ -161,13 +164,15 @@ contract LiquidityProvider is Owned {
         uint[] _closePriceInstruments,
         uint[] _closePriceSCRBases,
 
-        uint[] _commissions
+        uint[] _commissions,
+        uint[] _conversionCoefficients
     ) external onlyOwner returns (bool) {
         require(
             _tradesIds.length == _marginRegulators.length &&
             _tradesIds.length == _closePriceInstruments.length &&
             _tradesIds.length == _closePriceSCRBases.length &&
             _tradesIds.length == _commissions.length &&
+            _tradesIds.length == _conversionCoefficients.length &&
             _closeTime > 0
         );
 
@@ -178,7 +183,8 @@ contract LiquidityProvider is Owned {
                 _closeTime,
                 _closePriceInstruments[i],
                 _closePriceSCRBases[i],
-                _commissions[i]
+                _commissions[i],
+                _conversionCoefficients[i]
             );
         }
 
@@ -213,7 +219,9 @@ contract LiquidityProvider is Owned {
         uint _closePriceInstrument,
         uint _closePriceSCRBase,
 
-        uint _commission
+        uint _commission,
+
+        uint _conversionCoefficient
     ) private returns (bool) {
         // TODO: Make a more strict checking of the balance (add Event)
         require(Scrinium(scriniumAddress).balanceOf(address(this)) > 0);
@@ -233,7 +241,9 @@ contract LiquidityProvider is Owned {
 
             _closeTime,
             _closePriceInstrument,
-            _closePriceSCRBase
+            _closePriceSCRBase,
+
+            _conversionCoefficient
         ));
 
         return true;
