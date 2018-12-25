@@ -140,7 +140,6 @@ contract Platform is Owned {
         uint _closePriceSCRBase,
 
         uint _marginRegulator,
-        uint _conversionCoefficient,
         int _profitSCR
     );
 
@@ -384,23 +383,16 @@ contract Platform is Owned {
     }
 
     function closeTradeForce (
-        uint _tradeId,
-        uint _marginRegulator,
-
-        uint _closeTime,
-        uint _closePriceInstrument,
-        uint _closePriceSCRBase,
-
-        uint _conversionCoefficient
+        uint _tradeId
     ) external onlyOwnerOrLiquidityProvider returns (bool) {
         Trade memory _trade = trades[_tradeId];
 
-        int _profitSCR = _calculateProfitSCR(
-            _tradeId,
-            _closePriceInstrument,
-            _marginRegulator,
-            _conversionCoefficient
-        );
+        uint _marginRegulator = 0;
+        uint _closeTime = now;
+        uint _closePriceInstrument = 0;
+        uint _closePriceSCRBase = 0;
+
+        int _profitSCR = 0;
 
         _closeTrade(
             _tradeId,
@@ -425,7 +417,6 @@ contract Platform is Owned {
             _closePriceSCRBase,
 
             _marginRegulator,
-            _conversionCoefficient,
             _profitSCR
         );
     }

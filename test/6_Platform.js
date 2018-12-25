@@ -97,7 +97,7 @@ contract('Platform', function (accounts) {
     {tradeId: 13, masterTradeId: 14, cmd: CMD_SELL, pips: -100,  balanceBefore: BALANCE_BEFORE, expectedProfit: 1.4   * SCR_MULTIPLIER * CONVERSION_COEFFICIENT  },
 
     // Force closing
-    {tradeId: 15, masterTradeId: 16, cmd: CMD_SELL, pips: -100,  balanceBefore: BALANCE_BEFORE, expectedProfit: 1.4 * SCR_MULTIPLIER * CONVERSION_COEFFICIENT, useForceClosing: true },
+    {tradeId: 15, masterTradeId: 16, cmd: CMD_SELL, pips: -100,  balanceBefore: BALANCE_BEFORE, expectedProfit: 0, useForceClosing: true },
 
     // TODO: Add tests for balance zerofication case
   ]
@@ -166,13 +166,6 @@ contract('Platform', function (accounts) {
       if (useForceClosing) {
         const txHash = await platform.closeTradeForce.sendTransaction(
           TRADE._tradeId,
-          TRADE._marginRegulator,
-
-          TRADE._closeTime,
-          TRADE._closePriceInstrument,
-          TRADE._closePriceSCRBase,
-
-          CONVERSION_COEFFICIENT,
 
           {
             from: ALICE
