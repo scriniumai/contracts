@@ -7,7 +7,6 @@ import "./shared/SafeMath.sol";
 import "./shared/Owned.sol";
 
 import "./Scrinium.sol";
-import "./LiquidityProvider.sol";
 
 
 contract Balances is Owned {

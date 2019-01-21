@@ -4,7 +4,6 @@ import "./shared/AddressTools.sol";
 import "./shared/SafeMath.sol";
 import "./shared/Owned.sol";
 
-import "./LiquidityProvider.sol";
 import "./Subscriptions.sol";
 import "./Instruments.sol";
 import "./Balances.sol";
