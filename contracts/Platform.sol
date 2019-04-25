@@ -1,4 +1,5 @@
-pragma solidity ^0.4.23;
+pragma solidity 0.5.0;
+
 
 import "./shared/AddressTools.sol";
 import "./shared/SafeMath.sol";
@@ -184,19 +185,19 @@ contract Platform is Owned {
         emit LiquidityProviderAddressSetted(msg.sender, _liquidityProviderAddress);
     }
 
-    function getTradesIds () public view returns (uint[]) {
+    function getTradesIds () external view returns (uint[] memory) {
         return tradeIds;
     }
 
-    function getInvestorTrades (address _investor) external view returns (uint[]) {
+    function getInvestorTrades (address _investor) external view returns (uint[] memory) {
         return investorTrades[_investor];
     }
 
-    function getInvestorActualTrades (address _investor) public view returns (uint[]) {
+    function getInvestorActualTrades (address _investor) external view returns (uint[] memory) {
         return this.getInvestorTradesAtPortfolioBlock(_investor, _getInvestorLastPortfolioBlock(_investor));
     }
 
-    function getInvestorTradesAtPortfolioBlock (address _investor, uint _portfolioBlock) public view returns (uint[]) {
+    function getInvestorTradesAtPortfolioBlock (address _investor, uint _portfolioBlock) external view returns (uint[] memory) {
         return investorTradesAtPortfolioBlock[_investor][_portfolioBlock];
     }
 

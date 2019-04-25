@@ -1,4 +1,5 @@
-pragma solidity ^0.4.23;
+pragma solidity 0.5.0;
+
 
 contract Migrations {
     address public owner;
@@ -15,11 +16,11 @@ contract Migrations {
     }
 
     // A function with the signature `setCompleted(uint)` is required.
-    function setCompleted(uint completed) restricted external {
+    function setCompleted(uint completed) external restricted {
         last_completed_migration = completed;
     }
 
-    function upgrade(address new_address) restricted external {
+    function upgrade(address new_address) external restricted {
         Migrations upgraded = Migrations(new_address);
         upgraded.setCompleted(last_completed_migration);
     }

@@ -16,7 +16,7 @@ contract('LiquidityProvider', function (accounts) {
   const INITIAL_BALANCE = 6000000 * 10 ** 8
 
   // 2 ** 256 - 1
-  const TRANSFER_ALLOWANCE = web3.toBigNumber('115792089237316195423570985008687907853269984665640564039457584007913129639935')
+  const TRANSFER_ALLOWANCE = web3.utils.toBN('115792089237316195423570985008687907853269984665640564039457584007913129639935')
 
   let scrinium
   let balances
@@ -87,7 +87,7 @@ contract('LiquidityProvider', function (accounts) {
   })
 
   it('should withdraw pool balance correctly', async () => {
-    const withdrawalAmount = web3.toBigNumber(1000 * 10 ** 8)
+    const withdrawalAmount = web3.utils.toBN(1000 * 10 ** 8)
     const balanceBefore = await scrinium.balanceOf.call(liquidityProvider.address)
 
     debug('liquidityProdiver.balanceOf before %s', balanceBefore.toString())

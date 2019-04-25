@@ -2,6 +2,7 @@ const debug = require('debug')('test:Scrinium')
 
 const Scrinium = artifacts.require("Scrinium")
 
+
 contract('Scrinium', function(accounts) {
   let scrinium
 

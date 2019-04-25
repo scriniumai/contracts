@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity 0.5.0;
 
 
 import "./shared/AddressTools.sol";
@@ -125,7 +125,7 @@ contract Balances is Owned {
         return true;
     }
 
-    function withdrawal(uint _externalId, uint _amount, bytes _msgSig) external {
+    function withdrawal(uint _externalId, uint _amount, bytes calldata _msgSig) external {
         address _investor = msg.sender;
 
         require(balance[_investor] >= _amount);

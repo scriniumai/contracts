@@ -1,10 +1,11 @@
 const debug = require('debug')('test:Subscriptions')
 
+const { range } = require('lodash')
+
 const Scrinium = artifacts.require('Scrinium')
 const Subscriptions = artifacts.require('Subscriptions')
 const Balances = artifacts.require('Balances')
 
-const { range } = require('lodash')
 
 contract('Subscriptions', function(accounts) {
   const ALICE = accounts[0]
@@ -56,16 +57,15 @@ contract('Subscriptions', function(accounts) {
   }
 
   it('`.subscribe()`, `.getInvestors`, `.isInvestorActualForTraderId()` should works correctly', async () => {
-    const txHash = await subscriptions.subscribe.sendTransaction(TRADERS_IDS, { from: ALICE })
-    const receipt = await web3.eth.getTransactionReceipt(txHash)
+    const tx = await subscriptions.subscribe.sendTransaction(TRADERS_IDS, { from: ALICE })
 
-    debug('`subscriptions.subscribe()` on empty storage gasUsed %d', receipt.gasUsed)
+    debug('`subscriptions.subscribe()` on empty storage gasUsed %d', tx.receipt.gasUsed)
 
     const isWithPortfolio = await subscriptions.investorsWithPortfolios.call(ALICE)
     assert.isTrue(isWithPortfolio)
 
     const lastPortfolioBlock = (await subscriptions.getInvestorLastPortfolioBlock(ALICE)).toNumber()
-    assert.equal(lastPortfolioBlock, web3.eth.blockNumber)
+    assert.equal(lastPortfolioBlock, await web3.eth.getBlockNumber())
 
     const lastPortfolioDate = (await subscriptions.getInvestorLastPortfolioDate(ALICE)).toNumber()
     assert.isBelow(lastPortfolioDate, Date.now() / 1000)
@@ -83,18 +83,16 @@ contract('Subscriptions', function(accounts) {
   it('`.unsubscribe()` should works correctly', async () => {
     await subscriptions.subscribe.sendTransaction([1,2,3,4,5], { from: ALICE })
 
-    var txHash = await subscriptions.unsubscribe.sendTransaction([1,3], { from: ALICE })
-    var receipt = await web3.eth.getTransactionReceipt(txHash)
+    var tx = await subscriptions.unsubscribe.sendTransaction([1,3], { from: ALICE })
 
-    debug('`subscriptions.unsubscribe()` gasUsed %d', receipt.gasUsed)
+    debug('`subscriptions.unsubscribe()` gasUsed %d', tx.receipt.gasUsed)
 
     var  tradersALICE = (await subscriptions.getTraders(ALICE)).map(trader => trader.toNumber())
     assert.deepEqual(tradersALICE, [5, 2, 4])
 
-    var txHash = await subscriptions.subscribe.sendTransaction([6, 7], { from: ALICE })
-    var receipt = await web3.eth.getTransactionReceipt(txHash)
+    var tx = await subscriptions.subscribe.sendTransaction([6, 7], { from: ALICE })
 
-    debug('`subscriptions.subscribe()` on non-empty storage gasUsed %d', receipt.gasUsed)
+    debug('`subscriptions.subscribe()` on non-empty storage gasUsed %d', tx.receipt.gasUsed)
 
     var  tradersALICE = (await subscriptions.getTraders(ALICE)).map(trader => trader.toNumber())
     assert.deepEqual(tradersALICE, [6, 7])
@@ -124,8 +122,8 @@ contract('Subscriptions', function(accounts) {
     const investorsWithPortfolios = await subscriptions.investorsWithPortfolios.call(BOB)
     assert.isFalse(investorsWithPortfolios)
 
-    const investorLastPortfolioDate = (await subscriptions.getInvestorLastPortfolioDate(BOB)).toNumber()
-    assert.isAbove(investorLastPortfolioDate, Date.now() / 1000)
+    const investorLastPortfolioDate = await subscriptions.getInvestorLastPortfolioDate(BOB)
+    assert.isTrue(investorLastPortfolioDate.gt(Date.now() / 1000, 10))
 
     const investorLastPortfolioBlock = (await subscriptions.getInvestorLastPortfolioBlock(BOB)).toNumber()
     assert.equal(investorLastPortfolioBlock, 0)
