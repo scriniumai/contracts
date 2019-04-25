@@ -1,4 +1,5 @@
-pragma solidity ^0.4.23;
+pragma solidity 0.5.0;
+
 
 library SafeMath {
     function add(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -33,7 +34,7 @@ library SafeMath {
         assert(a == 0 || c / a == b);
         return c;
     }
-    
+
     function sub(uint256 a, uint256 b) internal pure returns (uint256) {
         assert(b <= a);
         return a - b;

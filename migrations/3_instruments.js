@@ -16,7 +16,7 @@ module.exports = global.omitMigration(__filename, (deployer, network, accounts) 
       const txs = instrumentsData.map(
         ({ id, name, type }) => instruments.add(
           id,
-          name,
+          web3.utils.hexToBytes(web3.utils.utf8ToHex(name)),
           type,
         )
       )

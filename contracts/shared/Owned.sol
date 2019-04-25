@@ -1,4 +1,5 @@
-pragma solidity ^0.4.23;
+pragma solidity 0.5.0;
+
 
 contract Owned {
 
@@ -30,13 +31,13 @@ contract Owned {
         _;
     }
 
-    function transferOwnership(address newOwner) public onlyOwner {
+    function transferOwnership(address newOwner) external onlyOwner {
         require(newOwner != address(0));
         emit OwnershipTransfer(owner, newOwner);
         potentialOwner = newOwner;
     }
 
-    function confirmOwnership() public onlyPotentialOwner {
+    function confirmOwnership() external onlyPotentialOwner {
         emit OwnershipTransferred(owner, potentialOwner);
         owner = potentialOwner;
         potentialOwner = address(0);

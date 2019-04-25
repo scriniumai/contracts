@@ -1,4 +1,5 @@
-pragma solidity ^0.4.18;
+pragma solidity 0.5.0;
+
 
 import "./shared/ERC20.sol";
 import "./shared/Owned.sol";
@@ -121,7 +122,7 @@ contract Scrinium is ERC20, Owned {
         balance[_target] = balance[_target].add(addTokens);
         totalSupply = totalSupply.add(addTokens);
 
-        emit Transfer(0, _target, addTokens);
+        emit Transfer(address(0), _target, addTokens);
 
         return true;
     }

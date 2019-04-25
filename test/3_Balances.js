@@ -1,10 +1,11 @@
 const debug = require('debug')('test:Balances')
 
-const { soliditySha3 } = require('web3-utils')
-
 const Scrinium = artifacts.require("Scrinium")
 const Balances = artifacts.require("Balances")
 const Platform = artifacts.require("Platform")
+
+const { soliditySha3, toBN, } = web3.utils
+
 
 contract('Balances', function (accounts) {
   const ALICE = accounts[0]
@@ -47,12 +48,12 @@ contract('Balances', function (accounts) {
   })
 
   it("withdrawal should works correctly", async () => {
-    const _msgSig = web3.eth.sign(ALICE, soliditySha3(
+    const _msgSig = await web3.eth.sign(soliditySha3(
       ALICE,
-      WITHDRAWAL_EXTERNAL_ID_1,
-      AMOUNT_WITHDRAWAL,
+      toBN(WITHDRAWAL_EXTERNAL_ID_1),
+      toBN(AMOUNT_WITHDRAWAL),
       Balances.address,
-    ))
+    ), ALICE)
 
     await balances.withdrawal.sendTransaction(
       WITHDRAWAL_EXTERNAL_ID_1,
@@ -74,12 +75,12 @@ contract('Balances', function (accounts) {
     const balanceOf = await balances.balanceOf(ALICE)
 
     try {
-      const _msgSig = web3.eth.sign(ALICE, soliditySha3(
+      const _msgSig = await web3.eth.sign(soliditySha3(
         ALICE,
-        WITHDRAWAL_EXTERNAL_ID_2,
-        balanceOf + 1,
+        toBN(WITHDRAWAL_EXTERNAL_ID_2),
+        toBN(balanceOf + 1),
         Balances.address,
-      ))
+      ), ALICE)
 
       await balances.withdrawal.sendTransaction(
         WITHDRAWAL_EXTERNAL_ID_2,
@@ -98,12 +99,12 @@ contract('Balances', function (accounts) {
     const balanceOf = await balances.balanceOf(ALICE)
 
     try {
-      const _msgSig = web3.eth.sign(ALICE, soliditySha3(
+      const _msgSig = await web3.eth.sign(soliditySha3(
         ALICE,
-        WITHDRAWAL_EXTERNAL_ID_1,
-        balanceOf,
+        toBN(WITHDRAWAL_EXTERNAL_ID_1),
+        toBN(balanceOf),
         Balances.address,
-      ))
+      ), ALICE)
 
       await balances.withdrawal.sendTransaction(
         WITHDRAWAL_EXTERNAL_ID_1,
@@ -113,12 +114,12 @@ contract('Balances', function (accounts) {
       )
       assert.fail()
     } catch (error) {
-      const _msgSig = web3.eth.sign(ALICE, soliditySha3(
+      const _msgSig = await web3.eth.sign(soliditySha3(
         ALICE,
-        WITHDRAWAL_EXTERNAL_ID_2,
-        balanceOf - 1,
+        toBN(WITHDRAWAL_EXTERNAL_ID_2),
+        toBN(balanceOf - 1),
         Balances.address,
-      ))
+      ), ALICE)
 
       await balances.withdrawal.sendTransaction(
         WITHDRAWAL_EXTERNAL_ID_2,
@@ -136,12 +137,12 @@ contract('Balances', function (accounts) {
     const balanceOf = await balances.balanceOf(ALICE)
 
     try {
-      const _msgSig = web3.eth.sign(BOB, soliditySha3(
+      const _msgSig = await web3.eth.sign(soliditySha3(
         ALICE,
-        WITHDRAWAL_EXTERNAL_ID_1,
-        balanceOf,
+        toBN(WITHDRAWAL_EXTERNAL_ID_1),
+        toBN(balanceOf),
         Balances.address,
-      ))
+      ), BOB)
 
       await balances.withdrawal.sendTransaction(
         WITHDRAWAL_EXTERNAL_ID_1,
@@ -151,12 +152,12 @@ contract('Balances', function (accounts) {
       )
       assert.fail()
     } catch (error) {
-      const _msgSig = web3.eth.sign(ALICE, soliditySha3(
+      const _msgSig = await web3.eth.sign(soliditySha3(
         ALICE,
-        WITHDRAWAL_EXTERNAL_ID_3,
-        balanceOf,
+        toBN(WITHDRAWAL_EXTERNAL_ID_3),
+        toBN(balanceOf),
         Balances.address,
-      ))
+      ), ALICE)
 
       await balances.withdrawal.sendTransaction(
         WITHDRAWAL_EXTERNAL_ID_3,

@@ -1,9 +1,9 @@
 # Scrinium &mdash; The future of portfolio investment
 
-[![node](https://img.shields.io/badge/node-v8.11.2-50EA3B.svg)](https://nodejs.org/en/docs/)
-[![yarn](https://img.shields.io/badge/yarn-v1.6.0-2281BA.svg)](https://yarnpkg.com/lang/en/docs/install/)
-[![npm](https://img.shields.io/badge/npm-v6.0.1-DB0031.svg)](https://www.npmjs.com/)
-[![truffle](https://img.shields.io/badge/truffle-v4.1.11-00F1C6.svg)](http://truffleframework.com/docs/getting_started/installation)
+[![node](https://img.shields.io/badge/node-v10.15.0-50EA3B.svg)](https://nodejs.org/en/docs/)
+[![yarn](https://img.shields.io/badge/yarn-v1.13.0-2281BA.svg)](https://yarnpkg.com/lang/en/docs/install/)
+[![npm](https://img.shields.io/badge/npm-v6.5.0-DB0031.svg)](https://www.npmjs.com/)
+[![truffle](https://img.shields.io/badge/truffle-v5.0.1-00F1C6.svg)](http://truffleframework.com/docs/getting_started/installation)
 [![ganache-cli](https://img.shields.io/badge/ganache--cli-v6.1.0-EAAB5E.svg)](https://github.com/trufflesuite/ganache-cli)
 [![solidity](https://img.shields.io/badge/solidity-docs-000000.svg)](http://solidity.readthedocs.io/en/develop/introduction-to-smart-contracts.html)
 

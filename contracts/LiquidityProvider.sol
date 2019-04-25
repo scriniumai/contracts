@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity 0.5.0;
 
 
 import "./shared/AddressTools.sol";
@@ -157,15 +157,15 @@ contract LiquidityProvider is Owned {
     }
 
     function closeTrades (
-        uint[] _tradesIds,
-        uint[] _marginRegulators,
+        uint[] calldata _tradesIds,
+        uint[] calldata _marginRegulators,
 
         uint _closeTime,
-        uint[] _closePriceInstruments,
-        uint[] _closePriceSCRBases,
+        uint[] calldata _closePriceInstruments,
+        uint[] calldata _closePriceSCRBases,
 
-        uint[] _commissions,
-        uint[] _conversionCoefficients
+        uint[] calldata _commissions,
+        uint[] calldata _conversionCoefficients
     ) external onlyOwner returns (bool) {
         require(
             _tradesIds.length == _marginRegulators.length &&

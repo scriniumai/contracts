@@ -1,8 +1,6 @@
 const debug = require('debug')('test:Platform')
 
-const { soliditySha3 } = require('web3-utils')
-
-const { toBigNumber } = web3
+const BigNumber = require('bignumber.js')
 
 const Scrinium          = artifacts.require("Scrinium")
 const Balances          = artifacts.require("Balances")
@@ -11,15 +9,18 @@ const Subscriptions     = artifacts.require("Subscriptions")
 const LiquidityProvider = artifacts.require("LiquidityProvider")
 const Platform          = artifacts.require("Platform")
 
-const DEFAULT_MULTIPLIER = 10 ** 18
-const PRICE_MULTIPLIER = 10 ** 6
-const SCR_MULTIPLIER = 10 ** 8
+const { soliditySha3 } = web3.utils
 
-const BALANCE_BEFORE = 100 * SCR_MULTIPLIER
 
-const COMMISSION_OPEN = 10 * SCR_MULTIPLIER
-const COMMISSION_CLOSE = COMMISSION_OPEN * 1.1
-const COMMISSION_TOTAL = COMMISSION_OPEN + COMMISSION_CLOSE
+const DEFAULT_MULTIPLIER = new BigNumber(10 ** 18)
+const PRICE_MULTIPLIER = new BigNumber(10 ** 6)
+const SCR_MULTIPLIER = new BigNumber(10 ** 8)
+
+const BALANCE_BEFORE = SCR_MULTIPLIER.times(100)
+
+const COMMISSION_OPEN = SCR_MULTIPLIER.times(10)
+const COMMISSION_CLOSE = COMMISSION_OPEN.times(1.1)
+const COMMISSION_TOTAL = COMMISSION_OPEN.plus(COMMISSION_CLOSE)
 
 const STATUS_OPENED = 2
 const STATUS_CLOSED = 3
@@ -31,7 +32,7 @@ const INSTRUMENT = Object.freeze({
   SYMBOL : 'EURUSD',
 })
 
-const CONVERSION_COEFFICIENT = 0.75 * DEFAULT_MULTIPLIER
+const CONVERSION_COEFFICIENT = DEFAULT_MULTIPLIER.times(0.75)
 
 contract('Platform', function (accounts) {
   // Owner
@@ -57,7 +58,7 @@ contract('Platform', function (accounts) {
     subscriptions     = await Subscriptions.deployed()
     liquidityProvider = await LiquidityProvider.deployed()
 
-    await scrinium.mintToken(liquidityProvider.address, 6000000 * SCR_MULTIPLIER)
+    await scrinium.mintToken(liquidityProvider.address, SCR_MULTIPLIER.times(6000000).toNumber())
 
     liquidityProviderInitialBalance = await scrinium.balanceOf.call(liquidityProvider.address)
   })
@@ -86,31 +87,36 @@ contract('Platform', function (accounts) {
   const CMD_BUY = 0
   const CMD_SELL = 1
 
+  // TODO: Add tests for balance zerofication case
+  // TODO: Add tests for unsubscribe and closing all trades
+
   const tradesAssertions = [
-    {tradeId: 1,  masterTradeId: 2,  cmd: CMD_BUY,  pips: 10,    balanceBefore: BALANCE_BEFORE, expectedProfit: 0.14  * SCR_MULTIPLIER * CONVERSION_COEFFICIENT },
-    {tradeId: 3,  masterTradeId: 4,  cmd: CMD_BUY,  pips: -10,   balanceBefore: BALANCE_BEFORE, expectedProfit: -0.14 * SCR_MULTIPLIER * CONVERSION_COEFFICIENT },
-    {tradeId: 5,  masterTradeId: 6,  cmd: CMD_BUY,  pips: -1000, balanceBefore: BALANCE_BEFORE, expectedProfit: -14   * SCR_MULTIPLIER * CONVERSION_COEFFICIENT },
-    {tradeId: 7,  masterTradeId: 8,  cmd: CMD_BUY,  pips: 1,     balanceBefore: BALANCE_BEFORE, expectedProfit: 0.014 * SCR_MULTIPLIER * CONVERSION_COEFFICIENT },
-    {tradeId: 9,  masterTradeId: 10, cmd: CMD_BUY,  pips: 0,     balanceBefore: BALANCE_BEFORE, expectedProfit: 0     * SCR_MULTIPLIER * CONVERSION_COEFFICIENT },
-    {tradeId: 11, masterTradeId: 12, cmd: CMD_SELL, pips: 10,    balanceBefore: BALANCE_BEFORE, expectedProfit: -0.14 * SCR_MULTIPLIER * CONVERSION_COEFFICIENT },
+    {tradeId:  1, masterTradeId:  2, cmd: CMD_BUY,  pips:    10, expectedProfit:   0.14  },
+    {tradeId:  3, masterTradeId:  4, cmd: CMD_BUY,  pips:   -10, expectedProfit:  -0.14  },
+    {tradeId:  5, masterTradeId:  6, cmd: CMD_BUY,  pips: -1000, expectedProfit: -14     },
+    {tradeId:  7, masterTradeId:  8, cmd: CMD_BUY,  pips:     1, expectedProfit:   0.014 },
+    {tradeId:  9, masterTradeId: 10, cmd: CMD_BUY,  pips:     0, expectedProfit:   0     },
+    {tradeId: 11, masterTradeId: 12, cmd: CMD_SELL, pips:    10, expectedProfit:  -0.14  },
+    {tradeId: 13, masterTradeId: 14, cmd: CMD_SELL, pips:  -100, expectedProfit:   1.4    },
+    {tradeId: 15, masterTradeId: 16, cmd: CMD_SELL, pips:  -100, expectedProfit:   0, useForceClosing: true  },
+  ].map(_ => ({
+    ..._,
 
-    {tradeId: 13, masterTradeId: 14, cmd: CMD_SELL, pips: -100,  balanceBefore: BALANCE_BEFORE, expectedProfit: 1.4   * SCR_MULTIPLIER * CONVERSION_COEFFICIENT  },
+    balanceBefore: BALANCE_BEFORE,
 
-    // Force closing
-    {tradeId: 15, masterTradeId: 16, cmd: CMD_SELL, pips: -100,  balanceBefore: BALANCE_BEFORE, expectedProfit: 0, useForceClosing: true },
+    expectedProfit: new BigNumber(_.expectedProfit).times(SCR_MULTIPLIER).times(CONVERSION_COEFFICIENT),
+  }))
 
-    // TODO: Add tests for balance zerofication case
-  ]
-
-  let profits = toBigNumber(0)
+  let profits = new BigNumber(0)
 
   tradesAssertions.forEach(({ tradeId, masterTradeId, cmd, pips, balanceBefore, expectedProfit, useForceClosing }, tradeIdx) => {
-    it(`trade processing should works correctly for tradeId:${tradeId}`, async () => {
+    it('`.openTrade()`, `.closeTrade()` and `.closeTradeForce()` should works correctly for trade: ' + tradeId, async () => {
+
+      const now = new BigNumber(Date.now())
+
       await scrinium.mintToken.sendTransaction(BOB, balanceBefore, { from: ALICE })
       await scrinium.approve.sendTransaction(Balances.address, balanceBefore, { from: BOB })
-      await balances.deposit.sendTransaction(Date.now(), balanceBefore, { from: BOB })
-
-      const now = Date.now()
+      await balances.deposit.sendTransaction(now, balanceBefore, { from: BOB })
 
       const TRADE = {
         _tradeId: tradeId,
@@ -123,18 +129,18 @@ contract('Platform', function (accounts) {
         _cmd: cmd,
 
         _openTime: now,
-        _openPriceInstrument: 1.3 * PRICE_MULTIPLIER,
+        _openPriceInstrument: PRICE_MULTIPLIER.times(1.3),
         _openPriceSCRBase: 0,
 
-        _closeTime: now + 60 * 10 ** 3,
-        _closePriceInstrument: (1.3 * PRICE_MULTIPLIER) + pips,
+        _closeTime: now.plus(60 * 10 ** 3),
+        _closePriceInstrument: PRICE_MULTIPLIER.times(1.3).plus(pips),
         _closePriceSCRBase: 0,
 
         _marginRegulator: DEFAULT_MULTIPLIER,
       }
 
       try {
-        const txHash = await liquidityProvider.openTrade.sendTransaction(
+        const tx = await liquidityProvider.openTrade.sendTransaction(
           TRADE._tradeId,
           TRADE._investor,
           TRADE._masterTraderId,
@@ -154,9 +160,8 @@ contract('Platform', function (accounts) {
             from: ALICE
           }
         )
-        const receipt = await web3.eth.getTransactionReceipt(txHash)
 
-        debug('liquidityProvider.openTrade() gasUsed %d', receipt.gasUsed)
+        debug('liquidityProvider.openTrade() gasUsed %d', tx.receipt.gasUsed)
 
       } catch (error) {
         console.error('openTrade', error)
@@ -164,104 +169,94 @@ contract('Platform', function (accounts) {
       }
 
       if (useForceClosing) {
-        const txHash = await platform.closeTradeForce.sendTransaction(
+        const tx = await platform.closeTradeForce.sendTransaction(
           TRADE._tradeId,
 
           {
             from: ALICE
           }
         )
-        const receipt = await web3.eth.getTransactionReceipt(txHash)
 
-        debug('platform.closeTradeForce() gasUsed %d', receipt.gasUsed)
+        debug('platform.closeTradeForce() gasUsed %d', tx.receipt.gasUsed)
 
-        const [
-          ,
-          ,
-          ,
+        var {
+          _status
+         } = await platform.getTrade.call(TRADE._tradeId)
 
-          ,
-          ,
-          ,
-          ,
-
-          ,
-          ,
-          ,
-
-          status
-        ] = await platform.trades.call(TRADE._tradeId)
-
-        assert.equal(status.toNumber(), STATUS_CLOSED_FORCE)
+        assert.equal(_status, STATUS_CLOSED_FORCE)
 
         return
       }
 
-      const [
-        liquidityProviderAddress,
-        investor,
-        masterTraderId,
+      var {
+        _liquidityProviderAddress,
+        _investor,
+        _masterTraderId,
 
-        instrumentId,
-        marginPercent,
-        leverage,
-        existingCmd,
+        _instrumentId,
+        _marginPercent,
+        _leverage,
+        _cmd,
 
-        marginSCR,
-        marginRegulator,
-        profitSCR,
+        _marginSCR,
+        _marginRegulator,
+        _profitSCR,
 
-        status
-      ] = await platform.getTrade.call(TRADE._tradeId)
+        _status,
+      } = await platform.getTrade.call(TRADE._tradeId)
 
-      assert.equal(liquidityProviderAddress, liquidityProvider.address)
-      assert.equal(investor, TRADE._investor)
-      assert.equal(masterTraderId, TRADE._masterTraderId)
-      assert.equal(instrumentId, TRADE._instrumentId)
-      assert.equal(marginPercent.toNumber(), TRADE._marginPercent)
-      assert.equal(leverage.toNumber(), TRADE._leverage)
-      assert.equal(existingCmd, TRADE._cmd)
+      assert.equal(_liquidityProviderAddress, liquidityProvider.address)
+      assert.equal(_investor, TRADE._investor)
+      assert.equal(_masterTraderId, TRADE._masterTraderId)
+      assert.equal(_instrumentId, TRADE._instrumentId)
+      assert.equal(_marginPercent, TRADE._marginPercent)
+      assert.equal(_leverage, TRADE._leverage)
+      assert.equal(_cmd, TRADE._cmd)
 
-      assert.equal(marginSCR.toNumber(), 28 * SCR_MULTIPLIER)
-      assert.equal(marginRegulator.toNumber(), 0)
-      assert.equal(profitSCR.toNumber(), 0)
+      assert.equal(_marginSCR.toNumber(), SCR_MULTIPLIER.times(28).toNumber())
+      assert.equal(_marginRegulator, 0)
+      assert.equal(_profitSCR, 0)
 
-      assert.equal(status.toNumber(), STATUS_OPENED)
+      assert.equal(_status, STATUS_OPENED)
 
-      const [
-        openTime, openPriceInstrument, openPriceSCRBaseCurrency,
-        closeTime, closePriceInstrument, closePriceSCRBaseCurrency,
-      ] = await platform.tradeQuotes.call(TRADE._tradeId)
+      const {
+        _openTime,
+        _openPriceInstrument,
+        _openPriceSCRBaseCurrency,
+        _closeTime,
+        _closePriceInstrument,
+        _closePriceSCRBaseCurrency,
+       } = await platform.getTradeQuote.call(TRADE._tradeId)
 
-      assert.equal(openTime.toNumber(), TRADE._openTime)
-      assert.equal(openPriceInstrument.toNumber(), TRADE._openPriceInstrument)
-      assert.equal(openPriceSCRBaseCurrency, TRADE._openPriceSCRBase)
+      assert.equal(_openTime.toNumber(), TRADE._openTime.toNumber())
+      assert.equal(_openPriceInstrument.toNumber(), TRADE._openPriceInstrument.toNumber())
+      assert.equal(_openPriceSCRBaseCurrency, TRADE._openPriceSCRBase)
 
-      assert.equal(closeTime.toNumber(), 0)
-      assert.equal(closePriceInstrument.toNumber(), 0)
-      assert.equal(closePriceSCRBaseCurrency.toNumber(), 0)
+      assert.equal(_closeTime, 0)
+      assert.equal(_closePriceInstrument, 0)
+      assert.equal(_closePriceSCRBaseCurrency, 0)
 
       assert.isTrue(
         (await platform.getTradesIds())
-          .map(item => item.toNumber())
+          .map(tradeId => tradeId.toNumber())
           .includes(TRADE._tradeId),
       )
 
       assert.equal(
         (await balances.balanceOf(TRADE._investor)).toNumber(),
-        balanceBefore
+        balanceBefore,
       )
 
       assert.isTrue(
         (await platform.getInvestorTrades(TRADE._investor))
-          .map(item => item.toNumber())
+          .map(tradeId => tradeId.toNumber())
           .includes(TRADE._tradeId),
       )
 
       /************************************************************************/
 
       try {
-        const txHash = await liquidityProvider.closeTrade.sendTransaction(
+        const tx = await liquidityProvider.closeTrade.sendTransaction(
           TRADE._tradeId,
           TRADE._marginRegulator,
 
@@ -277,54 +272,41 @@ contract('Platform', function (accounts) {
             from: ALICE
           }
         )
-        const receipt = await web3.eth.getTransactionReceipt(txHash)
 
-        debug('liquidityProvider.closeTrade() gasUsed %d', receipt.gasUsed)
+        debug('liquidityProvider.closeTrade() gasUsed %d', tx.receipt.gasUsed)
 
       } catch (error) {
         console.error('closeTrade', error)
         assert.fail()
       }
 
-      let [
-        ,
-        ,
-        ,
-
-        ,
-        ,
-        ,
-        ,
-
-        ,
-        ,
+      var {
         _profitSCR,
+        _status,
+      } = await platform.getTrade.call(tradeId)
 
-        _status
-      ] = await platform.getTrade.call(tradeId)
+      const expectedProfitWithCoeff = expectedProfit.div(DEFAULT_MULTIPLIER)
 
-      const expectedProfitWithCoeff = toBigNumber(expectedProfit).div(DEFAULT_MULTIPLIER)
-
-      assert.equal(_profitSCR.toNumber(), expectedProfitWithCoeff.truncated())
+      assert.equal(_profitSCR.toNumber(), expectedProfitWithCoeff.toNumber())
       assert.equal(_status, STATUS_CLOSED, 'status should be closed')
 
-      profits = profits.add(_profitSCR)
+      profits = profits.plus(_profitSCR)
 
       debug('TRADE._investor total profits %d', profits.div(SCR_MULTIPLIER).toNumber())
 
       const balanceAfter = await balances.balanceOf(TRADE._investor)
-      const expectedBalance = toBigNumber(balanceBefore).add(expectedProfitWithCoeff)
-      const expectedBalanceWithoutCommission = expectedBalance.sub(COMMISSION_TOTAL)
+      const expectedBalance = balanceBefore.plus(expectedProfitWithCoeff)
+      const expectedBalanceWithoutCommission = expectedBalance.minus(COMMISSION_TOTAL)
       assert.equal(balanceAfter.toNumber(), expectedBalanceWithoutCommission.toNumber())
 
       const balancePlatform = await balances.balanceOf(TRADE._investor)
       const withdrawalExternalId = Date.now()
-      const _msgSig = web3.eth.sign(ALICE, soliditySha3(
+      const _msgSig = await web3.eth.sign(soliditySha3(
         TRADE._investor,
         withdrawalExternalId,
         balancePlatform,
         Balances.address,
-      ))
+      ), ALICE)
       await balances.withdrawal.sendTransaction(
         withdrawalExternalId,
         balancePlatform,
@@ -336,16 +318,17 @@ contract('Platform', function (accounts) {
       assert.equal(balanceScrinium.toNumber(), balancePlatform.toNumber())
 
       const balanceCommissions = await scrinium.balanceOf(await liquidityProvider.commissionsAddress.call())
-      assert.equal(balanceCommissions.toNumber(), COMMISSION_TOTAL * (tradeIdx + 1))
+      assert.equal(balanceCommissions.toNumber(), COMMISSION_TOTAL.times(tradeIdx + 1).toNumber())
 
       const liquidityProviderBalance = await scrinium.balanceOf.call(liquidityProvider.address)
-      const expectedLiquidityProdiverBalance = liquidityProviderInitialBalance.add(profits.mul(-1))
+      const expectedLiquidityProdiverBalance = new BigNumber(liquidityProviderInitialBalance.toNumber()).plus(profits.times(-1))
       assert.equal(liquidityProviderBalance.toNumber(), expectedLiquidityProdiverBalance.toNumber())
     })
   })
 
-  it('`.closeTrades()` should works correctly', async () => {
-    const now = Date.now()
+  it('`.closeTrades()` [without unsubscribing] should works correctly', async () => {
+
+    const now = new BigNumber(Date.now())
 
     await scrinium.mintToken.sendTransaction(EVE, BALANCE_BEFORE, { from: ALICE })
     await scrinium.approve.sendTransaction(Balances.address, BALANCE_BEFORE, { from: EVE })
@@ -359,11 +342,11 @@ contract('Platform', function (accounts) {
       _leverage: 500,
 
       _openTime: now,
-      _openPriceInstrument: 1.3 * PRICE_MULTIPLIER,
+      _openPriceInstrument: PRICE_MULTIPLIER.times(1.3),
       _openPriceSCRBase: 0,
 
-      _closeTime: now + 60 * 10 ** 3,
-      _closePriceInstrument: (1.3 * PRICE_MULTIPLIER) + 1000,
+      _closeTime: now.plus(60 * 10 ** 3),
+      _closePriceInstrument: PRICE_MULTIPLIER.times(1.3).plus(1000),
       _closePriceSCRBase: 0,
 
       _marginRegulator: DEFAULT_MULTIPLIER,
@@ -426,14 +409,14 @@ contract('Platform', function (accounts) {
       )
     }
 
-    const actualTradesIds = (await platform.getInvestorActualTrades(EVE)).map(tradeId => tradeId.toNumber())
-    assert.deepEqual(actualTradesIds, tradesAssertions.map(({ _tradeId }) => _tradeId))
+    const actualTradesIds = await platform.getInvestorActualTrades(EVE)
+    assert.deepEqual(actualTradesIds.map(tradeId => tradeId.toNumber()), tradesAssertions.map(({ _tradeId }) => _tradeId))
 
     const txParams = actualTradesIds.reduce((params, tradeId) => {
-      const trade = tradesAssertions.find(({ _tradeId }) => _tradeId === tradeId)
+      const trade = tradesAssertions.find(({ _tradeId }) => _tradeId === tradeId.toNumber())
 
       return {
-        _tradesIds: [...params._tradesIds, tradeId],
+        _tradesIds: [...params._tradesIds, tradeId.toNumber()],
         _marginRegulators: [...params._marginRegulators, trade._marginRegulator],
 
         _closeTime: tradesAssertionsCommon._closeTime,
@@ -457,7 +440,7 @@ contract('Platform', function (accounts) {
       _conversionCoefficients: []
     })
 
-    const txHash = await liquidityProvider.closeTrades.sendTransaction(
+    const tx = await liquidityProvider.closeTrades.sendTransaction(
       txParams._tradesIds,
       txParams._marginRegulators,
 
@@ -473,11 +456,10 @@ contract('Platform', function (accounts) {
         from: ALICE
       }
     )
-    const receipt = await web3.eth.getTransactionReceipt(txHash)
 
-    debug('liquidityProvider.closeTrades() gasUsed %d', receipt.gasUsed)
+    debug('liquidityProvider.closeTrades() gasUsed %d', tx.receipt.gasUsed)
 
-    const balancePlatform = (await balances.balanceOf(EVE)).toNumber()
-    assert.equal(balancePlatform, BALANCE_BEFORE - COMMISSION_TOTAL * tradesAssertions.length)
+    const balancePlatform = await balances.balanceOf(EVE)
+    assert.equal(balancePlatform.toNumber(), BALANCE_BEFORE.minus((COMMISSION_TOTAL).times(tradesAssertions.length)).toNumber())
   })
 })

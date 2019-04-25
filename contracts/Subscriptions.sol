@@ -1,4 +1,5 @@
-pragma solidity ^0.4.23;
+pragma solidity 0.5.0;
+
 
 import "./shared/AddressTools.sol";
 import "./shared/Owned.sol";
@@ -53,7 +54,7 @@ contract Subscriptions is Owned {
         emit SubscriptionsLimitSetted(msg.sender, _subscriptionLimit);
     }
 
-    function subscribe (uint[] _tradersIds) external {
+    function subscribe (uint[] calldata _tradersIds) external {
         require(Balances(balancesAddress).balanceOf(msg.sender) > 0);
 
         uint _investorLastPortfolioBlock = investorLastPortfolioBlock[msg.sender];
@@ -64,7 +65,7 @@ contract Subscriptions is Owned {
         _subscribe(_tradersIds, msg.sender);
     }
 
-    function unsubscribe (uint[] _tradersIds) external {
+    function unsubscribe (uint[] calldata _tradersIds) external {
         _unsubscribe(_tradersIds, msg.sender);
     }
 
@@ -76,11 +77,11 @@ contract Subscriptions is Owned {
         return investorLastPortfolioDate[_investor];
     }
 
-    function getInvestors (uint _traderId) external view returns (address[]) {
+    function getInvestors (uint _traderId) external view returns (address[] memory) {
         return traderIdInvestors[_traderId];
     }
 
-    function getTraders (address _investor) external view returns (uint[]) {
+    function getTraders (address _investor) external view returns (uint[] memory ) {
         uint _investorLastPortfolioBlock = investorLastPortfolioBlock[_investor];
         return tradersIdsByBlocksAndInvestors[_investorLastPortfolioBlock][_investor];
     }
@@ -89,7 +90,7 @@ contract Subscriptions is Owned {
         return traderIdActualInvestors[_traderId][_investor];
     }
 
-    function _subscribe (uint[] _tradersIds, address _investor) private {
+    function _subscribe (uint[] memory _tradersIds, address _investor) private {
         require(_tradersIds.length <= SUBSCRIPTIONS_LIMIT);
 
         for (uint i = 0; i < _tradersIds.length; i++) {
@@ -113,7 +114,7 @@ contract Subscriptions is Owned {
         emit Subscribed(_investor, block.number, _tradersIds);
     }
 
-    function _unsubscribe (uint[] _tradersIds, address _investor) private {
+    function _unsubscribe (uint[] memory _tradersIds, address _investor) private {
         uint _investorLastPortfolioBlock = investorLastPortfolioBlock[_investor];
         uint[] storage _investorTradersIds = tradersIdsByBlocksAndInvestors[_investorLastPortfolioBlock][_investor];
 
